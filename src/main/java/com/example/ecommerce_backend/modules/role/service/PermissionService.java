@@ -1,16 +1,16 @@
 package com.example.ecommerce_backend.modules.role.service;
 
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.role.dto.request.CreatePermissionRequest;
 import com.example.ecommerce_backend.modules.role.dto.response.PermissionResponse;
 import com.example.ecommerce_backend.modules.role.entity.Permission;
 import com.example.ecommerce_backend.modules.role.entity.UserPermission;
+import com.example.ecommerce_backend.modules.role.exception.PermissionAlreadyExistsException;
+import com.example.ecommerce_backend.modules.role.exception.PermissionNotFoundException;
 import com.example.ecommerce_backend.modules.role.mapper.RolesMapper;
 import com.example.ecommerce_backend.modules.role.repository.PermissionsRepository;
 import com.example.ecommerce_backend.modules.role.repository.UserPermissionRepository;
 import com.example.ecommerce_backend.modules.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +67,7 @@ public class PermissionService {
     @Transactional
     public PermissionResponse createPermission(CreatePermissionRequest request) {
         if (permissionsRepository.findByPermissionName(request.getPermissionName()).isPresent()) {
-            throw new BaseException("Permission '" + request.getPermissionName() + "' already exists", HttpStatus.CONFLICT);
+            throw new PermissionAlreadyExistsException(request.getPermissionName());
         }
 
         Permission permission = Permission.builder()
@@ -90,7 +90,8 @@ public class PermissionService {
     @Transactional
     public void deletePermission(Long id) {
         Permission permission = permissionsRepository.findById(id)
-                .orElseThrow(() -> new BaseException("Permission not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(PermissionNotFoundException::new);
+//                .orElseThrow(() -> new PermissionNotFoundException());
         permissionsRepository.delete(permission);
     }
 }

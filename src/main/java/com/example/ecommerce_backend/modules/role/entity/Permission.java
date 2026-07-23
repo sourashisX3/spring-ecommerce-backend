@@ -21,7 +21,7 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Pattern(regexp = "^[a-z]+:[a-z]+$", message = "Permission must be in format 'resource:action' (e.g. product:read)")
+    @Pattern(regexp = "^[a-z*]+:[a-z*]+$", message = "Permission must be in format 'resource:action' (e.g. product:read)")
     @Column(unique = true, nullable = false)
     private String permissionName;
     private String permissionDescription;

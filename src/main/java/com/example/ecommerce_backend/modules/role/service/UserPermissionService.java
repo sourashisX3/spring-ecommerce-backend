@@ -1,16 +1,17 @@
 package com.example.ecommerce_backend.modules.role.service;
 
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.role.dto.request.AssignPermissionRequest;
 import com.example.ecommerce_backend.modules.role.dto.response.UserPermissionResponse;
 import com.example.ecommerce_backend.modules.role.entity.Permission;
 import com.example.ecommerce_backend.modules.role.entity.UserPermission;
+import com.example.ecommerce_backend.modules.role.exception.PermissionNotFoundException;
+import com.example.ecommerce_backend.modules.role.exception.UserPermissionNotFoundException;
 import com.example.ecommerce_backend.modules.role.repository.PermissionsRepository;
 import com.example.ecommerce_backend.modules.role.repository.UserPermissionRepository;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import com.example.ecommerce_backend.modules.user.exception.UserNotFoundException;
 import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,10 +33,10 @@ public class UserPermissionService {
     @Transactional
     public UserPermissionResponse assignPermission(Long userId, AssignPermissionRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BaseException("User not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         Permission permission = permissionsRepository.findById(request.getPermissionId())
-                .orElseThrow(() -> new BaseException("Permission not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new PermissionNotFoundException(request.getPermissionId()));
 
         UserPermission userPermission = UserPermission.builder()
                 .user(user)
@@ -69,7 +70,7 @@ public class UserPermissionService {
     @Transactional
     public void removePermission(Long userPermissionId) {
         UserPermission userPermission = userPermissionRepository.findById(userPermissionId)
-                .orElseThrow(() -> new BaseException("User permission not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new UserPermissionNotFoundException(userPermissionId));
         userPermissionRepository.delete(userPermission);
     }
 }
