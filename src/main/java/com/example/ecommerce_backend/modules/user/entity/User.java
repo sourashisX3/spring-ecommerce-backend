@@ -1,13 +1,18 @@
 package com.example.ecommerce_backend.modules.user.entity;
 
 import com.example.ecommerce_backend.modules.role.entity.Role;
+import com.example.ecommerce_backend.modules.role.entity.UserPermission;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Data
+@Builder
 @Entity
 @Table(name = "users")
 public class User {
@@ -38,11 +43,16 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
     private Role role;
     private boolean isActive;
     private boolean isEmailVerified;
     private boolean isPhoneVerified;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<UserPermission> userPermissions = new ArrayList<>();
 
     private Instant createdAt;
     private Instant updatedAt;

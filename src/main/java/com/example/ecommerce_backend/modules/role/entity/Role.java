@@ -27,6 +27,7 @@ public class Role {
 
     private String roleDescription;
 
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),

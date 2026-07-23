@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.role.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class Permission {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Pattern(regexp = "^[a-z]+:[a-z]+$", message = "Permission must be in format 'resource:action' (e.g. product:read)")
     @Column(unique = true, nullable = false)
     private String permissionName;
     private String permissionDescription;

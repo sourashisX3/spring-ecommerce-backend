@@ -1,6 +1,5 @@
 package com.example.ecommerce_backend.modules.role.dto.request;
 
-import com.example.ecommerce_backend.modules.role.entity.Permission;
 import lombok.Data;
 
 import java.util.Set;
@@ -10,6 +9,6 @@ public class RoleRequest {
 
     private String roleName;
     private String roleDescription;
-    private Set<Permission> rolePermissionNames;
+    private Set<String> rolePermissionNames;
 
 }
