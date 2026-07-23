@@ -1,4 +1,4 @@
-package com.example.ecommerce_backend.modules.user.entity;
+package com.example.ecommerce_backend.modules.role.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,6 +24,7 @@ public class Role {
 
     @Column(unique = true, nullable = false)
     private String roleName;
+
     private String roleDescription;
 
     @JoinTable(

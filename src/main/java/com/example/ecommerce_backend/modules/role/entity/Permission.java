@@ -1,4 +1,4 @@
-package com.example.ecommerce_backend.modules.user.entity;
+package com.example.ecommerce_backend.modules.role.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,8 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Entity

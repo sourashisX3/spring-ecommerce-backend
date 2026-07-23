@@ -1,9 +1,11 @@
 package com.example.ecommerce_backend.modules.user.entity;
 
+import com.example.ecommerce_backend.modules.role.entity.Role;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
+import java.time.Instant;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -14,37 +16,47 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String uuid;
+
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
+
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @Column(unique = true, nullable = false)
     private String phoneNumber;
     private String profilePictureUrl;
+
+    @Embedded
     private UserAddress address;
+
+    @Column(nullable = false)
     private String password;
+
+    @JoinColumn(name = "role_id")
     private Role role;
     private boolean isActive;
     private boolean isEmailVerified;
     private boolean isPhoneVerified;
 
-    @Data
-    @Entity
-    @Getter
-    @Setter
-    @Table (name = "user_addresses")
-    private static class UserAddress {
-        private String city;
-        private String state;
-        private String country;
-        private Long zipCode;
-        private String streetAddress;
+    private Instant createdAt;
+    private Instant updatedAt;
 
-        public UserAddress(String city, String state, String country, Long zipCode, String streetAddress) {
-            this.city = city;
-            this.state = state;
-            this.country = country;
-            this.zipCode = zipCode;
-            this.streetAddress = streetAddress;
-        }
+    @PrePersist
+    public void prePersist() {
+        Instant now = Instant.now();
+        this.uuid = UUID.randomUUID().toString();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
     }
 }
