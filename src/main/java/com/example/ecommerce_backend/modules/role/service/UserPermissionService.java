@@ -56,6 +56,10 @@ public class UserPermissionService {
 
     @Transactional(readOnly = true)
     public List<UserPermissionResponse> getUserPermissions(Long userId) {
+
+        if (!userPermissionRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
         return userPermissionRepository.findByUserId(userId)
                 .stream()
                 .map(up -> UserPermissionResponse.builder()

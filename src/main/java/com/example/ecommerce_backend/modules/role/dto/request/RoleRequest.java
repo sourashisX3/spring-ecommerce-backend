@@ -1,5 +1,7 @@
 package com.example.ecommerce_backend.modules.role.dto.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.util.Set;
@@ -7,8 +9,12 @@ import java.util.Set;
 @Data
 public class RoleRequest {
 
+    @NotBlank(message = "Role name is required")
     private String roleName;
+
     private String roleDescription;
-    private Set<String> rolePermissionNames;
+
+    @NotEmpty(message = "At least one permission is required")
+    private Set<Long> rolePermissionIds;
 
 }
