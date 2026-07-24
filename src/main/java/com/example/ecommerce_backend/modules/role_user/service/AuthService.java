@@ -4,11 +4,14 @@ import com.example.ecommerce_backend.core.config.JwtTokenProvider;
 import com.example.ecommerce_backend.modules.role_user.dto.request.LoginRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.request.RefreshTokenRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.request.RegisterRequest;
+import com.example.ecommerce_backend.modules.role_user.dto.request.SendOtpRequest;
+import com.example.ecommerce_backend.modules.role_user.dto.request.VerifyOtpRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.response.AuthResponse;
 import com.example.ecommerce_backend.modules.role_user.entity.User;
 import com.example.ecommerce_backend.modules.role_user.entity.UserAddress;
 import com.example.ecommerce_backend.modules.role_user.entity.Role;
 import com.example.ecommerce_backend.modules.role_user.exception.EmailAlreadyExistsException;
+import com.example.ecommerce_backend.modules.role_user.exception.InvalidOtpException;
 import com.example.ecommerce_backend.modules.role_user.exception.InvalidTokenException;
 import com.example.ecommerce_backend.modules.role_user.exception.RoleNotFoundException;
 import com.example.ecommerce_backend.modules.role_user.exception.UserNotFoundException;
@@ -32,19 +35,22 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final OtpService otpService;
 
     public AuthService(UserRepository userRepository,
                        RolesRepository rolesRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
                        UserDetailsService userDetailsService,
-                       JwtTokenProvider jwtTokenProvider) {
+                       JwtTokenProvider jwtTokenProvider,
+                       OtpService otpService) {
         this.userRepository = userRepository;
         this.rolesRepository = rolesRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.otpService = otpService;
     }
 
     @Transactional
@@ -112,6 +118,39 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException(0L));
 
         return buildAuthResponse(user);
+    }
+
+    public String sendOtp(SendOtpRequest request) {
+        User user = findUserByIdentifier(request.getEmailOrPhone());
+        return otpService.generateOtp(request.getEmailOrPhone());
+    }
+
+    @Transactional
+    public AuthResponse verifyOtp(VerifyOtpRequest request) {
+        if (!otpService.validateOtp(request.getEmailOrPhone(), request.getOtp())) {
+            throw new InvalidOtpException();
+        }
+
+        User user = findUserByIdentifier(request.getEmailOrPhone());
+
+        if (request.getEmailOrPhone().contains("@")) {
+            user.setEmailVerified(true);
+        } else {
+            user.setPhoneVerified(true);
+        }
+
+        userRepository.save(user);
+        otpService.invalidateOtp(request.getEmailOrPhone());
+        return buildAuthResponse(user);
+    }
+
+    private User findUserByIdentifier(String emailOrPhone) {
+        if (emailOrPhone.contains("@")) {
+            return userRepository.findByEmail(emailOrPhone)
+                    .orElseThrow(() -> new UserNotFoundException("User not found with email: " + emailOrPhone));
+        }
+        return userRepository.findByPhoneNumber(emailOrPhone)
+                .orElseThrow(() -> new UserNotFoundException("User not found with phone: " + emailOrPhone));
     }
 
     private AuthResponse buildAuthResponse(User user) {
