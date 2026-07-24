@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.role_user.service;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -33,6 +34,11 @@ public class OtpService {
 
     public void invalidateOtp(String identifier) {
         otpStore.remove(identifier);
+    }
+
+    @Scheduled(fixedRate = 60_000)
+    public void cleanupExpiredOtps() {
+        otpStore.entrySet().removeIf(entry -> LocalDateTime.now().isAfter(entry.getValue().expiresAt()));
     }
 
     private record OtpEntry(String otp, LocalDateTime expiresAt) {}

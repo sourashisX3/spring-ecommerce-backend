@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,6 +34,31 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
         UserResponse user = userService.getUserById(id);
         return ApiResponse.success(user, "User retrieved successfully");
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        UserResponse user = userService.getUserByEmail(email);
+        return ApiResponse.success(user, "User profile fetched successfully");
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable Long id) {
+        userService.deactivateUser(id);
+        return ApiResponse.success(null, "User deactivated successfully");
+    }
+
+    @PatchMapping("/{id}/activate")
+    public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable Long id) {
+        userService.activateUser(id);
+        return ApiResponse.success(null, "User activated successfully");
+    }
+
+    @PostMapping("/me/deactivate")
+    public ResponseEntity<ApiResponse<Void>> deactivateOwnAccount() {
+        userService.deactivateOwnAccount();
+        return ApiResponse.success(null, "Account deactivated successfully");
     }
 
     @DeleteMapping("/{id}")

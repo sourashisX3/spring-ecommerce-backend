@@ -10,9 +10,11 @@ import com.example.ecommerce_backend.modules.role_user.dto.response.AuthResponse
 import com.example.ecommerce_backend.modules.role_user.entity.User;
 import com.example.ecommerce_backend.modules.role_user.entity.UserAddress;
 import com.example.ecommerce_backend.modules.role_user.entity.Role;
+import com.example.ecommerce_backend.modules.role_user.exception.AccountDeactivatedException;
 import com.example.ecommerce_backend.modules.role_user.exception.EmailAlreadyExistsException;
 import com.example.ecommerce_backend.modules.role_user.exception.InvalidOtpException;
 import com.example.ecommerce_backend.modules.role_user.exception.InvalidTokenException;
+import com.example.ecommerce_backend.modules.role_user.exception.PhoneAlreadyExistsException;
 import com.example.ecommerce_backend.modules.role_user.exception.RoleNotFoundException;
 import com.example.ecommerce_backend.modules.role_user.exception.UserNotFoundException;
 import com.example.ecommerce_backend.modules.role_user.mapper.UserMapper;
@@ -59,6 +61,10 @@ public class AuthService {
             throw new EmailAlreadyExistsException(request.getEmail());
         }
 
+        if (request.getPhoneNumber() != null && userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            throw new PhoneAlreadyExistsException(request.getPhoneNumber());
+        }
+
         UserAddress address = new UserAddress();
         address.setStreetAddress(request.getStreetAddress());
         address.setCity(request.getCity());
@@ -97,13 +103,14 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(request.getEmailOrPhone(), request.getPassword())
         );
 
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UserNotFoundException(0L));
+        User user = findUserByIdentifier(request.getEmailOrPhone());
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        if (!user.isActive()) {
+            throw new AccountDeactivatedException();
+        }
 
         return buildAuthResponse(user);
     }
@@ -116,6 +123,10 @@ public class AuthService {
         String email = jwtTokenProvider.extractEmail(request.getRefreshToken());
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(0L));
+
+        if (!user.isActive()) {
+            throw new AccountDeactivatedException();
+        }
 
         return buildAuthResponse(user);
     }

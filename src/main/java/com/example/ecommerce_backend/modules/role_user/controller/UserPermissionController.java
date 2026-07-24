@@ -5,6 +5,7 @@ import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.role_user.dto.request.AssignPermissionRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.response.UserPermissionResponse;
 import com.example.ecommerce_backend.modules.role_user.service.UserPermissionService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,7 +34,7 @@ public class UserPermissionController {
     @PostMapping
     public ResponseEntity<ApiResponse<UserPermissionResponse>> assignPermission(
             @PathVariable Long userId,
-            @RequestBody AssignPermissionRequest request
+            @Valid @RequestBody AssignPermissionRequest request
     ) {
         UserPermissionResponse response = userPermissionService.assignPermission(userId, request);
         return ApiResponse.created(response, "Permission assigned successfully");
