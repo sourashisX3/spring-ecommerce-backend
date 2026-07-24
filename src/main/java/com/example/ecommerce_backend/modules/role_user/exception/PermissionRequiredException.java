@@ -9,4 +9,8 @@ public class PermissionRequiredException extends BaseException {
         super("At least one permission is required to create a role", HttpStatus.BAD_REQUEST);
     }
 
+    public PermissionRequiredException(String message) {
+        super(message, HttpStatus.FORBIDDEN);
+    }
+
 }

@@ -1,10 +1,14 @@
 package com.example.ecommerce_backend.modules.role_user.controller;
 
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.role_user.dto.request.AssignPermissionRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.response.UserPermissionResponse;
 import com.example.ecommerce_backend.modules.role_user.service.UserPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +23,11 @@ public class UserPermissionController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserPermissionResponse>>> getUserPermissions(
-            @PathVariable Long userId
+            @PathVariable Long userId,
+            @PageableDefault(size = 20) Pageable pageable
     ) {
-        List<UserPermissionResponse> permissions = userPermissionService.getUserPermissions(userId);
-        return ApiResponse.success(permissions, "User permissions retrieved successfully");
+        Page<UserPermissionResponse> permissions = userPermissionService.getUserPermissions(userId, pageable);
+        return ApiResponse.paginated(permissions.getContent(), "User permissions retrieved successfully", Pagination.of(permissions));
     }
 
     @PostMapping
@@ -36,7 +41,6 @@ public class UserPermissionController {
 
     @DeleteMapping("/{userPermissionId}")
     public ResponseEntity<ApiResponse<Void>> removePermission(
-            @PathVariable Long userId,
             @PathVariable Long userPermissionId
     ) {
         userPermissionService.removePermission(userPermissionId);

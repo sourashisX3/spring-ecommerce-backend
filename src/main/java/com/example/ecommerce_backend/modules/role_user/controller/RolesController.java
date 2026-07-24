@@ -1,11 +1,16 @@
 package com.example.ecommerce_backend.modules.role_user.controller;
 
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.role_user.dto.request.RoleRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.response.RolesResponse;
 import com.example.ecommerce_backend.modules.role_user.service.RolesService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,9 +24,11 @@ public class RolesController {
     private RolesService rolesService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<RolesResponse>>> getAllRoles() {
-        List<RolesResponse> roles = rolesService.getAllRoles();
-        return ApiResponse.success(roles, "Roles retrieved successfully");
+    public ResponseEntity<ApiResponse<List<RolesResponse>>> getAllRoles(
+            @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
+    ) {
+        Page<RolesResponse> roles = rolesService.getAllRoles(pageable);
+        return ApiResponse.paginated(roles.getContent(), "Roles retrieved successfully", Pagination.of(roles));
     }
 
     @PostMapping

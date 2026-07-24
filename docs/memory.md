@@ -23,3 +23,23 @@
 ## 2026-07-24 — JWT-based auth with stateless sessions
 - **Decision**: Use JWT tokens stored client-side, no server-side session.
 - **Rationale**: Stateless, scalable, works well with microservices later.
+
+## 2026-07-24 — Access token + refresh token with rotation
+- **Decision**: 24h access token, 7d refresh token; each refresh returns a new pair.
+- **Rationale**: Short-lived access tokens reduce exposure; rotation prevents stolen refresh tokens from being reused.
+
+## 2026-07-24 — AOP-based authorization with @RequiresPermission
+- **Decision**: Created `@RequiresPermission` annotation + `AuthorizationAspect` for declarative permission checks.
+- **Rationale**: Reusable across all future modules; no boilerplate permission checks in each method.
+
+## 2026-07-24 — SUPER_ADMIN seeding + protection
+- **Decision**: `DataSeeder` auto-creates `*:*` permission and SUPER_ADMIN role on startup. SUPER_ADMIN cannot be deleted.
+- **Rationale**: Ensures there's always an admin account. Prevents accidental lockout.
+
+## 2026-07-24 — Paginated list endpoints
+- **Decision**: All GET listing endpoints return Spring Page content with custom Pagination metadata.
+- **Rationale**: Standardized pagination across the API; clients can navigate pages consistently.
+
+## 2026-07-24 — Registration roleId as nullable
+- **Decision**: `RegisterRequest.roleId` is `@Nullable`. If null, "USER" role is assigned. If provided, validates and assigns that role.
+- **Rationale**: Flexibility for admin-created users while keeping registration simple for end users.

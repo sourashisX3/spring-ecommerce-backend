@@ -1,27 +1,35 @@
 package com.example.ecommerce_backend.modules.role_user.service;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.role_user.dto.request.CreatePermissionRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.response.PermissionResponse;
 import com.example.ecommerce_backend.modules.role_user.entity.Permission;
+import com.example.ecommerce_backend.modules.role_user.entity.Role;
 import com.example.ecommerce_backend.modules.role_user.entity.UserPermission;
 import com.example.ecommerce_backend.modules.role_user.exception.PermissionAlreadyExistsException;
+import com.example.ecommerce_backend.modules.role_user.exception.PermissionInUseException;
 import com.example.ecommerce_backend.modules.role_user.exception.PermissionNotFoundException;
 import com.example.ecommerce_backend.modules.role_user.mapper.RolesMapper;
 import com.example.ecommerce_backend.modules.role_user.repository.PermissionsRepository;
+import com.example.ecommerce_backend.modules.role_user.repository.RolesRepository;
 import com.example.ecommerce_backend.modules.role_user.repository.UserPermissionRepository;
 import com.example.ecommerce_backend.modules.role_user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PermissionService {
 
     @Autowired
     private PermissionsRepository permissionsRepository;
+
+    @Autowired
+    private RolesRepository rolesRepository;
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
@@ -65,6 +73,7 @@ public class PermissionService {
     }
 
     @Transactional
+    @RequiresPermission("permission:write")
     public PermissionResponse createPermission(CreatePermissionRequest request) {
         if (permissionsRepository.findByPermissionName(request.getPermissionName()).isPresent()) {
             throw new PermissionAlreadyExistsException(request.getPermissionName());
@@ -80,18 +89,31 @@ public class PermissionService {
     }
 
     @Transactional(readOnly = true)
-    public List<PermissionResponse> getAllPermissions() {
-        return permissionsRepository.findAll()
-                .stream()
-                .map(RolesMapper::toPermissionResponse)
-                .collect(Collectors.toList());
+    public Page<PermissionResponse> getAllPermissions(Pageable pageable) {
+        return permissionsRepository.findAll(pageable)
+                .map(RolesMapper::toPermissionResponse);
     }
 
     @Transactional
+    @RequiresPermission("permission:write")
     public void deletePermission(Long id) {
         Permission permission = permissionsRepository.findById(id)
                 .orElseThrow(() -> new PermissionNotFoundException(id));
-//                .orElseThrow(() -> new PermissionNotFoundException());
+
+        boolean inRoles = rolesRepository.findAll().stream()
+                .anyMatch(role -> role.getPermissions().stream().anyMatch(p -> p.getId().equals(id)));
+
+        if (inRoles) {
+            throw new PermissionInUseException(permission.getPermissionName());
+        }
+
+        boolean inUserPerms = userPermissionRepository.findAll().stream()
+                .anyMatch(up -> up.getPermission().getId().equals(id));
+
+        if (inUserPerms) {
+            throw new PermissionInUseException(permission.getPermissionName());
+        }
+
         permissionsRepository.delete(permission);
     }
 }

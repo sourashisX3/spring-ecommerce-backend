@@ -17,29 +17,50 @@ modules/{module}/
 │   ├── request/     — Input DTOs (suffix: Request)
 │   └── response/    — Output DTOs (suffix: Response)
 ├── entity/          — JPA entities
-├── exception/       — Module-specific exceptions
+├── exception/       — Module-specific exceptions (extend BaseException)
 ├── mapper/          — Entity ↔ DTO conversion (static utility class)
 ├── repository/      — Spring Data JPA repositories
-└── service/         — Business logic
+└── service/         — Business logic (with @RequiresPermission on admin methods)
 ```
 
 ### Exception Naming
 ```
-{Entity}NotFoundException     — 404
-{Entity}AlreadyExistsException — 409
-{Entity}RequiredException     — 400
+{Entity}NotFoundException           — 404
+{Entity}AlreadyExistsException      — 409
+{Entity}RequiredException           — 400
+{Entity}InUseException              — 409
+CannotDeleteProtected{Entity}Exception — 403
+Duplicate{Entity}AssignmentException   — 409
+InvalidTokenException               — 401
 ```
 
 All module exceptions extend `core/exception/BaseException`.
 
 ## API Response Format
 
-### Success
+### Success (non-paginated)
 ```json
 {
   "statusCode": 200,
   "message": "Roles retrieved successfully",
   "response": [ ... ]
+}
+```
+
+### Success (paginated)
+```json
+{
+  "statusCode": 200,
+  "message": "Roles retrieved successfully",
+  "response": [ ... ],
+  "pagination": {
+    "currentPage": 0,
+    "pageSize": 20,
+    "totalElements": 2,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrevious": false
+  }
 }
 ```
 
@@ -69,6 +90,18 @@ All module exceptions extend `core/exception/BaseException`.
 }
 ```
 
+## Authorization Convention
+
+Protected service methods are annotated with `@RequiresPermission`:
+
+```java
+@Transactional
+@RequiresPermission("role:write")
+public RolesResponse createRole(RoleRequest request) { ... }
+```
+
+The `AuthorizationAspect` intercepts and checks `PermissionService.hasPermission()`.
+
 ## Permission Format
 Permissions use `resource:action` format:
 - `product:read` — read product
@@ -76,7 +109,16 @@ Permissions use `resource:action` format:
 - `product:*` — all product actions
 - `*:*` — super admin (all actions on all resources)
 
+## Protected Roles
+
+- **SUPER_ADMIN** — seeded at startup, auto-created with `*:*` permission, CANNOT be deleted
+- **USER** — default role for registration, can be deleted (but not recommended)
+
 ## Transaction Management
 - `@Transactional(readOnly = true)` on all read operations
 - `@Transactional` on write operations
 - Read methods never modify data
+
+## Optional Fields Convention
+- Use `@Nullable` from `jakarta.annotation.Nullable` on optional DTO fields
+- Example: `@Nullable private Long roleId;` in RegisterRequest

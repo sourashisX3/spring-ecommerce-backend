@@ -1,9 +1,11 @@
 package com.example.ecommerce_backend.modules.role_user.service;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.role_user.dto.request.RoleRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.response.RolesResponse;
 import com.example.ecommerce_backend.modules.role_user.entity.Permission;
 import com.example.ecommerce_backend.modules.role_user.entity.Role;
+import com.example.ecommerce_backend.modules.role_user.exception.CannotDeleteProtectedRoleException;
 import com.example.ecommerce_backend.modules.role_user.exception.PermissionNotFoundException;
 import com.example.ecommerce_backend.modules.role_user.exception.PermissionRequiredException;
 import com.example.ecommerce_backend.modules.role_user.exception.RoleAlreadyExistsException;
@@ -15,13 +17,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class RolesService {
+
+    private static final Set<String> PROTECTED_ROLES = Set.of("SUPER_ADMIN");
 
     @Autowired
     private RolesRepository rolesRepository;
@@ -30,15 +35,13 @@ public class RolesService {
     private PermissionsRepository permissionsRepository;
 
     @Transactional(readOnly = true)
-    public List<RolesResponse> getAllRoles() {
-        return rolesRepository
-                .findAll()
-                .stream()
-                .map(RolesMapper::toRoleResponse)
-                .collect(Collectors.toList());
+    public Page<RolesResponse> getAllRoles(Pageable pageable) {
+        return rolesRepository.findAll(pageable)
+                .map(RolesMapper::toRoleResponse);
     }
 
     @Transactional
+    @RequiresPermission("role:write")
     public RolesResponse createRole(RoleRequest request) {
 
         String roleName = request.getRoleName();
@@ -75,10 +78,16 @@ public class RolesService {
     }
 
     @Transactional
+    @RequiresPermission("role:write")
     public void deleteRole(Long id) {
         Role role = rolesRepository
                 .findById(id)
-                .orElseThrow(RoleNotFoundException::new);
+                .orElseThrow(() -> new RoleNotFoundException(id));
+
+        if (PROTECTED_ROLES.contains(role.getRoleName())) {
+            throw new CannotDeleteProtectedRoleException(role.getRoleName());
+        }
+
         rolesRepository.delete(role);
     }
 

@@ -7,11 +7,10 @@ import com.example.ecommerce_backend.modules.role_user.exception.UserNotFoundExc
 import com.example.ecommerce_backend.modules.role_user.mapper.UserMapper;
 import com.example.ecommerce_backend.modules.role_user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -20,11 +19,9 @@ public class UserService {
     private UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(UserMapper::toUserResponse)
-                .collect(Collectors.toList());
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(UserMapper::toUserResponse);
     }
 
     @Transactional(readOnly = true)

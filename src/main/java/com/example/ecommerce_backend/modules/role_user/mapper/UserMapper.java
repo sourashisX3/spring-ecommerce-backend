@@ -29,6 +29,7 @@ public class UserMapper {
                 .isEmailVerified(user.isEmailVerified())
                 .isPhoneVerified(user.isPhoneVerified())
                 .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

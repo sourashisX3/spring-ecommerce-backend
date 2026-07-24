@@ -60,11 +60,10 @@ public class AuthService {
         address.setCountry(request.getCountry());
         address.setZipCode(request.getZipCode());
 
-        Long roleId = request.getRoleId();
         Role role;
-        if (roleId != null) {
-            role = rolesRepository.findById(roleId)
-                    .orElseThrow(() -> new RoleNotFoundException(roleId));
+        if (request.getRoleId() != null) {
+            role = rolesRepository.findById(request.getRoleId())
+                    .orElseThrow(() -> new RoleNotFoundException(request.getRoleId()));
         } else {
             role = rolesRepository.findByRoleName("USER")
                     .orElseGet(() -> rolesRepository.save(Role.builder().roleName("USER").build()));
