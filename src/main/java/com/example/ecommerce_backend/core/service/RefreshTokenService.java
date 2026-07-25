@@ -61,7 +61,6 @@ public class RefreshTokenService {
             throw new InvalidTokenException("Refresh token has been revoked");
         }
         if (stored.getExpiresAt().isBefore(Instant.now())) {
-            refreshTokenRepository.delete(stored);
             throw new InvalidTokenException("Refresh token has expired");
         }
 

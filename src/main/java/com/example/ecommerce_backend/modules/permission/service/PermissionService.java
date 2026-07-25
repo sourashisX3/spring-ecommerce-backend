@@ -36,6 +36,7 @@ public class PermissionService {
     @Autowired
     private UserPermissionRepository userPermissionRepository;
 
+    @Transactional(readOnly = true)
     public Set<String> getEffectivePermissions(User user) {
         Set<String> permissions = new HashSet<>();
 
@@ -58,6 +59,7 @@ public class PermissionService {
         return permissions;
     }
 
+    @Transactional(readOnly = true)
     public boolean hasPermission(User user, String requiredPermission) {
         if (user.getRole() == null) {
             return false;

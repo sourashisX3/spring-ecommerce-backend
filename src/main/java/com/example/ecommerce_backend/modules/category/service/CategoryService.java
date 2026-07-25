@@ -11,6 +11,8 @@ import com.example.ecommerce_backend.modules.category.exception.CircularCategory
 import com.example.ecommerce_backend.modules.category.mapper.CategoryMapper;
 import com.example.ecommerce_backend.modules.category.repository.CategoryRepository;
 import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
+
+    private static final Logger log = LoggerFactory.getLogger(CategoryService.class);
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -121,6 +125,7 @@ public class CategoryService {
         try {
             return categoryRepository.findDescendantIds(slug);
         } catch (Exception e) {
+            log.error("Failed to get descendant category IDs for slug: {}", slug, e);
             return Collections.emptySet();
         }
     }
@@ -141,18 +146,20 @@ public class CategoryService {
     @Transactional
     @RequiresPermission("category:write")
     public CategoryResponse create(CategoryRequest request) {
-        Category category = new Category();
-        category.setName(request.getName());
-        category.setSlug(generateUniqueSlug(request.getName()));
-        category.setDescription(request.getDescription());
-        category.setImageUrl(request.getImageUrl());
-        category.setSortOrder(request.getSortOrder());
+        Category.CategoryBuilder builder = Category.builder()
+                .name(request.getName())
+                .slug(generateUniqueSlug(request.getName()))
+                .description(request.getDescription())
+                .imageUrl(request.getImageUrl())
+                .sortOrder(request.getSortOrder());
 
         if (request.getParentSlug() != null && !request.getParentSlug().isBlank()) {
             Category parent = categoryRepository.findBySlug(request.getParentSlug())
                     .orElseThrow(() -> new CategoryNotFoundException(request.getParentSlug()));
-            category.setParent(parent);
+            builder.parent(parent);
         }
+
+        Category category = builder.build();
 
         category = categoryRepository.save(category);
         return CategoryMapper.toResponse(category);

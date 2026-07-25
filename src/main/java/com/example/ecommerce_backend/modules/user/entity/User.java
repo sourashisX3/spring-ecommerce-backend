@@ -5,13 +5,20 @@ import com.example.ecommerce_backend.modules.userpermission.entity.UserPermissio
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 @Builder
@@ -19,7 +26,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,7 +65,7 @@ public class User {
     private boolean isPhoneVerified;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
+    @Default
     private List<UserPermission> userPermissions = new ArrayList<>();
 
     private Instant createdAt;
@@ -75,5 +82,46 @@ public class User {
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = Instant.now();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Stream<String> rolePermissions = role != null && role.getPermissions() != null
+                ? role.getPermissions().stream().map(p -> p.getPermissionName())
+                : Stream.empty();
+        Stream<String> userPermissions = this.userPermissions != null
+                ? this.userPermissions.stream()
+                    .filter(up -> up.getPermission() != null)
+                    .map(up -> up.getPermission().getPermissionName())
+                : Stream.empty();
+        return Stream.concat(rolePermissions, userPermissions)
+                .distinct()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return isActive;
     }
 }

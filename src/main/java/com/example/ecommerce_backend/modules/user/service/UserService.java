@@ -65,11 +65,13 @@ public class UserService {
         return UserMapper.toUserResponse(user);
     }
 
+    @Transactional(readOnly = true)
     public UserResponse getCurrentUser() {
         User user = getCurrentUserEntity();
         return UserMapper.toUserResponse(user);
     }
 
+    @Transactional(readOnly = true)
     public Set<String> getCurrentUserPermissions() {
         User user = getCurrentUserEntity();
         return permissionService.getEffectivePermissions(user);
@@ -86,7 +88,7 @@ public class UserService {
     public boolean deactivateUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        if ("SUPER_ADMIN".equals(user.getRole().getRoleName())) {
+        if (user.getRole() != null && "SUPER_ADMIN".equals(user.getRole().getRoleName())) {
             throw new CannotDeactivateProtectedUserException();
         }
         if (!user.isActive()) {
@@ -116,7 +118,7 @@ public class UserService {
         String email = getAuthenticatedEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
-        if ("SUPER_ADMIN".equals(user.getRole().getRoleName())) {
+        if (user.getRole() != null && "SUPER_ADMIN".equals(user.getRole().getRoleName())) {
             throw new CannotDeactivateProtectedUserException();
         }
         if (!user.isActive()) {
@@ -133,7 +135,7 @@ public class UserService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        if ("SUPER_ADMIN".equals(user.getRole().getRoleName())) {
+        if (user.getRole() != null && "SUPER_ADMIN".equals(user.getRole().getRoleName())) {
             throw new CannotDeleteProtectedRoleException(user.getRole().getRoleName());
         }
         userRepository.delete(user);
