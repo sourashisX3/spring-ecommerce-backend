@@ -24,6 +24,8 @@ public class Refund {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payment_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Payment payment;
 
     private Long returnRequestId;

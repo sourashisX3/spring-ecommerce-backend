@@ -24,6 +24,8 @@ public class WalletTransaction {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "wallet_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Wallet wallet;
 
     @ManyToOne(fetch = FetchType.LAZY)

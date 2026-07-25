@@ -3,10 +3,7 @@ package com.example.ecommerce_backend.modules.userpermission.entity;
 import com.example.ecommerce_backend.modules.permission.entity.Permission;
 import com.example.ecommerce_backend.modules.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Entity
@@ -24,10 +21,14 @@ public class UserPermission {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "permission_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Permission permission;
 
     @Enumerated(EnumType.STRING)

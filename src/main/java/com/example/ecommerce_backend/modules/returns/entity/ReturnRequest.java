@@ -28,14 +28,20 @@ public class ReturnRequest {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "return_type_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ReturnType returnType;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -52,6 +58,8 @@ public class ReturnRequest {
 
     @Builder.Default
     @OneToMany(mappedBy = "returnRequest", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<ReturnItem> items = new ArrayList<>();
 
     @Column(nullable = false)

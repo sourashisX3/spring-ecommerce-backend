@@ -24,10 +24,14 @@ public class OrderStatusTransition {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_status_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private OrderStatus fromStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_status_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private OrderStatus toStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)

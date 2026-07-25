@@ -2,10 +2,7 @@ package com.example.ecommerce_backend.modules.role.entity;
 
 import com.example.ecommerce_backend.modules.permission.entity.Permission;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -35,6 +32,8 @@ public class Role {
             inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
     @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Permission> permissions = new HashSet<>();
 
     private Instant createdAt;

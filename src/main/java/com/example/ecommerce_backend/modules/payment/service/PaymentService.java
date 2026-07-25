@@ -29,10 +29,13 @@ import com.example.ecommerce_backend.modules.payment.repository.PaymentRepositor
 import com.example.ecommerce_backend.modules.payment.repository.PaymentStatusRepository;
 import com.example.ecommerce_backend.modules.payment.repository.RefundRepository;
 import com.example.ecommerce_backend.modules.payment.repository.RefundStatusRepository;
+import com.example.ecommerce_backend.core.event.PaymentFailedEvent;
+import com.example.ecommerce_backend.core.event.PaymentProcessedEvent;
 import com.example.ecommerce_backend.modules.user.entity.User;
 import com.example.ecommerce_backend.modules.user.exception.UserNotFoundException;
 import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -76,6 +79,9 @@ public class PaymentService {
     @Autowired
     private MockPaymentGateway mockPaymentGateway;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     @Transactional
     public PaymentResponse processPayment(PaymentRequest request, Long userId) {
         User user = userRepository.findById(userId)
@@ -115,6 +121,7 @@ public class PaymentService {
             payment.setStatus(paymentStatusRepository.findByCode("FAILED")
                     .orElseThrow(() -> new PaymentStatusNotFoundException("FAILED")));
             paymentRepository.save(payment);
+            eventPublisher.publishEvent(new PaymentFailedEvent(this, userId, payment.getUuid(), String.valueOf(request.getOrderId())));
             throw new PaymentFailedException(result.getMessage());
         }
 
@@ -129,6 +136,7 @@ public class PaymentService {
         order.setStatus(confirmedStatus);
         orderRepository.save(order);
 
+        eventPublisher.publishEvent(new PaymentProcessedEvent(this, userId, payment.getUuid(), String.valueOf(request.getOrderId())));
         return PaymentMapper.toResponse(payment);
     }
 

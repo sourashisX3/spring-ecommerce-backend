@@ -108,7 +108,7 @@ public class RefreshTokenService {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("SHA-256 not available", e);
+            throw new RuntimeException("SHA-256 algorithm not available on this JVM", e);
         }
     }
 }

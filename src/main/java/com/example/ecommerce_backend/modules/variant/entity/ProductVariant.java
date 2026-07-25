@@ -3,10 +3,7 @@ package com.example.ecommerce_backend.modules.variant.entity;
 import com.example.ecommerce_backend.core.converter.AttributeMapConverter;
 import com.example.ecommerce_backend.modules.product.entity.Product;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -59,6 +56,8 @@ public class ProductVariant {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Product product;
 
     private Instant createdAt;

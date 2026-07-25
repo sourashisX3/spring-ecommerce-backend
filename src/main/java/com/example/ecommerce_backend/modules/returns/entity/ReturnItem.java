@@ -1,10 +1,7 @@
 package com.example.ecommerce_backend.modules.returns.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -27,6 +24,8 @@ public class ReturnItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "return_request_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ReturnRequest returnRequest;
 
     private Long orderItemId;
@@ -43,6 +42,8 @@ public class ReturnItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "condition_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ReturnCondition condition;
 
     private String conditionNote;

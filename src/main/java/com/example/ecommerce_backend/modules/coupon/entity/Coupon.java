@@ -1,10 +1,7 @@
 package com.example.ecommerce_backend.modules.coupon.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -33,6 +30,8 @@ public class Coupon {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_type_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private com.example.ecommerce_backend.modules.discount.entity.DiscountType discountType;
 
     @Column(nullable = false, precision = 10, scale = 2)

@@ -3,11 +3,8 @@ package com.example.ecommerce_backend.modules.user.entity;
 import com.example.ecommerce_backend.modules.role.entity.Role;
 import com.example.ecommerce_backend.modules.userpermission.entity.UserPermission;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 import lombok.Builder.Default;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -59,6 +56,8 @@ public class User implements UserDetails {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Role role;
     private boolean isActive;
     private boolean isEmailVerified;
@@ -66,6 +65,8 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<UserPermission> userPermissions = new ArrayList<>();
 
     private Instant createdAt;

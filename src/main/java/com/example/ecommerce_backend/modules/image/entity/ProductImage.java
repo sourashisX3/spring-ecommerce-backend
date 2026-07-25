@@ -3,10 +3,7 @@ package com.example.ecommerce_backend.modules.image.entity;
 import com.example.ecommerce_backend.modules.product.entity.Product;
 import com.example.ecommerce_backend.modules.variant.entity.ProductVariant;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.UUID;
 
@@ -38,10 +35,14 @@ public class ProductImage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variant_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ProductVariant variant;
 
     @PrePersist

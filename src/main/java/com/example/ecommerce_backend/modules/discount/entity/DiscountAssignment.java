@@ -2,10 +2,7 @@ package com.example.ecommerce_backend.modules.discount.entity;
 
 import com.example.ecommerce_backend.modules.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -27,10 +24,14 @@ public class DiscountAssignment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "discount_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Discount discount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @Builder.Default

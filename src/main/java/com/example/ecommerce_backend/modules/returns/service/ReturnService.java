@@ -88,7 +88,7 @@ public class ReturnService {
         ReturnType returnType = null;
         if (request.getReturnTypeCode() != null) {
             returnType = returnTypeRepository.findByCode(request.getReturnTypeCode())
-                    .orElse(null);
+                    .orElseThrow(() -> new RuntimeException("Return type not found: " + request.getReturnTypeCode()));
         }
 
         ReturnStatus pendingStatus = returnStatusRepository.findByCode("PENDING")
@@ -108,7 +108,7 @@ public class ReturnService {
                     ReturnCondition condition = null;
                     if (itemDto.getConditionCode() != null) {
                         condition = returnConditionRepository.findByCode(itemDto.getConditionCode())
-                                .orElse(null);
+                                .orElseThrow(() -> new RuntimeException("Return condition not found: " + itemDto.getConditionCode()));
                     }
                     return ReturnItem.builder()
                             .returnRequest(finalEntity)

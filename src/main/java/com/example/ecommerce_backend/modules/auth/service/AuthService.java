@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.auth.service;
 
 import com.example.ecommerce_backend.core.config.JwtTokenProvider;
+import com.example.ecommerce_backend.core.event.UserRegisteredEvent;
 import com.example.ecommerce_backend.core.service.RefreshTokenService;
 import com.example.ecommerce_backend.modules.auth.dto.request.LoginRequest;
 import com.example.ecommerce_backend.modules.auth.dto.request.RefreshTokenRequest;
@@ -23,6 +24,7 @@ import com.example.ecommerce_backend.modules.user.exception.UserNotFoundExceptio
 import com.example.ecommerce_backend.modules.user.mapper.UserMapper;
 import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,6 +60,9 @@ public class AuthService {
     @Autowired
     private RefreshTokenService refreshTokenService;
 
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -83,9 +88,12 @@ public class AuthService {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
 
+        eventPublisher.publishEvent(new UserRegisteredEvent(this, user.getId()));
+
         return buildAuthResponse(user);
     }
 
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmailOrPhone(), request.getPassword())
@@ -100,6 +108,7 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
+    @Transactional
     public AuthResponse refresh(RefreshTokenRequest request) {
         String oldToken = request.getRefreshToken();
         if (!jwtTokenProvider.validateToken(oldToken)) {
@@ -127,6 +136,7 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public String sendOtp(SendOtpRequest request) {
         User user = findUserByIdentifier(request.getEmailOrPhone());
         return otpService.generateOtp(request.getEmailOrPhone());
@@ -160,6 +170,7 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with phone: " + emailOrPhone));
     }
 
+    @Transactional
     public void logout(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));

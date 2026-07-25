@@ -26,10 +26,14 @@ public class Delivery {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shipping_address_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ShippingAddress shippingAddress;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "carrier_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private ShippingCarrier carrier;
 
     private String trackingNumber;

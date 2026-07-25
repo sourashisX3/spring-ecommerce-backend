@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.shipping.service;
 
+import com.example.ecommerce_backend.core.event.DeliveryStatusChangedEvent;
 import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.shipping.dto.request.DeliveryRequest;
 import com.example.ecommerce_backend.modules.shipping.dto.request.UpdateDeliveryRequest;
@@ -16,7 +17,9 @@ import com.example.ecommerce_backend.modules.shipping.repository.DeliveryStatusR
 import com.example.ecommerce_backend.modules.shipping.repository.ShippingAddressRepository;
 import com.example.ecommerce_backend.modules.shipping.repository.ShippingCarrierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,9 @@ public class DeliveryService {
 
     @Autowired
     private DeliveryStatusRepository deliveryStatusRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public List<DeliveryResponse> getByOrderId(Long orderId) {
@@ -102,6 +108,12 @@ public class DeliveryService {
         }
 
         delivery = deliveryRepository.save(delivery);
+
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = authentication != null && authentication.getPrincipal() instanceof com.example.ecommerce_backend.modules.user.entity.User user
+                ? user.getId() : null;
+        eventPublisher.publishEvent(new DeliveryStatusChangedEvent(this, userId, delivery.getUuid(),
+                request.getStatus()));
         return DeliveryMapper.toResponse(delivery);
     }
 }

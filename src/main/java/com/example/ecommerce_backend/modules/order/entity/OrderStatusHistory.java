@@ -1,10 +1,7 @@
 package com.example.ecommerce_backend.modules.order.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -26,14 +23,20 @@ public class OrderStatusHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Order order;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_status_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private OrderStatus fromStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "to_status_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private OrderStatus toStatus;
 
     @Column(nullable = false)

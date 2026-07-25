@@ -26,7 +26,10 @@ import com.example.ecommerce_backend.modules.variant.repository.ProductVariantRe
 import com.example.ecommerce_backend.modules.user.entity.User;
 import com.example.ecommerce_backend.modules.user.exception.UserNotFoundException;
 import com.example.ecommerce_backend.modules.user.repository.UserRepository;
+import com.example.ecommerce_backend.core.event.OrderCreatedEvent;
+import com.example.ecommerce_backend.core.event.OrderStatusChangedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -71,6 +74,9 @@ public class OrderService {
 
     @Autowired
     private CurrencyRepository currencyRepository;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public OrderResponse createOrder(Long userId, OrderRequest request) {
@@ -162,6 +168,7 @@ public class OrderService {
 
         cartRepository.deleteAll(cartItems);
 
+        eventPublisher.publishEvent(new OrderCreatedEvent(this, userId, order.getUuid()));
         return OrderMapper.toResponse(order);
     }
 
@@ -214,6 +221,7 @@ public class OrderService {
 
         order.getStatusHistory().add(history);
         order = orderRepository.save(order);
+        eventPublisher.publishEvent(new OrderStatusChangedEvent(this, order.getUser().getId(), order.getUuid(), newStatusCode));
         return OrderMapper.toResponse(order);
     }
 
@@ -254,6 +262,7 @@ public class OrderService {
 
         order.getStatusHistory().add(history);
         order = orderRepository.save(order);
+        eventPublisher.publishEvent(new OrderStatusChangedEvent(this, userId, order.getUuid(), "CANCELLED"));
         return OrderMapper.toResponse(order);
     }
 }

@@ -280,7 +280,8 @@ public class CouponService {
                     });
         }
 
-        User user = userRepository.findById(userId).orElse(null);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new com.example.ecommerce_backend.modules.user.exception.UserNotFoundException(userId));
 
         CouponUsage usage = CouponUsage.builder()
                 .coupon(coupon)

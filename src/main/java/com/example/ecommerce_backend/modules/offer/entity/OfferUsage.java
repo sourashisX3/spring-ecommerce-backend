@@ -2,10 +2,7 @@ package com.example.ecommerce_backend.modules.offer.entity;
 
 import com.example.ecommerce_backend.modules.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -28,10 +25,14 @@ public class OfferUsage {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offer_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Offer offer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     private Long orderId;

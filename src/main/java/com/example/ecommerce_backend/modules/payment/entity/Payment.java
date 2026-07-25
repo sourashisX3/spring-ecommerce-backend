@@ -29,10 +29,14 @@ public class Payment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "gateway_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private PaymentGateway gateway;
 
     @Column(nullable = false, precision = 19, scale = 4)

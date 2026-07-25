@@ -7,10 +7,9 @@ import com.example.ecommerce_backend.modules.image.entity.ProductImage;
 import com.example.ecommerce_backend.modules.tag.entity.Tag;
 import com.example.ecommerce_backend.modules.variant.entity.ProductVariant;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -55,19 +54,25 @@ public class Product {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "brand_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Brand brand;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "product_tags",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Set<Tag> tags = new HashSet<>();
 
     @Column(nullable = false)
@@ -80,10 +85,14 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<ProductVariant> variants = new ArrayList<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<ProductImage> images = new ArrayList<>();
 
     private Instant createdAt;

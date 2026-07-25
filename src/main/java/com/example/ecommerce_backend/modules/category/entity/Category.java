@@ -1,10 +1,7 @@
 package com.example.ecommerce_backend.modules.category.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -39,10 +36,14 @@ public class Category {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Category> children = new ArrayList<>();
 
     @Column(nullable = false)

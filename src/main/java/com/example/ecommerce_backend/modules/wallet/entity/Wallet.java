@@ -26,6 +26,8 @@ public class Wallet {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", unique = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private User user;
 
     @Column(nullable = false, precision = 19, scale = 4)
