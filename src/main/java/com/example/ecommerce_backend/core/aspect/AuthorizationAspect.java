@@ -1,10 +1,10 @@
 package com.example.ecommerce_backend.core.aspect;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
-import com.example.ecommerce_backend.modules.role_user.entity.User;
-import com.example.ecommerce_backend.modules.role_user.exception.PermissionRequiredException;
-import com.example.ecommerce_backend.modules.role_user.repository.UserRepository;
-import com.example.ecommerce_backend.modules.role_user.service.PermissionService;
+import com.example.ecommerce_backend.modules.permission.exception.PermissionRequiredException;
+import com.example.ecommerce_backend.modules.permission.service.PermissionService;
+import com.example.ecommerce_backend.modules.user.entity.User;
+import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

@@ -3,7 +3,7 @@ package com.example.ecommerce_backend.core.service;
 import com.example.ecommerce_backend.core.config.JwtTokenProvider;
 import com.example.ecommerce_backend.core.entity.RefreshToken;
 import com.example.ecommerce_backend.core.repository.RefreshTokenRepository;
-import com.example.ecommerce_backend.modules.role_user.exception.InvalidTokenException;
+import com.example.ecommerce_backend.modules.auth.exception.InvalidTokenException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;

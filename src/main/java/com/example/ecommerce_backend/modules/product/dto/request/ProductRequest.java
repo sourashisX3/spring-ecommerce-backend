@@ -1,5 +1,7 @@
 package com.example.ecommerce_backend.modules.product.dto.request;
 
+import com.example.ecommerce_backend.modules.image.dto.request.ImageRequest;
+import com.example.ecommerce_backend.modules.variant.dto.request.VariantRequest;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;

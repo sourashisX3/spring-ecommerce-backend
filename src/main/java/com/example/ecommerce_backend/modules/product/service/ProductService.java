@@ -1,17 +1,30 @@
 package com.example.ecommerce_backend.modules.product.service;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
-import com.example.ecommerce_backend.modules.product.dto.request.ImageRequest;
+import com.example.ecommerce_backend.modules.brand.entity.Brand;
+import com.example.ecommerce_backend.modules.brand.exception.BrandNotFoundException;
+import com.example.ecommerce_backend.modules.brand.repository.BrandRepository;
+import com.example.ecommerce_backend.modules.category.entity.Category;
+import com.example.ecommerce_backend.modules.category.exception.CategoryNotFoundException;
+import com.example.ecommerce_backend.modules.category.repository.CategoryRepository;
+import com.example.ecommerce_backend.modules.category.service.CategoryService;
+import com.example.ecommerce_backend.modules.image.dto.request.ImageRequest;
+import com.example.ecommerce_backend.modules.image.entity.ProductImage;
+import com.example.ecommerce_backend.modules.image.repository.ProductImageRepository;
 import com.example.ecommerce_backend.modules.product.dto.request.ProductRequest;
-import com.example.ecommerce_backend.modules.product.dto.request.VariantRequest;
-import com.example.ecommerce_backend.modules.product.dto.response.ImageResponse;
 import com.example.ecommerce_backend.modules.product.dto.response.ProductResponse;
-import com.example.ecommerce_backend.modules.product.dto.response.VariantResponse;
-import com.example.ecommerce_backend.modules.product.entity.*;
-import com.example.ecommerce_backend.modules.product.exception.*;
+import com.example.ecommerce_backend.modules.product.entity.Product;
+import com.example.ecommerce_backend.modules.product.exception.DuplicateSkuException;
+import com.example.ecommerce_backend.modules.product.exception.ProductNotFoundException;
 import com.example.ecommerce_backend.modules.product.mapper.ProductMapper;
-import com.example.ecommerce_backend.modules.product.repository.*;
+import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
 import com.example.ecommerce_backend.modules.product.specification.ProductSpecification;
+import com.example.ecommerce_backend.modules.tag.entity.Tag;
+import com.example.ecommerce_backend.modules.tag.exception.TagNotFoundException;
+import com.example.ecommerce_backend.modules.tag.repository.TagRepository;
+import com.example.ecommerce_backend.modules.variant.dto.request.VariantRequest;
+import com.example.ecommerce_backend.modules.variant.entity.ProductVariant;
+import com.example.ecommerce_backend.modules.variant.repository.ProductVariantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -386,133 +399,6 @@ public class ProductService {
                 .limit(limit)
                 .map(sp -> ProductMapper.toResponse(sp.product))
                 .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<VariantResponse> getVariants(String productUuid) {
-        Product product = productRepository.findByUuid(productUuid)
-                .orElseThrow(() -> new ProductNotFoundException(productUuid));
-        return product.getVariants().stream()
-                .map(ProductMapper::toVariantResponse)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public VariantResponse getVariant(String variantUuid) {
-        ProductVariant variant = variantRepository.findByUuid(variantUuid)
-                .orElseThrow(() -> new ProductVariantNotFoundException(variantUuid));
-        return ProductMapper.toVariantResponse(variant);
-    }
-
-    @Transactional
-    @RequiresPermission("product:write")
-    public VariantResponse addVariant(String productUuid, VariantRequest request) {
-        Product product = productRepository.findByUuid(productUuid)
-                .orElseThrow(() -> new ProductNotFoundException(productUuid));
-
-        if (variantRepository.existsBySku(request.getSku())) {
-            throw new DuplicateSkuException(request.getSku());
-        }
-
-        if (request.isDefault()) {
-            product.getVariants().forEach(v -> v.setDefault(false));
-        }
-
-        ProductVariant variant = ProductVariant.builder()
-                .sku(request.getSku())
-                .name(request.getName())
-                .price(request.getPrice())
-                .stock(request.getStock())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
-                .isDefault(request.isDefault())
-                .sortOrder(request.getSortOrder())
-                .product(product)
-                .build();
-
-        variant = variantRepository.save(variant);
-        return ProductMapper.toVariantResponse(variant);
-    }
-
-    @Transactional
-    @RequiresPermission("product:write")
-    public VariantResponse updateVariant(String variantUuid, VariantRequest request) {
-        ProductVariant variant = variantRepository.findByUuid(variantUuid)
-                .orElseThrow(() -> new ProductVariantNotFoundException(variantUuid));
-
-        if (!variant.getSku().equals(request.getSku()) && variantRepository.existsBySku(request.getSku())) {
-            throw new DuplicateSkuException(request.getSku());
-        }
-
-        variant.setSku(request.getSku());
-        variant.setName(request.getName());
-        variant.setPrice(request.getPrice());
-        variant.setStock(request.getStock());
-        variant.setAttributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>());
-        variant.setDefault(request.isDefault());
-        variant.setSortOrder(request.getSortOrder());
-
-        if (request.isDefault()) {
-            Product product = variant.getProduct();
-            String currentUuid = variant.getUuid();
-            product.getVariants().stream()
-                    .filter(v -> !v.getUuid().equals(currentUuid))
-                    .forEach(v -> v.setDefault(false));
-        }
-
-        variant = variantRepository.save(variant);
-        return ProductMapper.toVariantResponse(variant);
-    }
-
-    @Transactional
-    @RequiresPermission("product:write")
-    public void deleteVariant(String variantUuid) {
-        ProductVariant variant = variantRepository.findByUuid(variantUuid)
-                .orElseThrow(() -> new ProductVariantNotFoundException(variantUuid));
-        variantRepository.delete(variant);
-    }
-
-    @Transactional
-    @RequiresPermission("product:write")
-    public ImageResponse addImage(String productUuid, ImageRequest request) {
-        Product product = productRepository.findByUuid(productUuid)
-                .orElseThrow(() -> new ProductNotFoundException(productUuid));
-
-        if (request.isPrimary()) {
-            product.getImages().forEach(img -> img.setPrimary(false));
-        }
-
-        ProductImage image = ProductImage.builder()
-                .imageUrl(request.getImageUrl())
-                .isPrimary(request.isPrimary())
-                .sortOrder(request.getSortOrder())
-                .product(product)
-                .build();
-
-        image = imageRepository.save(image);
-        return ProductMapper.toImageResponse(image);
-    }
-
-    @Transactional
-    @RequiresPermission("product:write")
-    public void deleteImage(String imageUuid) {
-        ProductImage image = imageRepository.findByUuid(imageUuid)
-                .orElseThrow(() -> new RuntimeException("Image not found with uuid: " + imageUuid));
-
-        boolean wasPrimary = image.isPrimary();
-        Long productId = image.getProduct().getId();
-
-        imageRepository.delete(image);
-
-        if (wasPrimary) {
-            List<ProductImage> remaining = imageRepository.findByProductId(productId);
-            if (!remaining.isEmpty()) {
-                ProductImage newPrimary = remaining.stream()
-                        .min(Comparator.comparingInt(ProductImage::getSortOrder))
-                        .orElse(remaining.get(0));
-                newPrimary.setPrimary(true);
-                imageRepository.save(newPrimary);
-            }
-        }
     }
 
     private boolean matchesAttributes(Map<String, String> productAttrs, Map<String, String> filters) {

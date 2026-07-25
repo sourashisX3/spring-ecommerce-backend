@@ -1,7 +1,7 @@
 package com.example.ecommerce_backend.core.config;
 
-import com.example.ecommerce_backend.modules.role_user.entity.User;
-import com.example.ecommerce_backend.modules.role_user.repository.UserRepository;
+import com.example.ecommerce_backend.modules.user.entity.User;
+import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

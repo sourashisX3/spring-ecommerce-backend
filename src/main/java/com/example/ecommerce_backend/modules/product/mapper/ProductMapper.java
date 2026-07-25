@@ -1,7 +1,13 @@
 package com.example.ecommerce_backend.modules.product.mapper;
 
-import com.example.ecommerce_backend.modules.product.dto.response.*;
-import com.example.ecommerce_backend.modules.product.entity.*;
+import com.example.ecommerce_backend.modules.image.dto.response.ImageResponse;
+import com.example.ecommerce_backend.modules.image.entity.ProductImage;
+import com.example.ecommerce_backend.modules.image.mapper.ImageMapper;
+import com.example.ecommerce_backend.modules.product.dto.response.ProductResponse;
+import com.example.ecommerce_backend.modules.product.entity.Product;
+import com.example.ecommerce_backend.modules.variant.dto.response.VariantResponse;
+import com.example.ecommerce_backend.modules.variant.entity.ProductVariant;
+import com.example.ecommerce_backend.modules.variant.mapper.VariantMapper;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -90,31 +96,13 @@ public class ProductMapper {
     }
 
     public static VariantResponse toVariantResponse(ProductVariant variant) {
-        return VariantResponse.builder()
-                .id(variant.getId())
-                .uuid(variant.getUuid())
-                .sku(variant.getSku())
-                .name(variant.getName())
-                .price(variant.getPrice())
-                .stock(variant.getStock())
-                .attributes(variant.getAttributes())
-                .isActive(variant.isActive())
-                .isDefault(variant.isDefault())
-                .selected(false)
-                .sortOrder(variant.getSortOrder())
-                .createdAt(variant.getCreatedAt())
-                .updatedAt(variant.getUpdatedAt())
-                .build();
+        VariantResponse response = VariantMapper.toVariantResponse(variant);
+        response.setSelected(false);
+        return response;
     }
 
     public static ImageResponse toImageResponse(ProductImage image) {
-        return ImageResponse.builder()
-                .id(image.getId())
-                .uuid(image.getUuid())
-                .imageUrl(image.getImageUrl())
-                .isPrimary(image.isPrimary())
-                .sortOrder(image.getSortOrder())
-                .build();
+        return ImageMapper.toImageResponse(image);
     }
 
     public static void selectVariant(List<VariantResponse> variants, Map<String, String> attributeFilters) {

@@ -1,5 +1,7 @@
 package com.example.ecommerce_backend.modules.product.dto.response;
 
+import com.example.ecommerce_backend.modules.image.dto.response.ImageResponse;
+import com.example.ecommerce_backend.modules.variant.dto.response.VariantResponse;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -13,8 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.ecommerce_backend.modules.role_user.entity.User;
-import com.example.ecommerce_backend.modules.role_user.repository.UserRepository;
+import com.example.ecommerce_backend.modules.user.entity.User;
+import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import java.io.IOException;
 
 @Component

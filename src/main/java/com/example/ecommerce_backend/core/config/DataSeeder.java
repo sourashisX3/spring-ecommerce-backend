@@ -1,9 +1,9 @@
 package com.example.ecommerce_backend.core.config;
 
-import com.example.ecommerce_backend.modules.role_user.entity.Permission;
-import com.example.ecommerce_backend.modules.role_user.entity.Role;
-import com.example.ecommerce_backend.modules.role_user.repository.PermissionsRepository;
-import com.example.ecommerce_backend.modules.role_user.repository.RolesRepository;
+import com.example.ecommerce_backend.modules.permission.entity.Permission;
+import com.example.ecommerce_backend.modules.permission.repository.PermissionsRepository;
+import com.example.ecommerce_backend.modules.role.entity.Role;
+import com.example.ecommerce_backend.modules.role.repository.RolesRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;

@@ -2,10 +2,11 @@ package com.example.ecommerce_backend.modules.product.controller;
 
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.Pagination;
+import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.product.dto.request.ProductRequest;
-import com.example.ecommerce_backend.modules.product.dto.request.StatusRequest;
 import com.example.ecommerce_backend.modules.product.dto.response.ProductResponse;
 import com.example.ecommerce_backend.modules.product.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -99,7 +100,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductResponse>> create(@RequestBody ProductRequest request) {
+    public ResponseEntity<ApiResponse<ProductResponse>> create(@Valid @RequestBody ProductRequest request) {
         ProductResponse product = productService.create(request);
         return ApiResponse.created(product, "Product created successfully");
     }
@@ -107,7 +108,7 @@ public class ProductController {
     @PutMapping("/{uuid}")
     public ResponseEntity<ApiResponse<ProductResponse>> update(
             @PathVariable String uuid,
-            @RequestBody ProductRequest request
+            @Valid @RequestBody ProductRequest request
     ) {
         ProductResponse product = productService.update(uuid, request);
         return ApiResponse.success(product, "Product updated successfully");
@@ -116,7 +117,7 @@ public class ProductController {
     @PatchMapping("/{uuid}/status")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
             @PathVariable String uuid,
-            @RequestBody StatusRequest request
+            @Valid @RequestBody StatusRequest request
     ) {
         boolean changed = productService.toggleStatus(uuid, request.isActive());
         String message = changed ? "Product status updated successfully" : "Product is already " + (request.isActive() ? "active" : "inactive");

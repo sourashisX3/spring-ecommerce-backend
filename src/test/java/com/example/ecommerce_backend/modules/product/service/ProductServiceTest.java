@@ -1,9 +1,17 @@
 package com.example.ecommerce_backend.modules.product.service;
 
+import com.example.ecommerce_backend.modules.brand.entity.Brand;
+import com.example.ecommerce_backend.modules.brand.repository.BrandRepository;
+import com.example.ecommerce_backend.modules.category.entity.Category;
+import com.example.ecommerce_backend.modules.category.repository.CategoryRepository;
+import com.example.ecommerce_backend.modules.category.service.CategoryService;
+import com.example.ecommerce_backend.modules.image.repository.ProductImageRepository;
 import com.example.ecommerce_backend.modules.product.dto.response.ProductResponse;
-import com.example.ecommerce_backend.modules.product.entity.*;
+import com.example.ecommerce_backend.modules.product.entity.Product;
 import com.example.ecommerce_backend.modules.product.exception.ProductNotFoundException;
-import com.example.ecommerce_backend.modules.product.repository.*;
+import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
+import com.example.ecommerce_backend.modules.tag.repository.TagRepository;
+import com.example.ecommerce_backend.modules.variant.repository.ProductVariantRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

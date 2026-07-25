@@ -1,13 +1,13 @@
 package com.example.ecommerce_backend.modules.product.specification;
 
-import com.example.ecommerce_backend.modules.product.entity.Brand;
-import com.example.ecommerce_backend.modules.product.entity.Category;
+import com.example.ecommerce_backend.modules.brand.entity.Brand;
+import com.example.ecommerce_backend.modules.category.entity.Category;
 import com.example.ecommerce_backend.modules.product.entity.Product;
-import com.example.ecommerce_backend.modules.product.entity.Tag;
-import com.example.ecommerce_backend.modules.product.repository.BrandRepository;
-import com.example.ecommerce_backend.modules.product.repository.CategoryRepository;
+import com.example.ecommerce_backend.modules.tag.entity.Tag;
+import com.example.ecommerce_backend.modules.category.repository.CategoryRepository;
+import com.example.ecommerce_backend.modules.brand.repository.BrandRepository;
 import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
-import com.example.ecommerce_backend.modules.product.repository.TagRepository;
+import com.example.ecommerce_backend.modules.tag.repository.TagRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

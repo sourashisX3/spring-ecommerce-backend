@@ -1,6 +1,11 @@
 package com.example.ecommerce_backend.modules.product.entity;
 
-import com.example.ecommerce_backend.modules.product.converter.AttributeMapConverter;
+import com.example.ecommerce_backend.core.converter.AttributeMapConverter;
+import com.example.ecommerce_backend.modules.brand.entity.Brand;
+import com.example.ecommerce_backend.modules.category.entity.Category;
+import com.example.ecommerce_backend.modules.image.entity.ProductImage;
+import com.example.ecommerce_backend.modules.tag.entity.Tag;
+import com.example.ecommerce_backend.modules.variant.entity.ProductVariant;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
