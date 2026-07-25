@@ -21,7 +21,6 @@ public class BrandController {
     private BrandService brandService;
 
     @GetMapping
-    @RequiresPermission("brand:read")
     public ResponseEntity<ApiResponse<List<BrandResponse>>> getAll(
             @RequestParam(required = false) Boolean active
     ) {
@@ -30,7 +29,6 @@ public class BrandController {
     }
 
     @GetMapping("/{slug}")
-    @RequiresPermission("brand:read")
     public ResponseEntity<ApiResponse<BrandResponse>> getBySlug(@PathVariable String slug) {
         BrandResponse brand = brandService.getBySlug(slug);
         return ApiResponse.success(brand, "Brand retrieved successfully");

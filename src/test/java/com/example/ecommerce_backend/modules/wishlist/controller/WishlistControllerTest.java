@@ -51,7 +51,7 @@ class WishlistControllerTest {
     void getWishlist_shouldReturnList() throws Exception {
         when(wishlistService.getWishlist(any())).thenReturn(List.of(itemResponse));
 
-        mockMvc.perform(get("/wishlist"))
+        mockMvc.perform(get("/wishlists"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.response[0].uuid").value("wishlist-uuid-1"))
@@ -63,7 +63,7 @@ class WishlistControllerTest {
     void getWishlist_whenEmpty_shouldReturnEmptyList() throws Exception {
         when(wishlistService.getWishlist(any())).thenReturn(List.of());
 
-        mockMvc.perform(get("/wishlist"))
+        mockMvc.perform(get("/wishlists"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.response").isArray())
@@ -75,7 +75,7 @@ class WishlistControllerTest {
         when(wishlistService.addToWishlist(eq("product-uuid-1"), any()))
                 .thenReturn(itemResponse);
 
-        mockMvc.perform(post("/wishlist/{productUuid}", "product-uuid-1"))
+        mockMvc.perform(post("/wishlists/{productUuid}", "product-uuid-1"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.statusCode").value(201))
                 .andExpect(jsonPath("$.response.uuid").value("wishlist-uuid-1"))
@@ -86,7 +86,7 @@ class WishlistControllerTest {
     void deleteWishlistItem_shouldReturnSuccess() throws Exception {
         doNothing().when(wishlistService).removeFromWishlist(eq("wishlist-uuid-1"), any());
 
-        mockMvc.perform(delete("/wishlist/{itemUuid}", "wishlist-uuid-1"))
+        mockMvc.perform(delete("/wishlists/{itemUuid}", "wishlist-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.message").value("Removed from wishlist successfully"));

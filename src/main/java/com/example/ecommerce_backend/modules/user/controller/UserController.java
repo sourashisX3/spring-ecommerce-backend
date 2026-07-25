@@ -70,6 +70,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/deactivate")
+    @RequiresPermission("user:write")
     public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable Long id) {
         boolean changed = userService.deactivateUser(id);
         String message = changed ? "User deactivated successfully" : "User is already deactivated";
@@ -77,6 +78,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}/activate")
+    @RequiresPermission("user:write")
     public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable Long id) {
         boolean changed = userService.activateUser(id);
         String message = changed ? "User activated successfully" : "User is already active";
@@ -91,6 +93,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @RequiresPermission("user:write")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ApiResponse.success(null, "User deleted successfully");

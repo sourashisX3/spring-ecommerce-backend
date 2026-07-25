@@ -21,7 +21,6 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    @RequiresPermission("category:read")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAll(
             @RequestParam(required = false) Boolean active
     ) {
@@ -30,7 +29,6 @@ public class CategoryController {
     }
 
     @GetMapping("/tree")
-    @RequiresPermission("category:read")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getTree(
             @RequestParam(required = false) Boolean active
     ) {
@@ -39,7 +37,6 @@ public class CategoryController {
     }
 
     @GetMapping("/{slug}")
-    @RequiresPermission("category:read")
     public ResponseEntity<ApiResponse<CategoryResponse>> getBySlug(@PathVariable String slug) {
         CategoryResponse category = categoryService.getBySlug(slug);
         return ApiResponse.success(category, "Category retrieved successfully");

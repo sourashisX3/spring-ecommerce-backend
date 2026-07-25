@@ -57,7 +57,7 @@ class CartControllerTest {
     void getCart_shouldReturnList() throws Exception {
         when(cartService.getCart(any())).thenReturn(List.of(itemResponse));
 
-        mockMvc.perform(get("/cart"))
+        mockMvc.perform(get("/carts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.response[0].uuid").value("cart-uuid-1"))
@@ -69,7 +69,7 @@ class CartControllerTest {
     void getCart_whenEmpty_shouldReturnEmptyList() throws Exception {
         when(cartService.getCart(any())).thenReturn(List.of());
 
-        mockMvc.perform(get("/cart"))
+        mockMvc.perform(get("/carts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.response").isArray())
@@ -81,7 +81,7 @@ class CartControllerTest {
         when(cartService.addToCart(eq("product-uuid-1"), any(CartItemRequest.class), any()))
                 .thenReturn(itemResponse);
 
-        mockMvc.perform(post("/cart/{productUuid}", "product-uuid-1")
+        mockMvc.perform(post("/carts/{productUuid}", "product-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"quantity\":2}"))
                 .andExpect(status().isCreated())
@@ -103,7 +103,7 @@ class CartControllerTest {
         when(cartService.updateQuantity(eq("cart-uuid-1"), any(CartItemRequest.class), any()))
                 .thenReturn(updated);
 
-        mockMvc.perform(patch("/cart/{itemUuid}", "cart-uuid-1")
+        mockMvc.perform(patch("/carts/{itemUuid}", "cart-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"quantity\":5}"))
                 .andExpect(status().isOk())
@@ -116,7 +116,7 @@ class CartControllerTest {
     void removeFromCart_shouldReturnSuccess() throws Exception {
         doNothing().when(cartService).removeFromCart(eq("cart-uuid-1"), any());
 
-        mockMvc.perform(delete("/cart/{itemUuid}", "cart-uuid-1"))
+        mockMvc.perform(delete("/carts/{itemUuid}", "cart-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.message").value("Removed from cart successfully"));
@@ -126,7 +126,7 @@ class CartControllerTest {
     void clearCart_shouldReturnSuccess() throws Exception {
         doNothing().when(cartService).clearCart(any());
 
-        mockMvc.perform(delete("/cart"))
+        mockMvc.perform(delete("/carts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statusCode").value(200))
                 .andExpect(jsonPath("$.message").value("Cart cleared successfully"));

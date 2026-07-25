@@ -21,7 +21,6 @@ public class TagController {
     private TagService tagService;
 
     @GetMapping
-    @RequiresPermission("tag:read")
     public ResponseEntity<ApiResponse<List<TagResponse>>> getAll(
             @RequestParam(required = false) Boolean active
     ) {

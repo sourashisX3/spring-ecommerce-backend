@@ -34,7 +34,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         List<String> details = new ArrayList<>();
         ex.getBindingResult().getFieldErrors()
-                .forEach(error -> details.add(/*error.getField() + " - " +*/ error.getDefaultMessage()));
+                .forEach(error -> details.add(error.getField() + " - " + error.getDefaultMessage()));
 
         ApiResponse<List<?>> body = ApiResponse.<List<?>>builder()
                 .statusCode(status.value())
