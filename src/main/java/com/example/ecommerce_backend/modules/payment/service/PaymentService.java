@@ -3,6 +3,7 @@ package com.example.ecommerce_backend.modules.payment.service;
 import com.example.ecommerce_backend.modules.order.entity.Order;
 import com.example.ecommerce_backend.modules.order.entity.OrderStatus;
 import com.example.ecommerce_backend.modules.order.exception.OrderNotFoundException;
+import com.example.ecommerce_backend.modules.order.exception.OrderStatusNotFoundException;
 import com.example.ecommerce_backend.modules.order.repository.OrderRepository;
 import com.example.ecommerce_backend.modules.order.repository.OrderStatusRepository;
 import com.example.ecommerce_backend.modules.payment.dto.request.PaymentRequest;
@@ -17,8 +18,11 @@ import com.example.ecommerce_backend.modules.payment.entity.RefundStatus;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentFailedException;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentGatewayNotFoundException;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentNotFoundException;
+import com.example.ecommerce_backend.modules.payment.exception.PaymentStatusNotFoundException;
+import com.example.ecommerce_backend.modules.payment.exception.RefundStatusNotFoundException;
 import com.example.ecommerce_backend.modules.payment.mapper.PaymentMapper;
 import com.example.ecommerce_backend.modules.currency.entity.Currency;
+import com.example.ecommerce_backend.modules.currency.exception.CurrencyNotFoundException;
 import com.example.ecommerce_backend.modules.currency.repository.CurrencyRepository;
 import com.example.ecommerce_backend.modules.payment.repository.PaymentGatewayRepository;
 import com.example.ecommerce_backend.modules.payment.repository.PaymentRepository;
@@ -85,10 +89,10 @@ public class PaymentService {
 
         String currencyCode = request.getCurrency() != null ? request.getCurrency() : "USD";
         Currency currency = currencyRepository.findByCode(currencyCode)
-                .orElseThrow(() -> new RuntimeException("Currency not found: " + currencyCode));
+                .orElseThrow(() -> new CurrencyNotFoundException(currencyCode));
 
         PaymentStatus defaultStatus = paymentStatusRepository.findByCode("PENDING")
-                .orElseThrow(() -> new RuntimeException("PaymentStatus not found: PENDING"));
+                .orElseThrow(() -> new PaymentStatusNotFoundException("PENDING"));
 
         Payment payment = Payment.builder()
                 .orderId(request.getOrderId())
@@ -109,19 +113,19 @@ public class PaymentService {
 
         if (!result.isSuccess()) {
             payment.setStatus(paymentStatusRepository.findByCode("FAILED")
-                    .orElseThrow(() -> new RuntimeException("PaymentStatus not found: FAILED")));
+                    .orElseThrow(() -> new PaymentStatusNotFoundException("FAILED")));
             paymentRepository.save(payment);
             throw new PaymentFailedException(result.getMessage());
         }
 
         payment.setStatus(paymentStatusRepository.findByCode("COMPLETED")
-                .orElseThrow(() -> new RuntimeException("PaymentStatus not found: COMPLETED")));
+                .orElseThrow(() -> new PaymentStatusNotFoundException("COMPLETED")));
         payment.setGatewayTransactionId(result.getGatewayTransactionId());
         payment.setPaidAt(Instant.now());
         payment = paymentRepository.save(payment);
 
         OrderStatus confirmedStatus = orderStatusRepository.findByCode("CONFIRMED")
-                .orElseThrow(() -> new RuntimeException("OrderStatus not found: CONFIRMED"));
+                .orElseThrow(() -> new OrderStatusNotFoundException("CONFIRMED"));
         order.setStatus(confirmedStatus);
         orderRepository.save(order);
 
@@ -162,7 +166,7 @@ public class PaymentService {
                 payment.getGatewayTransactionId(), request.getAmount(), request.getReason());
 
         RefundStatus refundStatus = refundStatusRepository.findByCode(result.isSuccess() ? "COMPLETED" : "FAILED")
-                .orElseThrow(() -> new RuntimeException("RefundStatus not found"));
+                .orElseThrow(() -> new RefundStatusNotFoundException(result.isSuccess() ? "COMPLETED" : "FAILED"));
 
         Refund refund = Refund.builder()
                 .payment(payment)
@@ -178,7 +182,7 @@ public class PaymentService {
 
         if (result.isSuccess()) {
             payment.setStatus(paymentStatusRepository.findByCode("REFUNDED")
-                    .orElseThrow(() -> new RuntimeException("PaymentStatus not found: REFUNDED")));
+                    .orElseThrow(() -> new PaymentStatusNotFoundException("REFUNDED")));
             paymentRepository.save(payment);
         }
 

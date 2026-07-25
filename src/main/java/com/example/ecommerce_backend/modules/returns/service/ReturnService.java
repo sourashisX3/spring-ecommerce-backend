@@ -12,6 +12,7 @@ import com.example.ecommerce_backend.modules.returns.entity.ReturnRequest;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnType;
 import com.example.ecommerce_backend.modules.returns.exception.InvalidReturnStateException;
 import com.example.ecommerce_backend.modules.returns.exception.ReturnNotFoundException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnStatusNotFoundException;
 import com.example.ecommerce_backend.modules.returns.mapper.ReturnMapper;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnStatus;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnConditionRepository;
@@ -91,7 +92,7 @@ public class ReturnService {
         }
 
         ReturnStatus pendingStatus = returnStatusRepository.findByCode("PENDING")
-                .orElseThrow(() -> new RuntimeException("ReturnStatus not found: PENDING"));
+                .orElseThrow(() -> new ReturnStatusNotFoundException("PENDING"));
 
         ReturnRequest entity = ReturnRequest.builder()
                 .user(user)
@@ -133,7 +134,7 @@ public class ReturnService {
         validateStatusTransition(entity.getStatus().getCode(), statusCode);
 
         ReturnStatus newStatus = returnStatusRepository.findByCode(statusCode)
-                .orElseThrow(() -> new RuntimeException("ReturnStatus not found: " + statusCode));
+                .orElseThrow(() -> new ReturnStatusNotFoundException(statusCode));
         entity.setStatus(newStatus);
         if (resolutionNotes != null) {
             entity.setResolutionNotes(resolutionNotes);

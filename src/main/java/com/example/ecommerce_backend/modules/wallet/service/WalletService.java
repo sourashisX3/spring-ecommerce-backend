@@ -9,9 +9,11 @@ import com.example.ecommerce_backend.modules.wallet.entity.WalletTransaction;
 import com.example.ecommerce_backend.modules.wallet.entity.WalletTransactionType;
 import com.example.ecommerce_backend.modules.wallet.exception.InsufficientBalanceException;
 import com.example.ecommerce_backend.modules.wallet.exception.WalletNotFoundException;
+import com.example.ecommerce_backend.modules.wallet.exception.WalletTransactionTypeNotFoundException;
 import com.example.ecommerce_backend.modules.wallet.mapper.WalletMapper;
 import com.example.ecommerce_backend.modules.wallet.mapper.WalletTransactionMapper;
 import com.example.ecommerce_backend.modules.currency.entity.Currency;
+import com.example.ecommerce_backend.modules.currency.exception.CurrencyNotFoundException;
 import com.example.ecommerce_backend.modules.currency.repository.CurrencyRepository;
 import com.example.ecommerce_backend.modules.wallet.repository.WalletRepository;
 import com.example.ecommerce_backend.modules.wallet.repository.WalletTransactionRepository;
@@ -79,7 +81,7 @@ public class WalletService {
         wallet = walletRepository.save(wallet);
 
         WalletTransactionType creditType = walletTransactionTypeRepository.findByCode("CREDIT")
-                .orElseThrow(() -> new RuntimeException("WalletTransactionType not found: CREDIT"));
+                .orElseThrow(() -> new WalletTransactionTypeNotFoundException("CREDIT"));
 
         WalletTransaction transaction = WalletTransaction.builder()
                 .wallet(wallet)
@@ -114,7 +116,7 @@ public class WalletService {
         wallet = walletRepository.save(wallet);
 
         WalletTransactionType debitType = walletTransactionTypeRepository.findByCode("DEBIT")
-                .orElseThrow(() -> new RuntimeException("WalletTransactionType not found: DEBIT"));
+                .orElseThrow(() -> new WalletTransactionTypeNotFoundException("DEBIT"));
 
         WalletTransaction transaction = WalletTransaction.builder()
                 .wallet(wallet)
@@ -135,7 +137,7 @@ public class WalletService {
         try {
             User user = userRepository.getReferenceById(userId);
             Currency currency = currencyRepository.findByCode("USD")
-                    .orElseThrow(() -> new RuntimeException("Currency not found: USD"));
+                    .orElseThrow(() -> new CurrencyNotFoundException("USD"));
             Wallet wallet = Wallet.builder()
                     .user(user)
                     .currency(currency)

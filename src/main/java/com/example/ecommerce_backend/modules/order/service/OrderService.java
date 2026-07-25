@@ -5,6 +5,7 @@ import com.example.ecommerce_backend.modules.cart.repository.CartRepository;
 import com.example.ecommerce_backend.modules.cart.service.CartService;
 import com.example.ecommerce_backend.modules.coupon.service.CouponService;
 import com.example.ecommerce_backend.modules.currency.entity.Currency;
+import com.example.ecommerce_backend.modules.currency.exception.CurrencyNotFoundException;
 import com.example.ecommerce_backend.modules.currency.repository.CurrencyRepository;
 import com.example.ecommerce_backend.modules.order.dto.request.OrderRequest;
 import com.example.ecommerce_backend.modules.order.dto.response.OrderResponse;
@@ -82,7 +83,7 @@ public class OrderService {
         }
 
         Currency currency = currencyRepository.findByCode("USD")
-                .orElseThrow(() -> new RuntimeException("Currency not found: USD"));
+                .orElseThrow(() -> new CurrencyNotFoundException("USD"));
 
         Order order = Order.builder()
                 .user(user)
