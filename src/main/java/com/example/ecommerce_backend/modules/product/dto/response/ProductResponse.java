@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ public class ProductResponse {
     private List<TagSummary> tags;
     private List<VariantResponse> variants;
     private List<ImageResponse> images;
+    private ReviewStats reviewStats;
+    private List<ReviewSummary> recentReviews;
 
     @JsonProperty("isActive")
     public boolean isActive() {
@@ -90,5 +93,28 @@ public class ProductResponse {
         private Long id;
         private String name;
         private String slug;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReviewStats {
+        private double averageRating;
+        private int totalCount;
+        private Map<Integer, Long> ratingDistribution;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ReviewSummary {
+        private String uuid;
+        private int rating;
+        private String title;
+        private String comment;
+        private String userName;
+        private Instant createdAt;
     }
 }

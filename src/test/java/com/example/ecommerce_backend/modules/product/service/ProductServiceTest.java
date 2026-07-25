@@ -10,6 +10,7 @@ import com.example.ecommerce_backend.modules.product.dto.response.ProductRespons
 import com.example.ecommerce_backend.modules.product.entity.Product;
 import com.example.ecommerce_backend.modules.product.exception.ProductNotFoundException;
 import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
+import com.example.ecommerce_backend.modules.review.repository.ReviewRepository;
 import com.example.ecommerce_backend.modules.tag.repository.TagRepository;
 import com.example.ecommerce_backend.modules.variant.repository.ProductVariantRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,6 +55,9 @@ class ProductServiceTest {
 
     @Mock
     private TagRepository tagRepository;
+
+    @Mock
+    private ReviewRepository reviewRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -187,6 +191,10 @@ class ProductServiceTest {
     @Test
     void getByUuid_shouldReturnProduct() {
         when(productRepository.findByUuid("uuid-active")).thenReturn(Optional.of(activeProduct));
+        when(reviewRepository.getAverageRatingByProductId(1L)).thenReturn(4.5);
+        when(reviewRepository.getReviewCountByProductId(1L)).thenReturn(10L);
+        when(reviewRepository.getRatingDistributionByProductId(1L)).thenReturn(List.of());
+        when(reviewRepository.findTop5ByProductIdAndIsActiveTrueOrderByCreatedAtDesc(1L)).thenReturn(List.of());
 
         ProductResponse result = productService.getByUuid("uuid-active", null);
 

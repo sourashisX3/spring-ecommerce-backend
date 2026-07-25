@@ -26,7 +26,7 @@ import java.util.Set;
 @Service
 public class RolesService {
 
-    private static final Set<String> PROTECTED_ROLES = Set.of("SUPER_ADMIN");
+    private static final Set<String> PROTECTED_ROLES = Set.of("SUPER_ADMIN", "ADMIN");
 
     @Autowired
     private RolesRepository rolesRepository;

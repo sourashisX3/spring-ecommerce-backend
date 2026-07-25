@@ -19,6 +19,7 @@ import com.example.ecommerce_backend.modules.product.exception.ProductNotFoundEx
 import com.example.ecommerce_backend.modules.product.mapper.ProductMapper;
 import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
 import com.example.ecommerce_backend.modules.product.specification.ProductSpecification;
+import com.example.ecommerce_backend.modules.review.repository.ReviewRepository;
 import com.example.ecommerce_backend.modules.tag.entity.Tag;
 import com.example.ecommerce_backend.modules.tag.exception.TagNotFoundException;
 import com.example.ecommerce_backend.modules.tag.repository.TagRepository;
@@ -60,6 +61,9 @@ public class ProductService {
 
     @Autowired
     private TagRepository tagRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     @Transactional(readOnly = true)
     public Page<ProductResponse> getAllProducts(
@@ -161,7 +165,44 @@ public class ProductService {
         if (response.getVariants() != null) {
             ProductMapper.selectVariant(response.getVariants(), attributeFilters);
         }
+        populateReviews(response, product.getId());
         return response;
+    }
+
+    private void populateReviews(ProductResponse response, Long productId) {
+        double avgRating = reviewRepository.getAverageRatingByProductId(productId);
+        long totalCount = reviewRepository.getReviewCountByProductId(productId);
+
+        Map<Integer, Long> distribution = new HashMap<>();
+        for (int i = 1; i <= 5; i++) {
+            distribution.put(i, 0L);
+        }
+        List<Object[]> rows = reviewRepository.getRatingDistributionByProductId(productId);
+        for (Object[] row : rows) {
+            distribution.put(((Number) row[0]).intValue(), ((Number) row[1]).longValue());
+        }
+
+        response.setReviewStats(ProductResponse.ReviewStats.builder()
+                .averageRating(BigDecimal.valueOf(avgRating)
+                        .setScale(2, java.math.RoundingMode.HALF_UP)
+                        .doubleValue())
+                .totalCount((int) totalCount)
+                .ratingDistribution(distribution)
+                .build());
+
+        List<ProductResponse.ReviewSummary> summaries = reviewRepository
+                .findTop5ByProductIdAndIsActiveTrueOrderByCreatedAtDesc(productId)
+                .stream()
+                .map(r -> ProductResponse.ReviewSummary.builder()
+                        .uuid(r.getUuid())
+                        .rating(r.getRating())
+                        .title(r.getTitle())
+                        .comment(r.getComment())
+                        .userName(r.getUser().getUsername())
+                        .createdAt(r.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+        response.setRecentReviews(summaries);
     }
 
     @Transactional
