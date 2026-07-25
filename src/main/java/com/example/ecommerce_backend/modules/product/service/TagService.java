@@ -41,9 +41,25 @@ public class TagService {
 
     @Transactional
     @RequiresPermission("tag:write")
-    public boolean toggleStatus(String slug, boolean isActive) {
-        Tag tag = tagRepository.findBySlug(slug)
-                .orElseThrow(() -> new TagNotFoundException(slug));
+    public TagResponse update(String uuid, TagRequest request) {
+        Tag tag = tagRepository.findByUuid(uuid)
+                .orElseThrow(() -> new TagNotFoundException(uuid));
+
+        String newSlug = generateSlug(request.getName());
+        if (!tag.getSlug().equals(newSlug) && tagRepository.existsBySlug(newSlug)) {
+            newSlug = generateUniqueSlug(request.getName());
+        }
+        tag.setName(request.getName());
+        tag.setSlug(newSlug);
+        tag = tagRepository.save(tag);
+        return TagMapper.toResponse(tag);
+    }
+
+    @Transactional
+    @RequiresPermission("tag:write")
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        Tag tag = tagRepository.findByUuid(uuid)
+                .orElseThrow(() -> new TagNotFoundException(uuid));
         if (tag.isActive() == isActive) {
             return false;
         }
@@ -54,9 +70,9 @@ public class TagService {
 
     @Transactional
     @RequiresPermission("tag:write")
-    public void delete(String slug) {
-        Tag tag = tagRepository.findBySlug(slug)
-                .orElseThrow(() -> new TagNotFoundException(slug));
+    public void delete(String uuid) {
+        Tag tag = tagRepository.findByUuid(uuid)
+                .orElseThrow(() -> new TagNotFoundException(uuid));
         tagRepository.delete(tag);
     }
 

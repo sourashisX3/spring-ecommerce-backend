@@ -8,6 +8,8 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -41,10 +43,10 @@ class ProductControllerTest {
         ));
 
         when(productService.getAllProducts(isNull(), isNull(), isNull(), isNull(),
-                isNull(), isNull(), isNull(), isNull(), isNull(), any()))
+                isNull(), isNull(), isNull(), isNull(), isNull(), any(Pageable.class)))
                 .thenReturn(page);
 
-        mockMvc.perform(get("/products"))
+        mockMvc.perform(get("/products?page=0&size=20"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("abc"))
                 .andExpect(jsonPath("$.pagination").exists());
@@ -55,11 +57,28 @@ class ProductControllerTest {
         Page<ProductResponse> page = new PageImpl<>(Collections.emptyList());
 
         when(productService.getAllProducts(isNull(), isNull(), isNull(), isNull(),
-                isNull(), isNull(), isNull(), eq(true), isNull(), any()))
+                isNull(), isNull(), isNull(), eq(true), isNull(), any(Pageable.class)))
                 .thenReturn(page);
 
-        mockMvc.perform(get("/products?active=true"))
+        mockMvc.perform(get("/products?active=true&page=0&size=20"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void getAllProducts_withoutPagination_shouldReturnList() throws Exception {
+        List<ProductResponse> list = List.of(
+                ProductResponse.builder().uuid("abc").name("Test").slug("test")
+                        .basePrice(BigDecimal.TEN).build()
+        );
+
+        when(productService.getAllProducts(isNull(), isNull(), isNull(), isNull(),
+                isNull(), isNull(), isNull(), isNull(), isNull(), any(Sort.class)))
+                .thenReturn(list);
+
+        mockMvc.perform(get("/products"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.response[0].uuid").value("abc"))
+                .andExpect(jsonPath("$.pagination").doesNotExist());
     }
 
     @Test
@@ -92,7 +111,7 @@ class ProductControllerTest {
 
         mockMvc.perform(patch("/products/abc/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Product status updated successfully"));
     }
@@ -103,7 +122,7 @@ class ProductControllerTest {
 
         mockMvc.perform(patch("/products/abc/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Product is already active"));
     }

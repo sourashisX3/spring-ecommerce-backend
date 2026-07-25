@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Map;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -22,6 +23,9 @@ public class ProductVariant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String uuid;
 
     @Column(unique = true, nullable = false)
     private String sku;
@@ -62,6 +66,7 @@ public class ProductVariant {
     @PrePersist
     public void prePersist() {
         Instant now = Instant.now();
+        this.uuid = UUID.randomUUID().toString();
         this.createdAt = now;
         this.updatedAt = now;
     }

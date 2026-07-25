@@ -32,8 +32,8 @@ class TagServiceTest {
 
     @BeforeEach
     void setUp() {
-        activeTag = Tag.builder().id(1L).name("New").slug("new").isActive(true).build();
-        inactiveTag = Tag.builder().id(2L).name("Old").slug("old").isActive(false).build();
+        activeTag = Tag.builder().id(1L).uuid("uuid-1").name("New").slug("new").isActive(true).build();
+        inactiveTag = Tag.builder().id(2L).uuid("uuid-2").name("Old").slug("old").isActive(false).build();
     }
 
     @Test
@@ -67,9 +67,9 @@ class TagServiceTest {
 
     @Test
     void toggleStatus_whenAlreadyActive_shouldReturnFalse() {
-        when(tagRepository.findBySlug("new")).thenReturn(Optional.of(activeTag));
+        when(tagRepository.findByUuid("uuid-1")).thenReturn(Optional.of(activeTag));
 
-        boolean changed = tagService.toggleStatus("new", true);
+        boolean changed = tagService.toggleStatus("uuid-1", true);
 
         assertThat(changed).isFalse();
         verify(tagRepository, never()).save(any());
@@ -77,9 +77,9 @@ class TagServiceTest {
 
     @Test
     void toggleStatus_whenAlreadyInactive_shouldReturnFalse() {
-        when(tagRepository.findBySlug("old")).thenReturn(Optional.of(inactiveTag));
+        when(tagRepository.findByUuid("uuid-2")).thenReturn(Optional.of(inactiveTag));
 
-        boolean changed = tagService.toggleStatus("old", false);
+        boolean changed = tagService.toggleStatus("uuid-2", false);
 
         assertThat(changed).isFalse();
         verify(tagRepository, never()).save(any());
@@ -87,9 +87,9 @@ class TagServiceTest {
 
     @Test
     void toggleStatus_shouldToggleActiveToInactive() {
-        when(tagRepository.findBySlug("new")).thenReturn(Optional.of(activeTag));
+        when(tagRepository.findByUuid("uuid-1")).thenReturn(Optional.of(activeTag));
 
-        boolean changed = tagService.toggleStatus("new", false);
+        boolean changed = tagService.toggleStatus("uuid-1", false);
 
         assertThat(changed).isTrue();
         assertThat(activeTag.isActive()).isFalse();
@@ -98,9 +98,9 @@ class TagServiceTest {
 
     @Test
     void toggleStatus_shouldToggleInactiveToActive() {
-        when(tagRepository.findBySlug("old")).thenReturn(Optional.of(inactiveTag));
+        when(tagRepository.findByUuid("uuid-2")).thenReturn(Optional.of(inactiveTag));
 
-        boolean changed = tagService.toggleStatus("old", true);
+        boolean changed = tagService.toggleStatus("uuid-2", true);
 
         assertThat(changed).isTrue();
         assertThat(inactiveTag.isActive()).isTrue();
@@ -109,7 +109,7 @@ class TagServiceTest {
 
     @Test
     void toggleStatus_whenNotFound_shouldThrow() {
-        when(tagRepository.findBySlug("nonexistent")).thenReturn(Optional.empty());
+        when(tagRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tagService.toggleStatus("nonexistent", true))
                 .isInstanceOf(TagNotFoundException.class);
@@ -117,16 +117,16 @@ class TagServiceTest {
 
     @Test
     void delete_shouldDeleteTag() {
-        when(tagRepository.findBySlug("new")).thenReturn(Optional.of(activeTag));
+        when(tagRepository.findByUuid("uuid-1")).thenReturn(Optional.of(activeTag));
 
-        tagService.delete("new");
+        tagService.delete("uuid-1");
 
         verify(tagRepository).delete(activeTag);
     }
 
     @Test
     void delete_whenNotFound_shouldThrow() {
-        when(tagRepository.findBySlug("nonexistent")).thenReturn(Optional.empty());
+        when(tagRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> tagService.delete("nonexistent"))
                 .isInstanceOf(TagNotFoundException.class);

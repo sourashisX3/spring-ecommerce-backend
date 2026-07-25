@@ -37,8 +37,8 @@ class BrandServiceTest {
 
     @BeforeEach
     void setUp() {
-        activeBrand = Brand.builder().id(1L).name("Active").slug("active").isActive(true).build();
-        inactiveBrand = Brand.builder().id(2L).name("Inactive").slug("inactive").isActive(false).build();
+        activeBrand = Brand.builder().id(1L).uuid("uuid-1").name("Active").slug("active").isActive(true).build();
+        inactiveBrand = Brand.builder().id(2L).uuid("uuid-2").name("Inactive").slug("inactive").isActive(false).build();
     }
 
     @Test
@@ -104,9 +104,9 @@ class BrandServiceTest {
 
     @Test
     void toggleStatus_whenAlreadyActive_shouldReturnFalse() {
-        when(brandRepository.findBySlug("active")).thenReturn(Optional.of(activeBrand));
+        when(brandRepository.findByUuid("uuid-1")).thenReturn(Optional.of(activeBrand));
 
-        boolean changed = brandService.toggleStatus("active", true);
+        boolean changed = brandService.toggleStatus("uuid-1", true);
 
         assertThat(changed).isFalse();
         verify(brandRepository, never()).save(any());
@@ -114,9 +114,9 @@ class BrandServiceTest {
 
     @Test
     void toggleStatus_whenAlreadyInactive_shouldReturnFalse() {
-        when(brandRepository.findBySlug("inactive")).thenReturn(Optional.of(inactiveBrand));
+        when(brandRepository.findByUuid("uuid-2")).thenReturn(Optional.of(inactiveBrand));
 
-        boolean changed = brandService.toggleStatus("inactive", false);
+        boolean changed = brandService.toggleStatus("uuid-2", false);
 
         assertThat(changed).isFalse();
         verify(brandRepository, never()).save(any());
@@ -124,9 +124,9 @@ class BrandServiceTest {
 
     @Test
     void toggleStatus_shouldToggleActiveToInactive() {
-        when(brandRepository.findBySlug("active")).thenReturn(Optional.of(activeBrand));
+        when(brandRepository.findByUuid("uuid-1")).thenReturn(Optional.of(activeBrand));
 
-        boolean changed = brandService.toggleStatus("active", false);
+        boolean changed = brandService.toggleStatus("uuid-1", false);
 
         assertThat(changed).isTrue();
         assertThat(activeBrand.isActive()).isFalse();
@@ -135,9 +135,9 @@ class BrandServiceTest {
 
     @Test
     void toggleStatus_shouldToggleInactiveToActive() {
-        when(brandRepository.findBySlug("inactive")).thenReturn(Optional.of(inactiveBrand));
+        when(brandRepository.findByUuid("uuid-2")).thenReturn(Optional.of(inactiveBrand));
 
-        boolean changed = brandService.toggleStatus("inactive", true);
+        boolean changed = brandService.toggleStatus("uuid-2", true);
 
         assertThat(changed).isTrue();
         assertThat(inactiveBrand.isActive()).isTrue();
@@ -146,7 +146,7 @@ class BrandServiceTest {
 
     @Test
     void toggleStatus_whenNotFound_shouldThrow() {
-        when(brandRepository.findBySlug("nonexistent")).thenReturn(Optional.empty());
+        when(brandRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> brandService.toggleStatus("nonexistent", true))
                 .isInstanceOf(BrandNotFoundException.class);
@@ -154,16 +154,16 @@ class BrandServiceTest {
 
     @Test
     void delete_shouldDeleteBrand() {
-        when(brandRepository.findBySlug("active")).thenReturn(Optional.of(activeBrand));
+        when(brandRepository.findByUuid("uuid-1")).thenReturn(Optional.of(activeBrand));
 
-        brandService.delete("active");
+        brandService.delete("uuid-1");
 
         verify(brandRepository).delete(activeBrand);
     }
 
     @Test
     void delete_whenNotFound_shouldThrow() {
-        when(brandRepository.findBySlug("nonexistent")).thenReturn(Optional.empty());
+        when(brandRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> brandService.delete("nonexistent"))
                 .isInstanceOf(BrandNotFoundException.class);

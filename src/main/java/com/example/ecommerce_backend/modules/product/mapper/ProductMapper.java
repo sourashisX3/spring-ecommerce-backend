@@ -92,6 +92,7 @@ public class ProductMapper {
     public static VariantResponse toVariantResponse(ProductVariant variant) {
         return VariantResponse.builder()
                 .id(variant.getId())
+                .uuid(variant.getUuid())
                 .sku(variant.getSku())
                 .name(variant.getName())
                 .price(variant.getPrice())
@@ -109,6 +110,7 @@ public class ProductMapper {
     public static ImageResponse toImageResponse(ProductImage image) {
         return ImageResponse.builder()
                 .id(image.getId())
+                .uuid(image.getUuid())
                 .imageUrl(image.getImageUrl())
                 .isPrimary(image.isPrimary())
                 .sortOrder(image.getSortOrder())

@@ -96,7 +96,7 @@ class BrandControllerTest {
 
         mockMvc.perform(patch("/brands/test/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Brand status updated successfully"));
     }
@@ -107,7 +107,7 @@ class BrandControllerTest {
 
         mockMvc.perform(patch("/brands/test/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Brand is already active"));
     }

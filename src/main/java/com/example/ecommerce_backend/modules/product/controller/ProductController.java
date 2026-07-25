@@ -38,8 +38,8 @@ public class ProductController {
             @RequestParam(required = false) Boolean active,
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortDir,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String attrColor,
             @RequestParam(required = false) String attrSize,
             @RequestParam(required = false) String attrMaterial
@@ -50,25 +50,33 @@ public class ProductController {
                     ? Sort.Direction.DESC : Sort.Direction.ASC;
             sort = Sort.by(direction, sortBy);
         }
-        Pageable pageable = PageRequest.of(page, size, sort);
 
         Map<String, String> attributeFilters = new HashMap<>();
         if (attrColor != null) attributeFilters.put("color", attrColor);
         if (attrSize != null) attributeFilters.put("size", attrSize);
         if (attrMaterial != null) attributeFilters.put("material", attrMaterial);
+        Map<String, String> filters = attributeFilters.isEmpty() ? null : attributeFilters;
 
-        Page<ProductResponse> products = productService.getAllProducts(
-                categorySlug, brandSlug, tagSlug, search,
-                minPrice, maxPrice, isFeatured, active,
-                attributeFilters.isEmpty() ? null : attributeFilters,
-                pageable
-        );
-
-        return ApiResponse.paginated(
-                products.getContent(),
-                "Products retrieved successfully",
-                Pagination.of(products)
-        );
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<ProductResponse> products = productService.getAllProducts(
+                    categorySlug, brandSlug, tagSlug, search,
+                    minPrice, maxPrice, isFeatured, active,
+                    filters, pageable
+            );
+            return ApiResponse.paginated(
+                    products.getContent(),
+                    "Products retrieved successfully",
+                    Pagination.of(products)
+            );
+        } else {
+            List<ProductResponse> products = productService.getAllProducts(
+                    categorySlug, brandSlug, tagSlug, search,
+                    minPrice, maxPrice, isFeatured, active,
+                    filters, sort
+            );
+            return ApiResponse.success(products, "Products retrieved successfully");
+        }
     }
 
     @GetMapping("/{uuid}")

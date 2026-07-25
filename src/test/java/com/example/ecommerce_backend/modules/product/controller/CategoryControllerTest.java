@@ -116,7 +116,7 @@ class CategoryControllerTest {
 
         mockMvc.perform(patch("/categories/test/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Category status updated successfully"));
     }
@@ -127,7 +127,7 @@ class CategoryControllerTest {
 
         mockMvc.perform(patch("/categories/test/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Category is already active"));
     }
@@ -138,7 +138,7 @@ class CategoryControllerTest {
 
         mockMvc.perform(patch("/categories/test/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": false}"))
+                        .content("{\"isActive\": false}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Category is already inactive"));
     }

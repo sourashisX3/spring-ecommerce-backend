@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.role_user.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,4 +33,34 @@ public class UserResponse {
     private boolean isPhoneVerified;
     private Instant createdAt;
     private Instant updatedAt;
+
+    @JsonProperty("isActive")
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @JsonProperty("isActive")
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    @JsonProperty("isEmailVerified")
+    public boolean isEmailVerified() {
+        return isEmailVerified;
+    }
+
+    @JsonProperty("isEmailVerified")
+    public void setEmailVerified(boolean isEmailVerified) {
+        this.isEmailVerified = isEmailVerified;
+    }
+
+    @JsonProperty("isPhoneVerified")
+    public boolean isPhoneVerified() {
+        return isPhoneVerified;
+    }
+
+    @JsonProperty("isPhoneVerified")
+    public void setPhoneVerified(boolean isPhoneVerified) {
+        this.isPhoneVerified = isPhoneVerified;
+    }
 }

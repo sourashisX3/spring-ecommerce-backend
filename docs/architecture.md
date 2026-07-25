@@ -30,6 +30,14 @@ com.example.ecommerce_backend
 │   ├── dto/                       # Shared DTOs (ApiResponse, Pagination)
 │   └── exception/                 # BaseException + GlobalExceptionHandler
 ├── modules/                       # Domain modules
+│   ├── product/                    # Products, categories, brands, tags, variants, images
+│   │   ├── controller/             # ProductController, CategoryController, BrandController, TagController, VariantController, ImageController
+│   │   ├── dto/ (request/, response/)
+│   │   ├── entity/                 # Product, Category, Brand, Tag, ProductVariant, ProductImage
+│   │   ├── exception/              # 6 module-specific exceptions
+│   │   ├── mapper/                 # ProductMapper, CategoryMapper, BrandMapper, TagMapper
+│   │   ├── repository/             # 6 Spring Data repositories
+│   │   └── service/                # ProductService, CategoryService, BrandService, TagService
 │   └── role_user/                 # Auth, roles, permissions, users
 │       ├── controller/            # AuthController, RolesController, PermissionController, UserPermissionController, UserController
 │       ├── dto/ (request/, response/)
@@ -63,7 +71,19 @@ This ensures clean extraction to microservices later.
 ```
 User ──→ Role ──→ Permission  (ManyToMany via role_permissions)
 User ──→ UserPermission ──→ Permission  (per-user GRANT/DENY overrides)
+
+Product ──→ Category  (ManyToOne)
+Product ──→ Brand     (ManyToOne)
+Product ──→ Tag       (ManyToMany via product_tags)
+Product ──→ ProductVariant  (OneToMany)
+Product ──→ ProductImage    (OneToMany)
+ProductImage ──→ ProductVariant (ManyToOne, optional — image scoped to variant)
 ```
+
+## UUID Usage
+- All entities have `uuid` field with `@Column(unique = true, nullable = false)`
+- Generated via `@PrePersist`: `this.uuid = UUID.randomUUID().toString();`
+- `Long id` (auto-increment) kept as internal primary key; `uuid` used for external API lookups
 
 ## Authorization System
 

@@ -23,9 +23,9 @@ public class ImageController {
         return ApiResponse.created(image, "Image added successfully");
     }
 
-    @DeleteMapping("/images/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteImage(@PathVariable Long id) {
-        productService.deleteImage(id);
+    @DeleteMapping("/images/{imageUuid}")
+    public ResponseEntity<ApiResponse<Void>> deleteImage(@PathVariable String imageUuid) {
+        productService.deleteImage(imageUuid);
         return ApiResponse.success(null, "Image deleted successfully");
     }
 }

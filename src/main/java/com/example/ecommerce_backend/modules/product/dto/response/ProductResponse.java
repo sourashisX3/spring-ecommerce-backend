@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.product.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,6 +38,26 @@ public class ProductResponse {
     private List<TagSummary> tags;
     private List<VariantResponse> variants;
     private List<ImageResponse> images;
+
+    @JsonProperty("isActive")
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @JsonProperty("isActive")
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    @JsonProperty("isFeatured")
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    @JsonProperty("isFeatured")
+    public void setFeatured(boolean isFeatured) {
+        this.isFeatured = isFeatured;
+    }
 
     @Data
     @Builder

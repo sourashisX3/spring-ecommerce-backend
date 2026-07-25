@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Entity
 @Builder
@@ -17,6 +19,9 @@ public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String uuid;
 
     @Column(nullable = false)
     private String imageUrl;
@@ -36,4 +41,9 @@ public class ProductImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "variant_id")
     private ProductVariant variant;
+
+    @PrePersist
+    public void prePersist() {
+        this.uuid = UUID.randomUUID().toString();
+    }
 }

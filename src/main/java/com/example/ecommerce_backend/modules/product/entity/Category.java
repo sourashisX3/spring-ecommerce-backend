@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -21,6 +22,9 @@ public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String uuid;
 
     @Column(nullable = false)
     private String name;
@@ -55,6 +59,7 @@ public class Category {
     @PrePersist
     public void prePersist() {
         Instant now = Instant.now();
+        this.uuid = UUID.randomUUID().toString();
         this.createdAt = now;
         this.updatedAt = now;
     }

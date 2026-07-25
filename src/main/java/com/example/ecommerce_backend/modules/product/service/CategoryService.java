@@ -127,9 +127,9 @@ public class CategoryService {
 
     @Transactional
     @RequiresPermission("category:write")
-    public boolean toggleStatus(String slug, boolean isActive) {
-        Category category = categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new CategoryNotFoundException(slug));
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        Category category = categoryRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CategoryNotFoundException(uuid));
         if (category.isActive() == isActive) {
             return false;
         }
@@ -160,9 +160,9 @@ public class CategoryService {
 
     @Transactional
     @RequiresPermission("category:write")
-    public CategoryResponse update(String slug, CategoryRequest request) {
-        Category category = categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new CategoryNotFoundException(slug));
+    public CategoryResponse update(String uuid, CategoryRequest request) {
+        Category category = categoryRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CategoryNotFoundException(uuid));
 
         category.setName(request.getName());
         if (!category.getSlug().equals(generateSlug(request.getName()))) {
@@ -187,16 +187,16 @@ public class CategoryService {
 
     @Transactional
     @RequiresPermission("category:write")
-    public void delete(String slug) {
-        Category category = categoryRepository.findBySlug(slug)
-                .orElseThrow(() -> new CategoryNotFoundException(slug));
+    public void delete(String uuid) {
+        Category category = categoryRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CategoryNotFoundException(uuid));
 
         if (category.getChildren() != null && !category.getChildren().isEmpty()) {
-            throw new CategoryHasChildrenException(slug);
+            throw new CategoryHasChildrenException(uuid);
         }
 
         if (productRepository.countByCategoryId(category.getId()) > 0) {
-            throw new CategoryHasProductsException(slug);
+            throw new CategoryHasProductsException(uuid);
         }
 
         categoryRepository.delete(category);

@@ -11,6 +11,7 @@ public class BrandMapper {
     public static BrandResponse toResponse(Brand brand) {
         return BrandResponse.builder()
                 .id(brand.getId())
+                .uuid(brand.getUuid())
                 .name(brand.getName())
                 .slug(brand.getSlug())
                 .description(brand.getDescription())

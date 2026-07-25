@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.product.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class VariantResponse {
 
     private Long id;
+    private String uuid;
     private String sku;
     private String name;
     private BigDecimal price;
@@ -27,4 +29,24 @@ public class VariantResponse {
     private int sortOrder;
     private Instant createdAt;
     private Instant updatedAt;
+
+    @JsonProperty("isActive")
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @JsonProperty("isActive")
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    @JsonProperty("isDefault")
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    @JsonProperty("isDefault")
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 }

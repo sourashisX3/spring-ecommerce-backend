@@ -43,3 +43,18 @@
 ## 2026-07-24 — Registration roleId as nullable
 - **Decision**: `RegisterRequest.roleId` is `@Nullable`. If null, "USER" role is assigned. If provided, validates and assigns that role.
 - **Rationale**: Flexibility for admin-created users while keeping registration simple for end users.
+
+## 2026-07-25 — UUID identifiers for all entities
+- **Decision**: Added `uuid` field with `@PrePersist` auto-generation to Category, Brand, Tag, ProductVariant, ProductImage entities (Product already had it).
+- **Mutation endpoints** use `{uuid}` (e.g., `PUT /categories/{uuid}`, `DELETE /brands/{uuid}`).
+- **GET lookups** keep `{slug}` for Category, Brand, Tag (except Product which uses `{uuid}` for both).
+- **Rationale**: UUIDs are safe for public exposure (unlike numeric IDs which leak entity count / ordering). Slug-based GET URLs are SEO-friendly and stable.
+
+## 2026-07-25 — Jackson `isXxx` JSON key convention
+- **Decision**: All `private boolean isXxx` fields in DTOs use `@JsonProperty("isXxx")` on both getter and setter.
+- **Rationale**: Lombok's `@Data` generates getter `isXxx()` for `boolean isXxx` fields. Jackson's Java Bean naming convention strips the `is` prefix from the getter name, producing JSON key `"xxx"` instead of `"isXxx"`. Adding `@JsonProperty` on both getter and setter forces the desired `"isXxx"` key for both serialization and deserialization.
+- **Affected**: StatusRequest, VariantRequest, ImageRequest, ProductRequest, BrandResponse, CategoryResponse, ImageResponse, TagResponse, ProductResponse, VariantResponse, UserResponse.
+
+## 2026-07-25 — Variants created via separate API, not inline in ProductRequest
+- **Decision**: Variant creation is via `POST /products/{productUuid}/variants`, not as an inline list in ProductRequest.
+- **Rationale**: Keeps product creation simple; variants are optional and added later. Avoids complex nested validation.

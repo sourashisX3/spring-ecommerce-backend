@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.product.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -12,4 +13,14 @@ public class ImageRequest {
     private boolean isPrimary;
 
     private int sortOrder;
+
+    @JsonProperty("isPrimary")
+    public boolean isPrimary() {
+        return isPrimary;
+    }
+
+    @JsonProperty("isPrimary")
+    public void setPrimary(boolean isPrimary) {
+        this.isPrimary = isPrimary;
+    }
 }

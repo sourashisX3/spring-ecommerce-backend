@@ -11,6 +11,7 @@ public class TagMapper {
     public static TagResponse toResponse(Tag tag) {
         return TagResponse.builder()
                 .id(tag.getId())
+                .uuid(tag.getUuid())
                 .name(tag.getName())
                 .slug(tag.getSlug())
                 .isActive(tag.isActive())

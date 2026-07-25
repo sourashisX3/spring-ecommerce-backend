@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.product.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -28,4 +29,14 @@ public class VariantRequest {
     private int sortOrder;
 
     private boolean isDefault;
+
+    @JsonProperty("isDefault")
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    @JsonProperty("isDefault")
+    public void setDefault(boolean isDefault) {
+        this.isDefault = isDefault;
+    }
 }

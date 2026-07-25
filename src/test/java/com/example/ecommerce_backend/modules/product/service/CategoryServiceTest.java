@@ -42,12 +42,12 @@ class CategoryServiceTest {
 
     @BeforeEach
     void setUp() {
-        root = Category.builder().id(1L).name("Root").slug("root").sortOrder(1).isActive(true).build();
-        child = Category.builder().id(2L).name("Child").slug("child").sortOrder(1).isActive(true).parent(root).build();
+        root = Category.builder().id(1L).uuid("uuid-1").name("Root").slug("root").sortOrder(1).isActive(true).build();
+        child = Category.builder().id(2L).uuid("uuid-2").name("Child").slug("child").sortOrder(1).isActive(true).parent(root).build();
         root.setChildren(new ArrayList<>(List.of(child)));
 
-        inactiveRoot = Category.builder().id(3L).name("Inactive Root").slug("inactive-root").sortOrder(2).isActive(false).build();
-        inactiveChild = Category.builder().id(4L).name("Inactive Child").slug("inactive-child").sortOrder(1).isActive(false).parent(inactiveRoot).build();
+        inactiveRoot = Category.builder().id(3L).uuid("uuid-3").name("Inactive Root").slug("inactive-root").sortOrder(2).isActive(false).build();
+        inactiveChild = Category.builder().id(4L).uuid("uuid-4").name("Inactive Child").slug("inactive-child").sortOrder(1).isActive(false).parent(inactiveRoot).build();
         inactiveRoot.setChildren(new ArrayList<>(List.of(inactiveChild)));
     }
 
@@ -138,8 +138,8 @@ class CategoryServiceTest {
 
     @Test
     void getTree_shouldHandleCycleSafely() {
-        Category a = Category.builder().id(1L).name("A").slug("a").sortOrder(1).isActive(true).build();
-        Category b = Category.builder().id(2L).name("B").slug("b").sortOrder(1).isActive(true).parent(a).build();
+        Category a = Category.builder().id(1L).uuid("uuid-a").name("A").slug("a").sortOrder(1).isActive(true).build();
+        Category b = Category.builder().id(2L).uuid("uuid-b").name("B").slug("b").sortOrder(1).isActive(true).parent(a).build();
         a.setChildren(new ArrayList<>(List.of(b)));
 
         when(categoryRepository.findAll()).thenReturn(List.of(a, b));
@@ -175,9 +175,9 @@ class CategoryServiceTest {
 
     @Test
     void toggleStatus_whenAlreadyActive_shouldReturnFalse() {
-        when(categoryRepository.findBySlug("root")).thenReturn(Optional.of(root));
+        when(categoryRepository.findByUuid("uuid-1")).thenReturn(Optional.of(root));
 
-        boolean changed = categoryService.toggleStatus("root", true);
+        boolean changed = categoryService.toggleStatus("uuid-1", true);
 
         assertThat(changed).isFalse();
         verify(categoryRepository, never()).save(any());
@@ -185,9 +185,9 @@ class CategoryServiceTest {
 
     @Test
     void toggleStatus_whenAlreadyInactive_shouldReturnFalse() {
-        when(categoryRepository.findBySlug("inactive-root")).thenReturn(Optional.of(inactiveRoot));
+        when(categoryRepository.findByUuid("uuid-3")).thenReturn(Optional.of(inactiveRoot));
 
-        boolean changed = categoryService.toggleStatus("inactive-root", false);
+        boolean changed = categoryService.toggleStatus("uuid-3", false);
 
         assertThat(changed).isFalse();
         verify(categoryRepository, never()).save(any());
@@ -195,9 +195,9 @@ class CategoryServiceTest {
 
     @Test
     void toggleStatus_shouldToggleFromActiveToInactive() {
-        when(categoryRepository.findBySlug("root")).thenReturn(Optional.of(root));
+        when(categoryRepository.findByUuid("uuid-1")).thenReturn(Optional.of(root));
 
-        boolean changed = categoryService.toggleStatus("root", false);
+        boolean changed = categoryService.toggleStatus("uuid-1", false);
 
         assertThat(changed).isTrue();
         assertThat(root.isActive()).isFalse();
@@ -206,9 +206,9 @@ class CategoryServiceTest {
 
     @Test
     void toggleStatus_shouldToggleFromInactiveToActive() {
-        when(categoryRepository.findBySlug("inactive-root")).thenReturn(Optional.of(inactiveRoot));
+        when(categoryRepository.findByUuid("uuid-3")).thenReturn(Optional.of(inactiveRoot));
 
-        boolean changed = categoryService.toggleStatus("inactive-root", true);
+        boolean changed = categoryService.toggleStatus("uuid-3", true);
 
         assertThat(changed).isTrue();
         assertThat(inactiveRoot.isActive()).isTrue();
@@ -217,7 +217,7 @@ class CategoryServiceTest {
 
     @Test
     void toggleStatus_whenNotFound_shouldThrow() {
-        when(categoryRepository.findBySlug("nonexistent")).thenReturn(Optional.empty());
+        when(categoryRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> categoryService.toggleStatus("nonexistent", true))
                 .isInstanceOf(CategoryNotFoundException.class);
@@ -227,31 +227,31 @@ class CategoryServiceTest {
 
     @Test
     void delete_whenCategoryHasChildren_shouldThrow() {
-        when(categoryRepository.findBySlug("root")).thenReturn(Optional.of(root));
+        when(categoryRepository.findByUuid("uuid-1")).thenReturn(Optional.of(root));
 
-        assertThatThrownBy(() -> categoryService.delete("root"))
+        assertThatThrownBy(() -> categoryService.delete("uuid-1"))
                 .isInstanceOf(CategoryHasChildrenException.class);
         verify(categoryRepository, never()).delete(any());
     }
 
     @Test
     void delete_whenCategoryHasProducts_shouldThrow() {
-        Category leaf = Category.builder().id(5L).name("Leaf").slug("leaf").children(Collections.emptyList()).build();
-        when(categoryRepository.findBySlug("leaf")).thenReturn(Optional.of(leaf));
+        Category leaf = Category.builder().id(5L).uuid("uuid-5").name("Leaf").slug("leaf").children(Collections.emptyList()).build();
+        when(categoryRepository.findByUuid("uuid-5")).thenReturn(Optional.of(leaf));
         when(productRepository.countByCategoryId(5L)).thenReturn(3L);
 
-        assertThatThrownBy(() -> categoryService.delete("leaf"))
+        assertThatThrownBy(() -> categoryService.delete("uuid-5"))
                 .isInstanceOf(CategoryHasProductsException.class);
         verify(categoryRepository, never()).delete(any());
     }
 
     @Test
     void delete_whenNoChildrenAndNoProducts_shouldDelete() {
-        Category leaf = Category.builder().id(5L).name("Leaf").slug("leaf").children(Collections.emptyList()).build();
-        when(categoryRepository.findBySlug("leaf")).thenReturn(Optional.of(leaf));
+        Category leaf = Category.builder().id(5L).uuid("uuid-5").name("Leaf").slug("leaf").children(Collections.emptyList()).build();
+        when(categoryRepository.findByUuid("uuid-5")).thenReturn(Optional.of(leaf));
         when(productRepository.countByCategoryId(5L)).thenReturn(0L);
 
-        categoryService.delete("leaf");
+        categoryService.delete("uuid-5");
 
         verify(categoryRepository).delete(leaf);
     }

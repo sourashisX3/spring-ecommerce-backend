@@ -15,6 +15,7 @@ import com.example.ecommerce_backend.modules.product.specification.ProductSpecif
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -92,6 +93,51 @@ public class ProductService {
         });
 
         return responsePage;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProductResponse> getAllProducts(
+            String categorySlug,
+            String brandSlug,
+            String tagSlug,
+            String search,
+            BigDecimal minPrice,
+            BigDecimal maxPrice,
+            Boolean isFeatured,
+            Boolean active,
+            Map<String, String> attributeFilters,
+            Sort sort
+    ) {
+        Set<Long> categoryIds = null;
+        if (categorySlug != null && !categorySlug.isBlank()) {
+            categoryIds = categoryService.getDescendantCategoryIds(categorySlug);
+        }
+
+        Specification<Product> spec = ProductSpecification.withFilters(
+                categoryIds, brandSlug, tagSlug, search, minPrice, maxPrice, isFeatured, active
+        );
+
+        List<Product> products = productRepository.findAll(spec, sort);
+
+        List<ProductResponse> responseList;
+        if (attributeFilters != null && !attributeFilters.isEmpty()) {
+            responseList = products.stream()
+                    .filter(p -> matchesAttributes(p.getAttributes(), attributeFilters))
+                    .map(ProductMapper::toResponse)
+                    .collect(Collectors.toList());
+        } else {
+            responseList = products.stream()
+                    .map(ProductMapper::toResponse)
+                    .collect(Collectors.toList());
+        }
+
+        responseList.forEach(p -> {
+            if (p.getVariants() != null) {
+                ProductMapper.selectVariant(p.getVariants(), attributeFilters);
+            }
+        });
+
+        return responseList;
     }
 
     @Transactional(readOnly = true)
@@ -342,6 +388,22 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<VariantResponse> getVariants(String productUuid) {
+        Product product = productRepository.findByUuid(productUuid)
+                .orElseThrow(() -> new ProductNotFoundException(productUuid));
+        return product.getVariants().stream()
+                .map(ProductMapper::toVariantResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public VariantResponse getVariant(String variantUuid) {
+        ProductVariant variant = variantRepository.findByUuid(variantUuid)
+                .orElseThrow(() -> new ProductVariantNotFoundException(variantUuid));
+        return ProductMapper.toVariantResponse(variant);
+    }
+
     @Transactional
     @RequiresPermission("product:write")
     public VariantResponse addVariant(String productUuid, VariantRequest request) {
@@ -373,9 +435,9 @@ public class ProductService {
 
     @Transactional
     @RequiresPermission("product:write")
-    public VariantResponse updateVariant(Long variantId, VariantRequest request) {
-        ProductVariant variant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new ProductVariantNotFoundException(variantId));
+    public VariantResponse updateVariant(String variantUuid, VariantRequest request) {
+        ProductVariant variant = variantRepository.findByUuid(variantUuid)
+                .orElseThrow(() -> new ProductVariantNotFoundException(variantUuid));
 
         if (!variant.getSku().equals(request.getSku()) && variantRepository.existsBySku(request.getSku())) {
             throw new DuplicateSkuException(request.getSku());
@@ -391,9 +453,9 @@ public class ProductService {
 
         if (request.isDefault()) {
             Product product = variant.getProduct();
-            Long currentId = variant.getId();
+            String currentUuid = variant.getUuid();
             product.getVariants().stream()
-                    .filter(v -> !v.getId().equals(currentId))
+                    .filter(v -> !v.getUuid().equals(currentUuid))
                     .forEach(v -> v.setDefault(false));
         }
 
@@ -403,9 +465,9 @@ public class ProductService {
 
     @Transactional
     @RequiresPermission("product:write")
-    public void deleteVariant(Long variantId) {
-        ProductVariant variant = variantRepository.findById(variantId)
-                .orElseThrow(() -> new ProductVariantNotFoundException(variantId));
+    public void deleteVariant(String variantUuid) {
+        ProductVariant variant = variantRepository.findByUuid(variantUuid)
+                .orElseThrow(() -> new ProductVariantNotFoundException(variantUuid));
         variantRepository.delete(variant);
     }
 
@@ -432,9 +494,9 @@ public class ProductService {
 
     @Transactional
     @RequiresPermission("product:write")
-    public void deleteImage(Long imageId) {
-        ProductImage image = imageRepository.findById(imageId)
-                .orElseThrow(() -> new RuntimeException("Image not found with id: " + imageId));
+    public void deleteImage(String imageUuid) {
+        ProductImage image = imageRepository.findByUuid(imageUuid)
+                .orElseThrow(() -> new RuntimeException("Image not found with uuid: " + imageUuid));
 
         boolean wasPrimary = image.isPrimary();
         Long productId = image.getProduct().getId();

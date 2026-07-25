@@ -36,21 +36,31 @@ public class TagController {
         return ApiResponse.created(tag, "Tag created successfully");
     }
 
-    @PatchMapping("/{slug}/status")
+    @PutMapping("/{uuid}")
+    @RequiresPermission("tag:write")
+    public ResponseEntity<ApiResponse<TagResponse>> update(
+            @PathVariable String uuid,
+            @Valid @RequestBody TagRequest request
+    ) {
+        TagResponse tag = tagService.update(uuid, request);
+        return ApiResponse.success(tag, "Tag updated successfully");
+    }
+
+    @PatchMapping("/{uuid}/status")
     @RequiresPermission("tag:write")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
-            @PathVariable String slug,
+            @PathVariable String uuid,
             @RequestBody StatusRequest request
     ) {
-        boolean changed = tagService.toggleStatus(slug, request.isActive());
+        boolean changed = tagService.toggleStatus(uuid, request.isActive());
         String message = changed ? "Tag status updated successfully" : "Tag is already " + (request.isActive() ? "active" : "inactive");
         return ApiResponse.success(null, message);
     }
 
-    @DeleteMapping("/{slug}")
+    @DeleteMapping("/{uuid}")
     @RequiresPermission("tag:write")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String slug) {
-        tagService.delete(slug);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
+        tagService.delete(uuid);
         return ApiResponse.success(null, "Tag deleted successfully");
     }
 }

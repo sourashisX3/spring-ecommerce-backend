@@ -11,6 +11,7 @@ public class CategoryMapper {
     public static CategoryResponse toResponse(Category category) {
         return CategoryResponse.builder()
                 .id(category.getId())
+                .uuid(category.getUuid())
                 .name(category.getName())
                 .slug(category.getSlug())
                 .description(category.getDescription())

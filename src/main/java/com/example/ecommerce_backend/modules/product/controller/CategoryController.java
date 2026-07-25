@@ -52,31 +52,31 @@ public class CategoryController {
         return ApiResponse.created(category, "Category created successfully");
     }
 
-    @PutMapping("/{slug}")
+    @PutMapping("/{uuid}")
     @RequiresPermission("category:write")
     public ResponseEntity<ApiResponse<CategoryResponse>> update(
-            @PathVariable String slug,
+            @PathVariable String uuid,
             @Valid @RequestBody CategoryRequest request
     ) {
-        CategoryResponse category = categoryService.update(slug, request);
+        CategoryResponse category = categoryService.update(uuid, request);
         return ApiResponse.success(category, "Category updated successfully");
     }
 
-    @PatchMapping("/{slug}/status")
+    @PatchMapping("/{uuid}/status")
     @RequiresPermission("category:write")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
-            @PathVariable String slug,
+            @PathVariable String uuid,
             @RequestBody StatusRequest request
     ) {
-        boolean changed = categoryService.toggleStatus(slug, request.isActive());
+        boolean changed = categoryService.toggleStatus(uuid, request.isActive());
         String message = changed ? "Category status updated successfully" : "Category is already " + (request.isActive() ? "active" : "inactive");
         return ApiResponse.success(null, message);
     }
 
-    @DeleteMapping("/{slug}")
+    @DeleteMapping("/{uuid}")
     @RequiresPermission("category:write")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String slug) {
-        categoryService.delete(slug);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
+        categoryService.delete(uuid);
         return ApiResponse.success(null, "Category deleted successfully");
     }
 }

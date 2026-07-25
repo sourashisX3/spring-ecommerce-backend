@@ -43,31 +43,31 @@ public class BrandController {
         return ApiResponse.created(brand, "Brand created successfully");
     }
 
-    @PutMapping("/{slug}")
+    @PutMapping("/{uuid}")
     @RequiresPermission("brand:write")
     public ResponseEntity<ApiResponse<BrandResponse>> update(
-            @PathVariable String slug,
+            @PathVariable String uuid,
             @Valid @RequestBody BrandRequest request
     ) {
-        BrandResponse brand = brandService.update(slug, request);
+        BrandResponse brand = brandService.update(uuid, request);
         return ApiResponse.success(brand, "Brand updated successfully");
     }
 
-    @PatchMapping("/{slug}/status")
+    @PatchMapping("/{uuid}/status")
     @RequiresPermission("brand:write")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
-            @PathVariable String slug,
+            @PathVariable String uuid,
             @RequestBody StatusRequest request
     ) {
-        boolean changed = brandService.toggleStatus(slug, request.isActive());
+        boolean changed = brandService.toggleStatus(uuid, request.isActive());
         String message = changed ? "Brand status updated successfully" : "Brand is already " + (request.isActive() ? "active" : "inactive");
         return ApiResponse.success(null, message);
     }
 
-    @DeleteMapping("/{slug}")
+    @DeleteMapping("/{uuid}")
     @RequiresPermission("brand:write")
-    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String slug) {
-        brandService.delete(slug);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
+        brandService.delete(uuid);
         return ApiResponse.success(null, "Brand deleted successfully");
     }
 }

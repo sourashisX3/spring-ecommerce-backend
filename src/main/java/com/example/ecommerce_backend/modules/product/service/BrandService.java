@@ -61,9 +61,9 @@ public class BrandService {
 
     @Transactional
     @RequiresPermission("brand:write")
-    public BrandResponse update(String slug, BrandRequest request) {
-        Brand brand = brandRepository.findBySlug(slug)
-                .orElseThrow(() -> new BrandNotFoundException(slug));
+    public BrandResponse update(String uuid, BrandRequest request) {
+        Brand brand = brandRepository.findByUuid(uuid)
+                .orElseThrow(() -> new BrandNotFoundException(uuid));
 
         brand.setName(request.getName());
         if (!brand.getSlug().equals(generateSlug(request.getName()))) {
@@ -79,9 +79,9 @@ public class BrandService {
 
     @Transactional
     @RequiresPermission("brand:write")
-    public boolean toggleStatus(String slug, boolean isActive) {
-        Brand brand = brandRepository.findBySlug(slug)
-                .orElseThrow(() -> new BrandNotFoundException(slug));
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        Brand brand = brandRepository.findByUuid(uuid)
+                .orElseThrow(() -> new BrandNotFoundException(uuid));
         if (brand.isActive() == isActive) {
             return false;
         }
@@ -92,9 +92,9 @@ public class BrandService {
 
     @Transactional
     @RequiresPermission("brand:write")
-    public void delete(String slug) {
-        Brand brand = brandRepository.findBySlug(slug)
-                .orElseThrow(() -> new BrandNotFoundException(slug));
+    public void delete(String uuid) {
+        Brand brand = brandRepository.findByUuid(uuid)
+                .orElseThrow(() -> new BrandNotFoundException(uuid));
         brandRepository.delete(brand);
     }
 

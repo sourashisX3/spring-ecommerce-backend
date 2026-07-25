@@ -122,3 +122,26 @@ Permissions use `resource:action` format:
 ## Optional Fields Convention
 - Use `@Nullable` from `jakarta.annotation.Nullable` on optional DTO fields
 - Example: `@Nullable private Long roleId;` in RegisterRequest
+
+## UUID Identifier Convention
+- Every entity has a `uuid` field (auto-generated via `@PrePersist` with `UUID.randomUUID().toString()`)
+- **Mutation endpoints** use `{uuid}` in path (e.g., `PUT /categories/{uuid}`, `DELETE /brands/{uuid}`)
+- **GET lookups** for Category/Brand/Tag use `{slug}` (SEO-friendly, stable)
+- **Product** uses `{uuid}` for both GET and mutations (product UUIDs are already exposed in listings)
+
+### Entity UUID Status
+| Entity | Has UUID | Lookup by UUID | Slug for GET |
+|--------|----------|----------------|--------------|
+| Product | Yes | productRepository.findByUuid() | No |
+| Category | Yes | categoryRepository.findByUuid() | Yes |
+| Brand | Yes | brandRepository.findByUuid() | Yes |
+| Tag | Yes | tagRepository.findByUuid() | Yes |
+| ProductVariant | Yes | variantRepository.findByUuid() | No |
+| ProductImage | Yes | imageRepository.findByUuid() | No |
+| User | Yes | userRepository.findByUuid() | No |
+
+## Jackson `isXxx` JSON Key Convention
+- All `private boolean isXxx` DTO fields MUST have `@JsonProperty("isXxx")` on both getter and setter
+- This prevents Jackson's Java Bean naming from stripping the `is` prefix (e.g., `"active"` instead of `"isActive"`)
+- Applies to request DTOs (`StatusRequest.isActive`, `VariantRequest.isDefault`, etc.) and response DTOs (`BrandResponse.isActive`, `UserResponse.isEmailVerified`, etc.)
+- The entity field name is `isXxx` (e.g., `private boolean isActive`), which Lombok converts to `isActive()` getter and `setActive()` setter

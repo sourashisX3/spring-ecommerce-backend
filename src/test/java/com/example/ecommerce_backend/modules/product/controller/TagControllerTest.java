@@ -85,7 +85,7 @@ class TagControllerTest {
 
         mockMvc.perform(patch("/tags/new/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Tag status updated successfully"));
     }
@@ -96,7 +96,7 @@ class TagControllerTest {
 
         mockMvc.perform(patch("/tags/new/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\": true}"))
+                        .content("{\"isActive\": true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Tag is already active"));
     }

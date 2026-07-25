@@ -9,5 +9,7 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
 
     Optional<Tag> findBySlug(String slug);
 
+    Optional<Tag> findByUuid(String uuid);
+
     boolean existsBySlug(String slug);
 }

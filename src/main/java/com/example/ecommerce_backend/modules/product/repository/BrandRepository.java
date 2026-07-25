@@ -9,5 +9,7 @@ public interface BrandRepository extends JpaRepository<Brand, Long> {
 
     Optional<Brand> findBySlug(String slug);
 
+    Optional<Brand> findByUuid(String uuid);
+
     boolean existsBySlug(String slug);
 }

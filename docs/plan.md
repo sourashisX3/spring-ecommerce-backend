@@ -26,9 +26,14 @@
 - [x] Duplicate user-permission assignment check
 
 ## Phase 2 — Core Ecommerce
-- [ ] Product module (CRUD, categories, brands, variants)
-- [ ] Search & filter products
+- [x] Product module (CRUD, categories, brands, variants, images)
+- [x] Search & filter products
+- [x] UUID identifiers for all entities
+- [x] Jackson isXxx JSON key consistency
 - [ ] Shopping cart (add/remove/update items)
+- [ ] Reviews & ratings
+- [ ] Wishlist
+- [ ] Conditional pagination (paginated if page/size present, else full list)
 - [ ] User address management
 - [ ] Order placement flow
 - [ ] Order tracking & history

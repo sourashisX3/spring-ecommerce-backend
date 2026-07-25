@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.product.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -39,4 +40,14 @@ public class ProductRequest {
 
     private List<VariantRequest> variants;
     private List<ImageRequest> images;
+
+    @JsonProperty("isFeatured")
+    public boolean isFeatured() {
+        return isFeatured;
+    }
+
+    @JsonProperty("isFeatured")
+    public void setFeatured(boolean isFeatured) {
+        this.isFeatured = isFeatured;
+    }
 }

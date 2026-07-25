@@ -79,23 +79,83 @@ pagination: {
 ## Phase 2 — Product Module
 
 ### Entities
-- `Product` — name, description, price, images, status
-- `Category` — name, description, parent category
-- `Brand` — name, logo
-- `ProductVariant` — size, color, SKU, price override
+- `Product` — uuid, name, description, price, attributes(JSON), isActive, isFeatured, timestamps
+- `Category` — uuid, name, slug, description, parent (self-ref), sortOrder, isActive, timestamps
+- `Brand` — uuid, name, slug, description, logoUrl, website, isActive, timestamps
+- `Tag` — uuid, name, slug, isActive, timestamps
+- `ProductVariant` — uuid, sku, name, price, stock, attributes(JSON), isActive, isDefault, sortOrder, timestamps
+- `ProductImage` — uuid, imageUrl, isPrimary, sortOrder (belongs to Product, optionally to Variant)
+
+### Identifier Convention
+- **GET lookups**: `{slug}` (e.g., `/categories/{slug}`, `/brands/{slug}`)
+- **Mutations**: `{uuid}` (e.g., `PUT /categories/{uuid}`, `DELETE /brands/{uuid}`, `PATCH /tags/{uuid}/status`)
+- **Products**: `{uuid}` for both GET and mutations (`/products/{uuid}`)
+- **Variants/Images**: `{uuid}` for mutations (`/variants/{variantUuid}`, `/images/{imageUuid}`)
+- **Create endpoints**: POST to collection (no identifier in URL), UUID auto-generated via @PrePersist
+
+### Jackson `isXxx` Convention
+All `private boolean isXxx` fields in DTOs use `@JsonProperty("isXxx")` on both getter and setter to force JSON key to `"isXxx"` (prevents Lombok + Java Bean convention from stripping the `is` prefix).
+
+Affected DTOs:
+- **Request**: `StatusRequest` (isActive), `VariantRequest` (isDefault), `ImageRequest` (isPrimary), `ProductRequest` (isFeatured)
+- **Response**: `BrandResponse` (isActive), `CategoryResponse` (isActive), `TagResponse` (isActive), `ImageResponse` (isPrimary), `ProductResponse` (isActive, isFeatured), `VariantResponse` (isActive, isDefault), `UserResponse` (isActive, isEmailVerified, isPhoneVerified)
 
 ### APIs
 ```
-GET    /products                  — list with filters (paginated)
-GET    /products/{id}             — single product
-POST   /products                  — create (@RequiresPermission("product:write"))
-PUT    /products/{id}             — update (@RequiresPermission("product:write"))
-DELETE /products/{id}             — delete (@RequiresPermission("product:write"))
-GET    /categories                — all categories
-POST   /categories                — create (@RequiresPermission("product:write"))
+# Products
+GET    /products                           — list with filters, paginated
+GET    /products/{uuid}                    — single product with optional attributeFilters
+POST   /products                           — create (@RequiresPermission("product:write"))
+PUT    /products/{uuid}                    — update (@RequiresPermission("product:write"))
+PATCH  /products/{uuid}/status             — toggle active/inactive
+DELETE /products/{uuid}                    — delete
+GET    /products/{uuid}/similar            — similar products by category/tags
+
+# Categories
+GET    /categories                         — all categories (optional ?active filter)
+GET    /categories/tree                    — hierarchical tree
+GET    /categories/{slug}                  — by slug
+POST   /categories                         — create (@RequiresPermission("category:write"))
+PUT    /categories/{uuid}                  — update (@RequiresPermission("category:write"))
+PATCH  /categories/{uuid}/status           — toggle active/inactive
+DELETE /categories/{uuid}                  — delete (checks children + products)
+
+# Brands
+GET    /brands                             — all brands (optional ?active filter)
+GET    /brands/{slug}                      — by slug
+POST   /brands                             — create (@RequiresPermission("brand:write"))
+PUT    /brands/{uuid}                      — update (@RequiresPermission("brand:write"))
+PATCH  /brands/{uuid}/status               — toggle active/inactive
+DELETE /brands/{uuid}                      — delete
+
+# Tags
+GET    /tags                               — all tags (optional ?active filter)
+POST   /tags                               — create (@RequiresPermission("tag:write"))
+PATCH  /tags/{uuid}/status                 — toggle active/inactive
+DELETE /tags/{uuid}                        — delete
+
+# Variants
+POST   /products/{productUuid}/variants    — add variant
+PUT    /variants/{variantUuid}             — update variant
+DELETE /variants/{variantUuid}             — delete variant
+
+# Images
+POST   /products/{productUuid}/images      — add image
+DELETE /images/{imageUuid}                 — delete image (assigns new primary if was primary)
 ```
 
-## Phase 2 — Cart Module
+### Product Filtering
+- `categorySlug` — filter by category
+- `brandSlug` — filter by brand
+- `tagSlug` — filter by tag
+- `search` — full-text search on name/slug/description
+- `minPrice`, `maxPrice` — price range filter (considers variant prices)
+- `isFeatured` — filter featured products
+- `active` — filter by active status (default: true)
+- `sortBy` + `sortDir` — sorting (default: name ASC)
+- `attrColor`, `attrSize`, `attrMaterial` — attribute-based filtering
+
+## Phase 2 — Cart Module (TODO)
 
 ### Entities
 - `Cart` — userId, status
