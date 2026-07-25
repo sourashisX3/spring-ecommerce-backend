@@ -20,7 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PermissionService {
@@ -33,6 +36,28 @@ public class PermissionService {
 
     @Autowired
     private UserPermissionRepository userPermissionRepository;
+
+    public Set<String> getEffectivePermissions(User user) {
+        Set<String> permissions = new HashSet<>();
+
+        if (user.getRole() != null) {
+            permissions.addAll(user.getRole().getPermissions().stream()
+                    .map(Permission::getPermissionName)
+                    .collect(Collectors.toSet()));
+        }
+
+        List<UserPermission> userPermissions = userPermissionRepository.findByUserId(user.getId());
+        for (UserPermission up : userPermissions) {
+            String permName = up.getPermission().getPermissionName();
+            if (up.getEffect() == UserPermission.Effect.DENY) {
+                permissions.remove(permName);
+            } else {
+                permissions.add(permName);
+            }
+        }
+
+        return permissions;
+    }
 
     public boolean hasPermission(User user, String requiredPermission) {
         if (user.getRole() == null) {

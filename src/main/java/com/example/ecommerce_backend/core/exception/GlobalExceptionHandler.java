@@ -54,7 +54,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
         log.warn("BadCredentialsException: {}", ex.getMessage());
-        return ApiResponse.error(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        return ApiResponse.error(HttpStatus.UNAUTHORIZED, "Invalid email/phone or password");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

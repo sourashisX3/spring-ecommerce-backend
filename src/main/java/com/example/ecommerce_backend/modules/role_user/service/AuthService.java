@@ -122,7 +122,7 @@ public class AuthService {
 
         String email = jwtTokenProvider.extractEmail(request.getRefreshToken());
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(0L));
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
         if (!user.isActive()) {
             throw new AccountDeactivatedException();

@@ -3,8 +3,11 @@ package com.example.ecommerce_backend.modules.role_user.service;
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.role_user.dto.response.UserResponse;
 import com.example.ecommerce_backend.modules.role_user.entity.User;
-import com.example.ecommerce_backend.modules.role_user.entity.UserAddress;
-import com.example.ecommerce_backend.modules.role_user.exception.AccountDeactivatedException;
+import com.example.ecommerce_backend.modules.role_user.exception.AuthenticationRequiredException;
+import com.example.ecommerce_backend.modules.role_user.service.PermissionService;
+
+import java.util.Set;
+import com.example.ecommerce_backend.modules.role_user.exception.CannotDeactivateProtectedUserException;
 import com.example.ecommerce_backend.modules.role_user.exception.CannotDeleteProtectedRoleException;
 import com.example.ecommerce_backend.modules.role_user.exception.UserNotFoundException;
 import com.example.ecommerce_backend.modules.role_user.mapper.UserMapper;
@@ -12,6 +15,7 @@ import com.example.ecommerce_backend.modules.role_user.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +25,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PermissionService permissionService;
 
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(Pageable pageable) {
@@ -38,41 +45,69 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(0L));
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         return UserMapper.toUserResponse(user);
     }
 
-    @Transactional
-    @RequiresPermission("user:write")
-    public void deactivateUser(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
-        if ("SUPER_ADMIN".equals(user.getRole().getRoleName())) {
-            throw new CannotDeleteProtectedRoleException(user.getRole().getRoleName());
-        }
-        user.setActive(false);
-        userRepository.save(user);
+    public UserResponse getCurrentUser() {
+        User user = getCurrentUserEntity();
+        return UserMapper.toUserResponse(user);
+    }
+
+    public Set<String> getCurrentUserPermissions() {
+        User user = getCurrentUserEntity();
+        return permissionService.getEffectivePermissions(user);
+    }
+
+    private User getCurrentUserEntity() {
+        String email = getAuthenticatedEmail();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
     }
 
     @Transactional
     @RequiresPermission("user:write")
-    public void activateUser(Long id) {
+    public boolean deactivateUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
+        if ("SUPER_ADMIN".equals(user.getRole().getRoleName())) {
+            throw new CannotDeactivateProtectedUserException();
+        }
+        if (!user.isActive()) {
+            return false;
+        }
+        user.setActive(false);
+        userRepository.save(user);
+        return true;
+    }
+
+    @Transactional
+    @RequiresPermission("user:write")
+    public boolean activateUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        if (user.isActive()) {
+            return false;
+        }
         user.setActive(true);
         userRepository.save(user);
+        return true;
     }
 
     @Transactional
-    public void deactivateOwnAccount() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+    public boolean deactivateOwnAccount() {
+        String email = getAuthenticatedEmail();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(0L));
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
         if ("SUPER_ADMIN".equals(user.getRole().getRoleName())) {
-            throw new CannotDeleteProtectedRoleException(user.getRole().getRoleName());
+            throw new CannotDeactivateProtectedUserException();
+        }
+        if (!user.isActive()) {
+            return false;
         }
         user.setActive(false);
         userRepository.save(user);
+        return true;
     }
 
     @Transactional
@@ -80,6 +115,17 @@ public class UserService {
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
+        if ("SUPER_ADMIN".equals(user.getRole().getRoleName())) {
+            throw new CannotDeleteProtectedRoleException(user.getRole().getRoleName());
+        }
         userRepository.delete(user);
+    }
+
+    private String getAuthenticatedEmail() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getPrincipal())) {
+            throw new AuthenticationRequiredException();
+        }
+        return auth.getName();
     }
 }

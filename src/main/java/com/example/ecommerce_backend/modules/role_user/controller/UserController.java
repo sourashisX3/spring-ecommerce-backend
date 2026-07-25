@@ -10,10 +10,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -38,27 +39,35 @@ public class UserController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> getCurrentUser() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        UserResponse user = userService.getUserByEmail(email);
+        UserResponse user = userService.getCurrentUser();
         return ApiResponse.success(user, "User profile fetched successfully");
+    }
+
+    @GetMapping("/me/permissions")
+    public ResponseEntity<ApiResponse<Map<String, Set<String>>>> getCurrentUserPermissions() {
+        Set<String> permissions = userService.getCurrentUserPermissions();
+        return ApiResponse.success(Map.of("permissions", permissions), "Permissions fetched successfully");
     }
 
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<ApiResponse<Void>> deactivateUser(@PathVariable Long id) {
-        userService.deactivateUser(id);
-        return ApiResponse.success(null, "User deactivated successfully");
+        boolean changed = userService.deactivateUser(id);
+        String message = changed ? "User deactivated successfully" : "User is already deactivated";
+        return ApiResponse.success(null, message);
     }
 
     @PatchMapping("/{id}/activate")
     public ResponseEntity<ApiResponse<Void>> activateUser(@PathVariable Long id) {
-        userService.activateUser(id);
-        return ApiResponse.success(null, "User activated successfully");
+        boolean changed = userService.activateUser(id);
+        String message = changed ? "User activated successfully" : "User is already active";
+        return ApiResponse.success(null, message);
     }
 
     @PostMapping("/me/deactivate")
     public ResponseEntity<ApiResponse<Void>> deactivateOwnAccount() {
-        userService.deactivateOwnAccount();
-        return ApiResponse.success(null, "Account deactivated successfully");
+        boolean changed = userService.deactivateOwnAccount();
+        String message = changed ? "Account deactivated successfully" : "Account is already deactivated";
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/{id}")
