@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.role_user.service;
 
 import com.example.ecommerce_backend.core.config.JwtTokenProvider;
+import com.example.ecommerce_backend.core.service.RefreshTokenService;
 import com.example.ecommerce_backend.modules.role_user.dto.request.LoginRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.request.RefreshTokenRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.request.RegisterRequest;
@@ -20,6 +21,7 @@ import com.example.ecommerce_backend.modules.role_user.exception.UserNotFoundExc
 import com.example.ecommerce_backend.modules.role_user.mapper.UserMapper;
 import com.example.ecommerce_backend.modules.role_user.repository.RolesRepository;
 import com.example.ecommerce_backend.modules.role_user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,29 +33,29 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final RolesRepository rolesRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-    private final UserDetailsService userDetailsService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final OtpService otpService;
+    @Autowired
+    private UserRepository userRepository;
 
-    public AuthService(UserRepository userRepository,
-                       RolesRepository rolesRepository,
-                       PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager,
-                       UserDetailsService userDetailsService,
-                       JwtTokenProvider jwtTokenProvider,
-                       OtpService otpService) {
-        this.userRepository = userRepository;
-        this.rolesRepository = rolesRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.otpService = otpService;
-    }
+    @Autowired
+    private RolesRepository rolesRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    @Autowired
+    private OtpService otpService;
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -85,6 +87,7 @@ public class AuthService {
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
+                .dialCode(request.getDialCode())
                 .phoneNumber(request.getPhoneNumber())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .address(address)
@@ -116,11 +119,12 @@ public class AuthService {
     }
 
     public AuthResponse refresh(RefreshTokenRequest request) {
-        if (!jwtTokenProvider.validateToken(request.getRefreshToken())) {
+        String oldToken = request.getRefreshToken();
+        if (!jwtTokenProvider.validateToken(oldToken)) {
             throw new InvalidTokenException("Invalid or expired refresh token");
         }
 
-        String email = jwtTokenProvider.extractEmail(request.getRefreshToken());
+        String email = jwtTokenProvider.extractEmail(oldToken);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
@@ -128,7 +132,17 @@ public class AuthService {
             throw new AccountDeactivatedException();
         }
 
-        return buildAuthResponse(user);
+        String newRefreshToken = refreshTokenService.validateAndRotate(oldToken);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(userDetails);
+
+        return AuthResponse.builder()
+                .token(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .tokenType("Bearer")
+                .expiresIn(86400)
+                .user(UserMapper.toUserResponse(user))
+                .build();
     }
 
     public String sendOtp(SendOtpRequest request) {
@@ -164,12 +178,21 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with phone: " + emailOrPhone));
     }
 
+    public void logout(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
+        refreshTokenService.revokeAllUserTokens(user.getId());
+    }
+
     private AuthResponse buildAuthResponse(User user) {
         UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
+        String accessToken = jwtTokenProvider.generateAccessToken(userDetails);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
+        refreshTokenService.storeRefreshToken(refreshToken, user.getId());
 
         return AuthResponse.builder()
-                .token(jwtTokenProvider.generateAccessToken(userDetails))
-                .refreshToken(jwtTokenProvider.generateRefreshToken(userDetails))
+                .token(accessToken)
+                .refreshToken(refreshToken)
                 .tokenType("Bearer")
                 .expiresIn(86400)
                 .user(UserMapper.toUserResponse(user))

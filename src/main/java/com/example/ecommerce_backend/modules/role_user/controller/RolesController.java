@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.role_user.controller;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.role_user.dto.request.RoleRequest;
@@ -24,6 +25,7 @@ public class RolesController {
     private RolesService rolesService;
 
     @GetMapping
+    @RequiresPermission("role:read")
     public ResponseEntity<ApiResponse<List<RolesResponse>>> getAllRoles(
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {

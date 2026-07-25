@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.role_user.controller;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.role_user.dto.response.UserResponse;
@@ -24,6 +25,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
+    @RequiresPermission("user:read")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers(
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
@@ -32,6 +34,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @RequiresPermission("user:read")
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
         UserResponse user = userService.getUserById(id);
         return ApiResponse.success(user, "User retrieved successfully");

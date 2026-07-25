@@ -19,6 +19,9 @@ public class RegisterRequest {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Dial code is required")
+    private String dialCode;
+
     @NotBlank(message = "Phone number is required")
     private String phoneNumber;
 

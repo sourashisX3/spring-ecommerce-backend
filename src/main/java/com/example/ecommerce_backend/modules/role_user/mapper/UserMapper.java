@@ -17,6 +17,7 @@ public class UserMapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .dialCode(user.getDialCode())
                 .phoneNumber(user.getPhoneNumber())
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .roleName(user.getRole() != null ? user.getRole().getRoleName() : null)

@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.role_user.controller;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.role_user.dto.request.AssignPermissionRequest;
@@ -23,6 +24,7 @@ public class UserPermissionController {
     private UserPermissionService userPermissionService;
 
     @GetMapping
+    @RequiresPermission("user_permission:read")
     public ResponseEntity<ApiResponse<List<UserPermissionResponse>>> getUserPermissions(
             @PathVariable Long userId,
             @PageableDefault(size = 20) Pageable pageable

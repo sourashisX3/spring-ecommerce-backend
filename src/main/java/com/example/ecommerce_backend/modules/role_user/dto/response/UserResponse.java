@@ -18,6 +18,7 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String email;
+    private String dialCode;
     private String phoneNumber;
     private String profilePictureUrl;
     private String roleName;

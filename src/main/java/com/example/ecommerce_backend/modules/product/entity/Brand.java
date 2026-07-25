@@ -1,7 +1,6 @@
-package com.example.ecommerce_backend.modules.role_user.entity;
+package com.example.ecommerce_backend.modules.product.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,17 +13,30 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "permissions")
-public class Permission {
+@Table(name = "brands")
+public class Brand {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Pattern(regexp = "^[a-z_*]+:[a-z_*]+$", message = "Permission must be in format 'resource:action' (e.g. product:read)")
+    @Column(nullable = false)
+    private String name;
+
     @Column(unique = true, nullable = false)
-    private String permissionName;
-    private String permissionDescription;
+    private String slug;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    private String logoUrl;
+
+    private String website;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
+
     private Instant createdAt;
     private Instant updatedAt;
 

@@ -10,7 +10,10 @@ import com.example.ecommerce_backend.modules.role_user.dto.request.VerifyOtpRequ
 import com.example.ecommerce_backend.modules.role_user.dto.response.AuthResponse;
 import com.example.ecommerce_backend.modules.role_user.service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +25,8 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
+    @Autowired
+    private AuthService authService;
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
@@ -56,5 +56,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         AuthResponse response = authService.verifyOtp(request);
         return ApiResponse.success(response, "OTP verified successfully");
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getPrincipal())) {
+            authService.logout(auth.getName());
+        }
+        return ApiResponse.success(null, "Logged out successfully");
     }
 }

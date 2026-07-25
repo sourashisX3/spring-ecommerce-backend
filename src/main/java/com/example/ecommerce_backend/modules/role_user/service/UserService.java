@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.role_user.service;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
+import com.example.ecommerce_backend.core.service.RefreshTokenService;
 import com.example.ecommerce_backend.modules.role_user.dto.response.UserResponse;
 import com.example.ecommerce_backend.modules.role_user.entity.User;
 import com.example.ecommerce_backend.modules.role_user.exception.AuthenticationRequiredException;
@@ -28,6 +29,9 @@ public class UserService {
 
     @Autowired
     private PermissionService permissionService;
+
+    @Autowired
+    private RefreshTokenService refreshTokenService;
 
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(Pageable pageable) {
@@ -78,6 +82,7 @@ public class UserService {
         }
         user.setActive(false);
         userRepository.save(user);
+        refreshTokenService.revokeAllUserTokens(user.getId());
         return true;
     }
 
@@ -107,6 +112,7 @@ public class UserService {
         }
         user.setActive(false);
         userRepository.save(user);
+        refreshTokenService.revokeAllUserTokens(user.getId());
         return true;
     }
 

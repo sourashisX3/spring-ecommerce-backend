@@ -4,7 +4,6 @@ import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.role_user.dto.request.CreatePermissionRequest;
 import com.example.ecommerce_backend.modules.role_user.dto.response.PermissionResponse;
 import com.example.ecommerce_backend.modules.role_user.entity.Permission;
-import com.example.ecommerce_backend.modules.role_user.entity.Role;
 import com.example.ecommerce_backend.modules.role_user.entity.UserPermission;
 import com.example.ecommerce_backend.modules.role_user.exception.PermissionAlreadyExistsException;
 import com.example.ecommerce_backend.modules.role_user.exception.PermissionInUseException;
@@ -91,10 +90,9 @@ public class PermissionService {
         if (permissionName.equals("*:*")) return true;
 
         String[] parts = permissionName.split(":", 2);
-        if (parts.length == 2 && parts[1].equals("*")) {
-            return required.startsWith(parts[0] + ":");
-        }
-        return false;
+        if (parts.length < 2) return false;
+        if (parts[1].equals("*") && required.startsWith(parts[0] + ":")) return true;
+        return parts[0].equals("*") && required.endsWith(":" + parts[1]);
     }
 
     @Transactional
