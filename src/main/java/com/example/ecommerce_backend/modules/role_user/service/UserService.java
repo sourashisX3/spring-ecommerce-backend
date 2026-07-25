@@ -5,9 +5,6 @@ import com.example.ecommerce_backend.core.service.RefreshTokenService;
 import com.example.ecommerce_backend.modules.role_user.dto.response.UserResponse;
 import com.example.ecommerce_backend.modules.role_user.entity.User;
 import com.example.ecommerce_backend.modules.role_user.exception.AuthenticationRequiredException;
-import com.example.ecommerce_backend.modules.role_user.service.PermissionService;
-
-import java.util.Set;
 import com.example.ecommerce_backend.modules.role_user.exception.CannotDeactivateProtectedUserException;
 import com.example.ecommerce_backend.modules.role_user.exception.CannotDeleteProtectedRoleException;
 import com.example.ecommerce_backend.modules.role_user.exception.UserNotFoundException;
@@ -20,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 public class UserService {
@@ -34,8 +33,8 @@ public class UserService {
     private RefreshTokenService refreshTokenService;
 
     @Transactional(readOnly = true)
-    public Page<UserResponse> getAllUsers(Pageable pageable) {
-        return userRepository.findAll(pageable)
+    public Page<UserResponse> getAllUsers(String search, Boolean active, Pageable pageable) {
+        return userRepository.findBySearchTerm(search, active, pageable)
                 .map(UserMapper::toUserResponse);
     }
 

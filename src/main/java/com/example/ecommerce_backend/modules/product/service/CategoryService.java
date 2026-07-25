@@ -28,8 +28,9 @@ public class CategoryService {
     private ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> getAll() {
+    public List<CategoryResponse> getAll(Boolean active) {
         return categoryRepository.findAll().stream()
+                .filter(c -> active == null || c.isActive() == active)
                 .map(c -> {
                     CategoryResponse resp = CategoryMapper.toResponse(c);
                     resp.setProductCount(productRepository.countByCategoryId(c.getId()));
@@ -39,7 +40,7 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
-    public List<CategoryResponse> getTree() {
+    public List<CategoryResponse> getTree(Boolean active) {
         List<Category> all = categoryRepository.findAll();
 
         Map<Long, List<Category>> childrenMap = new HashMap<>();
@@ -56,17 +57,18 @@ public class CategoryService {
 
         List<Category> roots = all.stream()
                 .filter(c -> c.getParent() == null)
+                .filter(c -> active == null || c.isActive() == active)
                 .sorted(Comparator.comparingInt(Category::getSortOrder))
                 .collect(Collectors.toList());
 
         Set<Long> visited = new HashSet<>();
         return roots.stream()
-                .map(root -> buildTree(root, childrenMap, visited, productCounts))
+                .map(root -> buildTree(root, childrenMap, visited, productCounts, active))
                 .collect(Collectors.toList());
     }
 
     private CategoryResponse buildTree(Category category, Map<Long, List<Category>> childrenMap,
-                                        Set<Long> visited, Map<Long, Long> productCounts) {
+                                        Set<Long> visited, Map<Long, Long> productCounts, Boolean active) {
         if (!visited.add(category.getId())) {
             CategoryResponse safe = CategoryMapper.toResponse(category);
             safe.setProductCount(productCounts.getOrDefault(category.getId(), 0L));
@@ -78,9 +80,13 @@ public class CategoryService {
         response.setProductCount(productCounts.getOrDefault(category.getId(), 0L));
 
         List<Category> children = childrenMap.getOrDefault(category.getId(), Collections.emptyList());
-        if (!children.isEmpty()) {
-            response.setChildren(children.stream()
-                    .map(child -> buildTree(child, childrenMap, visited, productCounts))
+        List<Category> filtered = children.stream()
+                .filter(c -> active == null || c.isActive() == active)
+                .collect(Collectors.toList());
+
+        if (!filtered.isEmpty()) {
+            response.setChildren(filtered.stream()
+                    .map(child -> buildTree(child, childrenMap, visited, productCounts, active))
                     .collect(Collectors.toList()));
         }
 
@@ -107,7 +113,7 @@ public class CategoryService {
         childrenMap.values().forEach(list -> list.sort(Comparator.comparingInt(Category::getSortOrder)));
 
         Set<Long> visited = new HashSet<>();
-        return buildTree(category, childrenMap, visited, productCounts);
+        return buildTree(category, childrenMap, visited, productCounts, null);
     }
 
     @Transactional(readOnly = true)
@@ -117,6 +123,19 @@ public class CategoryService {
         } catch (Exception e) {
             return Collections.emptySet();
         }
+    }
+
+    @Transactional
+    @RequiresPermission("category:write")
+    public boolean toggleStatus(String slug, boolean isActive) {
+        Category category = categoryRepository.findBySlug(slug)
+                .orElseThrow(() -> new CategoryNotFoundException(slug));
+        if (category.isActive() == isActive) {
+            return false;
+        }
+        category.setActive(isActive);
+        categoryRepository.save(category);
+        return true;
     }
 
     @Transactional

@@ -13,7 +13,9 @@ public class TagMapper {
                 .id(tag.getId())
                 .name(tag.getName())
                 .slug(tag.getSlug())
+                .isActive(tag.isActive())
                 .createdAt(tag.getCreatedAt())
+                .updatedAt(tag.getUpdatedAt())
                 .build();
     }
 }

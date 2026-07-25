@@ -35,8 +35,8 @@ public class RolesService {
     private PermissionsRepository permissionsRepository;
 
     @Transactional(readOnly = true)
-    public Page<RolesResponse> getAllRoles(Pageable pageable) {
-        return rolesRepository.findAll(pageable)
+    public Page<RolesResponse> getAllRoles(String search, Pageable pageable) {
+        return rolesRepository.findBySearchTerm(search, pageable)
                 .map(RolesMapper::toRoleResponse);
     }
 

@@ -21,8 +21,9 @@ public class TagService {
     private TagRepository tagRepository;
 
     @Transactional(readOnly = true)
-    public List<TagResponse> getAll() {
+    public List<TagResponse> getAll(Boolean active) {
         return tagRepository.findAll().stream()
+                .filter(t -> active == null || t.isActive() == active)
                 .map(TagMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -36,6 +37,19 @@ public class TagService {
                 .build();
         tag = tagRepository.save(tag);
         return TagMapper.toResponse(tag);
+    }
+
+    @Transactional
+    @RequiresPermission("tag:write")
+    public boolean toggleStatus(String slug, boolean isActive) {
+        Tag tag = tagRepository.findBySlug(slug)
+                .orElseThrow(() -> new TagNotFoundException(slug));
+        if (tag.isActive() == isActive) {
+            return false;
+        }
+        tag.setActive(isActive);
+        tagRepository.save(tag);
+        return true;
     }
 
     @Transactional

@@ -27,9 +27,11 @@ public class UserController {
     @GetMapping
     @RequiresPermission("user:read")
     public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean active,
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        Page<UserResponse> users = userService.getAllUsers(pageable);
+        Page<UserResponse> users = userService.getAllUsers(search, active, pageable);
         return ApiResponse.paginated(users.getContent(), "Users retrieved successfully", Pagination.of(users));
     }
 

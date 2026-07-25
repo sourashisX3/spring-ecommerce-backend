@@ -3,6 +3,7 @@ package com.example.ecommerce_backend.modules.product.controller;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.product.dto.request.ProductRequest;
+import com.example.ecommerce_backend.modules.product.dto.request.StatusRequest;
 import com.example.ecommerce_backend.modules.product.dto.response.ProductResponse;
 import com.example.ecommerce_backend.modules.product.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class ProductController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) Boolean isFeatured,
+            @RequestParam(required = false) Boolean active,
             @RequestParam(required = false) String sortBy,
             @RequestParam(required = false) String sortDir,
             @RequestParam(defaultValue = "0") int page,
@@ -57,7 +59,7 @@ public class ProductController {
 
         Page<ProductResponse> products = productService.getAllProducts(
                 categorySlug, brandSlug, tagSlug, search,
-                minPrice, maxPrice, isFeatured,
+                minPrice, maxPrice, isFeatured, active,
                 attributeFilters.isEmpty() ? null : attributeFilters,
                 pageable
         );
@@ -101,6 +103,16 @@ public class ProductController {
     ) {
         ProductResponse product = productService.update(uuid, request);
         return ApiResponse.success(product, "Product updated successfully");
+    }
+
+    @PatchMapping("/{uuid}/status")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String uuid,
+            @RequestBody StatusRequest request
+    ) {
+        boolean changed = productService.toggleStatus(uuid, request.isActive());
+        String message = changed ? "Product status updated successfully" : "Product is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/{uuid}")

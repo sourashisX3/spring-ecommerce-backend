@@ -26,10 +26,22 @@ public class Tag {
     @Column(unique = true, nullable = false)
     private String slug;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isActive = true;
+
     private Instant createdAt;
+    private Instant updatedAt;
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = Instant.now();
+        Instant now = Instant.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
     }
 }

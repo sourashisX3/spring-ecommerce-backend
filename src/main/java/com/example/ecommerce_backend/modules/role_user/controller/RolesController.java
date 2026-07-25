@@ -27,9 +27,10 @@ public class RolesController {
     @GetMapping
     @RequiresPermission("role:read")
     public ResponseEntity<ApiResponse<List<RolesResponse>>> getAllRoles(
+            @RequestParam(required = false) String search,
             @PageableDefault(size = 20, sort = "id", direction = Sort.Direction.ASC) Pageable pageable
     ) {
-        Page<RolesResponse> roles = rolesService.getAllRoles(pageable);
+        Page<RolesResponse> roles = rolesService.getAllRoles(search, pageable);
         return ApiResponse.paginated(roles.getContent(), "Roles retrieved successfully", Pagination.of(roles));
     }
 

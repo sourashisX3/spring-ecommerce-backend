@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.product.controller;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.modules.product.dto.request.StatusRequest;
 import com.example.ecommerce_backend.modules.product.dto.request.TagRequest;
 import com.example.ecommerce_backend.modules.product.dto.response.TagResponse;
 import com.example.ecommerce_backend.modules.product.service.TagService;
@@ -21,8 +22,10 @@ public class TagController {
 
     @GetMapping
     @RequiresPermission("tag:read")
-    public ResponseEntity<ApiResponse<List<TagResponse>>> getAll() {
-        List<TagResponse> tags = tagService.getAll();
+    public ResponseEntity<ApiResponse<List<TagResponse>>> getAll(
+            @RequestParam(required = false) Boolean active
+    ) {
+        List<TagResponse> tags = tagService.getAll(active);
         return ApiResponse.success(tags, "Tags retrieved successfully");
     }
 
@@ -31,6 +34,17 @@ public class TagController {
     public ResponseEntity<ApiResponse<TagResponse>> create(@Valid @RequestBody TagRequest request) {
         TagResponse tag = tagService.create(request);
         return ApiResponse.created(tag, "Tag created successfully");
+    }
+
+    @PatchMapping("/{slug}/status")
+    @RequiresPermission("tag:write")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String slug,
+            @RequestBody StatusRequest request
+    ) {
+        boolean changed = tagService.toggleStatus(slug, request.isActive());
+        String message = changed ? "Tag status updated successfully" : "Tag is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/{slug}")

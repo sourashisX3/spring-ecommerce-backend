@@ -25,8 +25,9 @@ public class BrandService {
     private ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<BrandResponse> getAll() {
+    public List<BrandResponse> getAll(Boolean active) {
         return brandRepository.findAll().stream()
+                .filter(b -> active == null || b.isActive() == active)
                 .map(b -> {
                     BrandResponse resp = BrandMapper.toResponse(b);
                     resp.setProductCount(productRepository.countByBrandId(b.getId()));
@@ -74,6 +75,19 @@ public class BrandService {
 
         brand = brandRepository.save(brand);
         return BrandMapper.toResponse(brand);
+    }
+
+    @Transactional
+    @RequiresPermission("brand:write")
+    public boolean toggleStatus(String slug, boolean isActive) {
+        Brand brand = brandRepository.findBySlug(slug)
+                .orElseThrow(() -> new BrandNotFoundException(slug));
+        if (brand.isActive() == isActive) {
+            return false;
+        }
+        brand.setActive(isActive);
+        brandRepository.save(brand);
+        return true;
     }
 
     @Transactional

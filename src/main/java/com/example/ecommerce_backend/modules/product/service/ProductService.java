@@ -56,6 +56,7 @@ public class ProductService {
             BigDecimal minPrice,
             BigDecimal maxPrice,
             Boolean isFeatured,
+            Boolean active,
             Map<String, String> attributeFilters,
             Pageable pageable
     ) {
@@ -65,7 +66,7 @@ public class ProductService {
         }
 
         Specification<Product> spec = ProductSpecification.withFilters(
-                categoryIds, brandSlug, tagSlug, search, minPrice, maxPrice, isFeatured
+                categoryIds, brandSlug, tagSlug, search, minPrice, maxPrice, isFeatured, active
         );
 
         Page<Product> products = productRepository.findAll(spec, pageable);
@@ -277,12 +278,27 @@ public class ProductService {
         productRepository.delete(product);
     }
 
+    @Transactional
+    @RequiresPermission("product:write")
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        Product product = productRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ProductNotFoundException(uuid));
+        if (product.isActive() == isActive) {
+            return false;
+        }
+        product.setActive(isActive);
+        productRepository.save(product);
+        return true;
+    }
+
     @Transactional(readOnly = true)
     public List<ProductResponse> getSimilarProducts(String uuid, int limit) {
         Product product = productRepository.findByUuid(uuid)
                 .orElseThrow(() -> new ProductNotFoundException(uuid));
 
-        List<Product> candidates = productRepository.findAll();
+        List<Product> candidates = productRepository.findAll().stream()
+                .filter(Product::isActive)
+                .collect(Collectors.toList());
 
         List<SimilarProduct> scored = new ArrayList<>();
         for (Product candidate : candidates) {

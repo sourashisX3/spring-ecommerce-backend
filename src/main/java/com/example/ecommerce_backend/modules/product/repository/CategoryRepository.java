@@ -20,7 +20,7 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     boolean existsBySlug(String slug);
 
     @Query(value = """
-            WITH RECURSIVE category_tree AS (
+            WITH RECURSIVE category_tree(id) AS (
                 SELECT id FROM categories WHERE slug = :slug
                 UNION ALL
                 SELECT c.id FROM categories c

@@ -21,7 +21,8 @@ public class ProductSpecification {
             String search,
             BigDecimal minPrice,
             BigDecimal maxPrice,
-            Boolean isFeatured
+            Boolean isFeatured,
+            Boolean active
     ) {
         return (Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -64,7 +65,11 @@ public class ProductSpecification {
                 predicates.add(cb.equal(root.get("isFeatured"), isFeatured));
             }
 
-            predicates.add(cb.equal(root.get("isActive"), true));
+            if (active != null) {
+                predicates.add(cb.equal(root.get("isActive"), active));
+            } else {
+                predicates.add(cb.equal(root.get("isActive"), true));
+            }
 
             query.distinct(true);
             return cb.and(predicates.toArray(new Predicate[0]));

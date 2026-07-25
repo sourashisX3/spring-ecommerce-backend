@@ -16,5 +16,7 @@ public class TagResponse {
     private Long id;
     private String name;
     private String slug;
+    private boolean isActive;
     private Instant createdAt;
+    private Instant updatedAt;
 }

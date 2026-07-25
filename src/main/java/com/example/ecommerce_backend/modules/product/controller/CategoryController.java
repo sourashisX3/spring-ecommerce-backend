@@ -3,6 +3,7 @@ package com.example.ecommerce_backend.modules.product.controller;
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.modules.product.dto.request.CategoryRequest;
+import com.example.ecommerce_backend.modules.product.dto.request.StatusRequest;
 import com.example.ecommerce_backend.modules.product.dto.response.CategoryResponse;
 import com.example.ecommerce_backend.modules.product.service.CategoryService;
 import jakarta.validation.Valid;
@@ -21,15 +22,19 @@ public class CategoryController {
 
     @GetMapping
     @RequiresPermission("category:read")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAll() {
-        List<CategoryResponse> categories = categoryService.getAll();
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAll(
+            @RequestParam(required = false) Boolean active
+    ) {
+        List<CategoryResponse> categories = categoryService.getAll(active);
         return ApiResponse.success(categories, "Categories retrieved successfully");
     }
 
     @GetMapping("/tree")
     @RequiresPermission("category:read")
-    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getTree() {
-        List<CategoryResponse> tree = categoryService.getTree();
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getTree(
+            @RequestParam(required = false) Boolean active
+    ) {
+        List<CategoryResponse> tree = categoryService.getTree(active);
         return ApiResponse.success(tree, "Category tree retrieved successfully");
     }
 
@@ -55,6 +60,17 @@ public class CategoryController {
     ) {
         CategoryResponse category = categoryService.update(slug, request);
         return ApiResponse.success(category, "Category updated successfully");
+    }
+
+    @PatchMapping("/{slug}/status")
+    @RequiresPermission("category:write")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String slug,
+            @RequestBody StatusRequest request
+    ) {
+        boolean changed = categoryService.toggleStatus(slug, request.isActive());
+        String message = changed ? "Category status updated successfully" : "Category is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/{slug}")

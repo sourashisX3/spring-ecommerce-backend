@@ -3,6 +3,7 @@ package com.example.ecommerce_backend.modules.product.controller;
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.modules.product.dto.request.BrandRequest;
+import com.example.ecommerce_backend.modules.product.dto.request.StatusRequest;
 import com.example.ecommerce_backend.modules.product.dto.response.BrandResponse;
 import com.example.ecommerce_backend.modules.product.service.BrandService;
 import jakarta.validation.Valid;
@@ -21,8 +22,10 @@ public class BrandController {
 
     @GetMapping
     @RequiresPermission("brand:read")
-    public ResponseEntity<ApiResponse<List<BrandResponse>>> getAll() {
-        List<BrandResponse> brands = brandService.getAll();
+    public ResponseEntity<ApiResponse<List<BrandResponse>>> getAll(
+            @RequestParam(required = false) Boolean active
+    ) {
+        List<BrandResponse> brands = brandService.getAll(active);
         return ApiResponse.success(brands, "Brands retrieved successfully");
     }
 
@@ -48,6 +51,17 @@ public class BrandController {
     ) {
         BrandResponse brand = brandService.update(slug, request);
         return ApiResponse.success(brand, "Brand updated successfully");
+    }
+
+    @PatchMapping("/{slug}/status")
+    @RequiresPermission("brand:write")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String slug,
+            @RequestBody StatusRequest request
+    ) {
+        boolean changed = brandService.toggleStatus(slug, request.isActive());
+        String message = changed ? "Brand status updated successfully" : "Brand is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/{slug}")
