@@ -8,6 +8,8 @@ import com.example.ecommerce_backend.modules.review.dto.response.ReviewResponse;
 import com.example.ecommerce_backend.modules.review.dto.response.VoteResponse;
 import com.example.ecommerce_backend.modules.review.service.ReviewService;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,12 +23,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@Tag(name = "Review", description = "Review API")
 public class ReviewController {
 
     @Autowired
     private ReviewService reviewService;
 
     @GetMapping("/products/{productUuid}/reviews")
+    @Operation(summary = "Get product reviews", description = "Retrieves reviews for a product with optional pagination")
     public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviews(
             @PathVariable String productUuid,
             @RequestParam(required = false) Integer page,
@@ -50,6 +54,7 @@ public class ReviewController {
     }
 
     @PostMapping("/products/{productUuid}/reviews")
+    @Operation(summary = "Create a review", description = "Creates a new review for a product")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @PathVariable String productUuid,
             @Valid @RequestBody ReviewRequest request,
@@ -60,12 +65,14 @@ public class ReviewController {
     }
 
     @DeleteMapping("/reviews/{reviewUuid}")
+    @Operation(summary = "Delete a review", description = "Deletes a review by UUID")
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable String reviewUuid) {
         reviewService.deleteReview(reviewUuid);
         return ApiResponse.success(null, "Review deleted successfully");
     }
 
     @PostMapping("/reviews/{reviewUuid}/vote")
+    @Operation(summary = "Vote on a review", description = "Likes or dislikes a review")
     public ResponseEntity<ApiResponse<VoteResponse>> voteReview(
             @PathVariable String reviewUuid,
             @Valid @RequestBody VoteRequest request,

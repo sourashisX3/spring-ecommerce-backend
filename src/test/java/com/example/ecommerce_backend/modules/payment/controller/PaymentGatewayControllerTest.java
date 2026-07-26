@@ -74,7 +74,7 @@ class PaymentGatewayControllerTest {
     void getAll_shouldReturnGateways() throws Exception {
         when(paymentGatewayService.getAll()).thenReturn(List.of(gatewayResponse));
 
-        mockMvc.perform(get("/api/payment-gateways"))
+        mockMvc.perform(get("/payment-gateways"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].code").value("STRIPE"))
                 .andExpect(jsonPath("$.message").value("Payment gateways retrieved successfully"));
@@ -84,7 +84,7 @@ class PaymentGatewayControllerTest {
     void getByUuid_shouldReturnGateway() throws Exception {
         when(paymentGatewayService.getByUuid("gateway-uuid-1")).thenReturn(gatewayResponse);
 
-        mockMvc.perform(get("/api/payment-gateways/gateway-uuid-1"))
+        mockMvc.perform(get("/payment-gateways/gateway-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("STRIPE"))
                 .andExpect(jsonPath("$.message").value("Payment gateway retrieved successfully"));
@@ -94,7 +94,7 @@ class PaymentGatewayControllerTest {
     void getByCode_shouldReturnGateway() throws Exception {
         when(paymentGatewayService.getByCode("STRIPE")).thenReturn(gatewayResponse);
 
-        mockMvc.perform(get("/api/payment-gateways/code/STRIPE"))
+        mockMvc.perform(get("/payment-gateways/code/STRIPE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("STRIPE"))
                 .andExpect(jsonPath("$.message").value("Payment gateway retrieved successfully"));
@@ -104,7 +104,7 @@ class PaymentGatewayControllerTest {
     void create_shouldReturnCreated() throws Exception {
         when(paymentGatewayService.create(any())).thenReturn(gatewayResponse);
 
-        mockMvc.perform(post("/api/payment-gateways")
+        mockMvc.perform(post("/payment-gateways")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\": \"STRIPE\", \"name\": \"Stripe\", \"description\": \"Stripe payment gateway\", \"configTemplate\": \"{}\"}"))
                 .andExpect(status().isCreated())
@@ -117,7 +117,7 @@ class PaymentGatewayControllerTest {
     void update_shouldReturnUpdatedGateway() throws Exception {
         when(paymentGatewayService.update(eq("gateway-uuid-1"), any())).thenReturn(gatewayResponse);
 
-        mockMvc.perform(put("/api/payment-gateways/gateway-uuid-1")
+        mockMvc.perform(put("/payment-gateways/gateway-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\": \"STRIPE\", \"name\": \"Stripe Updated\", \"description\": \"Updated description\", \"configTemplate\": \"{}\"}"))
                 .andExpect(status().isOk())
@@ -127,7 +127,7 @@ class PaymentGatewayControllerTest {
 
     @Test
     void toggleStatus_shouldReturnSuccessMessage() throws Exception {
-        mockMvc.perform(patch("/api/payment-gateways/gateway-uuid-1/status")
+        mockMvc.perform(patch("/payment-gateways/gateway-uuid-1/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isActive\": false}"))
                 .andExpect(status().isOk())
@@ -136,7 +136,7 @@ class PaymentGatewayControllerTest {
 
     @Test
     void delete_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/payment-gateways/gateway-uuid-1"))
+        mockMvc.perform(delete("/payment-gateways/gateway-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Payment gateway deleted successfully"));
     }

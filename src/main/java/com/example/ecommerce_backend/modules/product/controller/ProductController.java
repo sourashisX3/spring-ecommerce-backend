@@ -6,6 +6,8 @@ import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.product.dto.request.ProductRequest;
 import com.example.ecommerce_backend.modules.product.dto.response.ProductResponse;
 import com.example.ecommerce_backend.modules.product.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,12 +24,14 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
+@Tag(name = "Product", description = "Product API")
 public class ProductController {
 
     @Autowired
     private ProductService productService;
 
     @GetMapping
+    @Operation(summary = "Get all products", description = "Retrieves products with optional filtering, sorting and pagination")
     public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts(
             @RequestParam(required = false) String categorySlug,
             @RequestParam(required = false) String brandSlug,
@@ -81,6 +85,7 @@ public class ProductController {
     }
 
     @GetMapping("/{uuid}")
+    @Operation(summary = "Get product by UUID", description = "Retrieves a single product by its UUID")
     public ResponseEntity<ApiResponse<ProductResponse>> getByUuid(
             @PathVariable String uuid,
             @RequestParam(required = false) String attrColor,
@@ -100,12 +105,14 @@ public class ProductController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a product", description = "Creates a new product")
     public ResponseEntity<ApiResponse<ProductResponse>> create(@Valid @RequestBody ProductRequest request) {
         ProductResponse product = productService.create(request);
         return ApiResponse.created(product, "Product created successfully");
     }
 
     @PutMapping("/{uuid}")
+    @Operation(summary = "Update a product", description = "Updates an existing product by UUID")
     public ResponseEntity<ApiResponse<ProductResponse>> update(
             @PathVariable String uuid,
             @Valid @RequestBody ProductRequest request
@@ -115,6 +122,7 @@ public class ProductController {
     }
 
     @PatchMapping("/{uuid}/status")
+    @Operation(summary = "Toggle product status", description = "Activates or deactivates a product")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
             @PathVariable String uuid,
             @Valid @RequestBody StatusRequest request
@@ -125,12 +133,14 @@ public class ProductController {
     }
 
     @DeleteMapping("/{uuid}")
+    @Operation(summary = "Delete a product", description = "Deletes a product by UUID")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
         productService.delete(uuid);
         return ApiResponse.success(null, "Product deleted successfully");
     }
 
     @GetMapping("/{uuid}/similar")
+    @Operation(summary = "Get similar products", description = "Retrieves similar products for a given product")
     public ResponseEntity<ApiResponse<List<ProductResponse>>> getSimilarProducts(
             @PathVariable String uuid,
             @RequestParam(defaultValue = "10") int limit

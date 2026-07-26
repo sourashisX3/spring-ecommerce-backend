@@ -8,6 +8,8 @@ import com.example.ecommerce_backend.modules.returns.dto.request.UpdateReturnSta
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnResponse;
 import com.example.ecommerce_backend.modules.returns.service.ReturnService;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,13 +22,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/returns")
+@RequestMapping("/returns")
+@Tag(name = "Return", description = "Return API")
 public class ReturnController {
 
     @Autowired
     private ReturnService returnService;
 
     @GetMapping
+    @Operation(summary = "Get all return requests", description = "Retrieves all return requests with optional pagination")
     @RequiresPermission("return:read")
     public ResponseEntity<ApiResponse<List<ReturnResponse>>> getAll(
             @RequestParam(required = false) Integer page,
@@ -41,12 +45,14 @@ public class ReturnController {
     }
 
     @GetMapping("/{uuid}")
+    @Operation(summary = "Get return request by UUID", description = "Retrieves a single return request by its UUID")
     public ResponseEntity<ApiResponse<ReturnResponse>> getByUuid(@PathVariable String uuid) {
         ReturnResponse returnResponse = returnService.getByUuid(uuid);
         return ApiResponse.success(returnResponse, "Return request retrieved successfully");
     }
 
     @GetMapping("/my")
+    @Operation(summary = "Get my return requests", description = "Retrieves return requests for the authenticated user")
     public ResponseEntity<ApiResponse<List<ReturnResponse>>> getMyReturns(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false) Integer page,
@@ -61,6 +67,7 @@ public class ReturnController {
     }
 
     @PostMapping
+    @Operation(summary = "Create a return request", description = "Creates a new return request")
     public ResponseEntity<ApiResponse<ReturnResponse>> create(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody ReturnRequestDto request) {
@@ -69,6 +76,7 @@ public class ReturnController {
     }
 
     @PatchMapping("/{uuid}/status")
+    @Operation(summary = "Update return request status", description = "Updates the status of a return request")
     @RequiresPermission("return:write")
     public ResponseEntity<ApiResponse<ReturnResponse>> updateStatus(
             @PathVariable String uuid,
@@ -78,6 +86,7 @@ public class ReturnController {
     }
 
     @DeleteMapping("/{uuid}")
+    @Operation(summary = "Delete a return request", description = "Deletes a return request by UUID")
     @RequiresPermission("return:write")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
         returnService.delete(uuid);

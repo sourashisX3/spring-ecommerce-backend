@@ -73,7 +73,7 @@ class DiscountTypeControllerTest {
     void getAll_shouldReturnDiscountTypes() throws Exception {
         when(discountTypeService.getAll()).thenReturn(List.of(discountTypeResponse));
 
-        mockMvc.perform(get("/api/discount-types"))
+        mockMvc.perform(get("/discount-types"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].code").value("PERCENTAGE"));
     }
@@ -82,7 +82,7 @@ class DiscountTypeControllerTest {
     void getByUuid_shouldReturnDiscountType() throws Exception {
         when(discountTypeService.getByUuid("dt-uuid-1")).thenReturn(discountTypeResponse);
 
-        mockMvc.perform(get("/api/discount-types/dt-uuid-1"))
+        mockMvc.perform(get("/discount-types/dt-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("PERCENTAGE"));
     }
@@ -91,7 +91,7 @@ class DiscountTypeControllerTest {
     void getByCode_shouldReturnDiscountType() throws Exception {
         when(discountTypeService.getByCode("PERCENTAGE")).thenReturn(discountTypeResponse);
 
-        mockMvc.perform(get("/api/discount-types/code/PERCENTAGE"))
+        mockMvc.perform(get("/discount-types/code/PERCENTAGE"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("PERCENTAGE"));
     }
@@ -106,7 +106,7 @@ class DiscountTypeControllerTest {
 
         when(discountTypeService.create(any(DiscountTypeRequest.class))).thenReturn(discountTypeResponse);
 
-        mockMvc.perform(post("/api/discount-types")
+        mockMvc.perform(post("/discount-types")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -124,7 +124,7 @@ class DiscountTypeControllerTest {
         when(discountTypeService.update(eq("dt-uuid-1"), any(DiscountTypeRequest.class)))
                 .thenReturn(discountTypeResponse);
 
-        mockMvc.perform(put("/api/discount-types/dt-uuid-1")
+        mockMvc.perform(put("/discount-types/dt-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -132,7 +132,7 @@ class DiscountTypeControllerTest {
 
     @Test
     void toggleStatus_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(patch("/api/discount-types/dt-uuid-1/status")
+        mockMvc.perform(patch("/discount-types/dt-uuid-1/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isActive\": false}"))
                 .andExpect(status().isOk())
@@ -141,7 +141,7 @@ class DiscountTypeControllerTest {
 
     @Test
     void delete_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/discount-types/dt-uuid-1"))
+        mockMvc.perform(delete("/discount-types/dt-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Discount type deleted successfully"));
     }

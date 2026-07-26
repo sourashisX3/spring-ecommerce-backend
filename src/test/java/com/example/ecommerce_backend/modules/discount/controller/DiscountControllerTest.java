@@ -103,7 +103,7 @@ class DiscountControllerTest {
     void getAll_shouldReturnDiscounts() throws Exception {
         when(discountService.getAll(null, null)).thenReturn(List.of(discountResponse));
 
-        mockMvc.perform(get("/api/discounts"))
+        mockMvc.perform(get("/discounts"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].description").value("10% off"));
     }
@@ -112,7 +112,7 @@ class DiscountControllerTest {
     void getAll_withFilters_shouldPassParams() throws Exception {
         when(discountService.getAll(eq(true), eq(false))).thenReturn(List.of(discountResponse));
 
-        mockMvc.perform(get("/api/discounts?active=true&global=false"))
+        mockMvc.perform(get("/discounts?active=true&global=false"))
                 .andExpect(status().isOk());
     }
 
@@ -120,7 +120,7 @@ class DiscountControllerTest {
     void getByUuid_shouldReturnDiscount() throws Exception {
         when(discountService.getByUuid("discount-uuid-1")).thenReturn(discountResponse);
 
-        mockMvc.perform(get("/api/discounts/discount-uuid-1"))
+        mockMvc.perform(get("/discounts/discount-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.description").value("10% off"));
     }
@@ -129,7 +129,7 @@ class DiscountControllerTest {
     void getEligible_shouldReturnEligibleDiscounts() throws Exception {
         when(discountService.getEligibleDiscounts(1L)).thenReturn(List.of(discountResponse));
 
-        mockMvc.perform(get("/api/discounts/eligible")
+        mockMvc.perform(get("/discounts/eligible")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].description").value("10% off"));
@@ -145,7 +145,7 @@ class DiscountControllerTest {
 
         when(discountService.create(any(DiscountRequest.class))).thenReturn(discountResponse);
 
-        mockMvc.perform(post("/api/discounts")
+        mockMvc.perform(post("/discounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -164,7 +164,7 @@ class DiscountControllerTest {
         when(discountService.createAssignable(any(DiscountRequest.class), anyList()))
                 .thenReturn(discountResponse);
 
-        mockMvc.perform(post("/api/discounts")
+        mockMvc.perform(post("/discounts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated());
@@ -181,7 +181,7 @@ class DiscountControllerTest {
         when(discountService.update(eq("discount-uuid-1"), any(DiscountRequest.class)))
                 .thenReturn(discountResponse);
 
-        mockMvc.perform(put("/api/discounts/discount-uuid-1")
+        mockMvc.perform(put("/discounts/discount-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -189,7 +189,7 @@ class DiscountControllerTest {
 
     @Test
     void toggleStatus_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(patch("/api/discounts/discount-uuid-1/status")
+        mockMvc.perform(patch("/discounts/discount-uuid-1/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isActive\": false}"))
                 .andExpect(status().isOk())
@@ -198,14 +198,14 @@ class DiscountControllerTest {
 
     @Test
     void delete_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/discounts/discount-uuid-1"))
+        mockMvc.perform(delete("/discounts/discount-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Discount deleted successfully"));
     }
 
     @Test
     void assignToUsers_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(post("/api/discounts/discount-uuid-1/assign")
+        mockMvc.perform(post("/discounts/discount-uuid-1/assign")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(List.of("user-uuid-1"))))
                 .andExpect(status().isOk())
@@ -214,7 +214,7 @@ class DiscountControllerTest {
 
     @Test
     void removeAssignment_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/discounts/discount-uuid-1/assign/user-uuid-1"))
+        mockMvc.perform(delete("/discounts/discount-uuid-1/assign/user-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Assignment removed successfully"));
     }

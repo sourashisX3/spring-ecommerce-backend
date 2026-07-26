@@ -7,6 +7,8 @@ import com.example.ecommerce_backend.modules.discount.dto.request.DiscountReques
 import com.example.ecommerce_backend.modules.discount.dto.response.DiscountResponse;
 import com.example.ecommerce_backend.modules.discount.service.DiscountService;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +18,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/discounts")
+@RequestMapping("/discounts")
+@Tag(name = "Discount", description = "Discount API")
 public class DiscountController {
 
     @Autowired
     private DiscountService discountService;
 
+    @Operation(summary = "Get all discounts", description = "Retrieves all discounts with optional filtering by active and global status")
     @GetMapping
     public ResponseEntity<ApiResponse<List<DiscountResponse>>> getAll(
             @RequestParam(required = false) Boolean active,
@@ -30,12 +34,14 @@ public class DiscountController {
         return ApiResponse.success(discounts, "Discounts retrieved successfully");
     }
 
+    @Operation(summary = "Get discount by UUID", description = "Retrieves a discount by its unique identifier")
     @GetMapping("/{uuid}")
     public ResponseEntity<ApiResponse<DiscountResponse>> getByUuid(@PathVariable String uuid) {
         DiscountResponse discount = discountService.getByUuid(uuid);
         return ApiResponse.success(discount, "Discount retrieved successfully");
     }
 
+    @Operation(summary = "Get eligible discounts", description = "Retrieves discounts eligible for the authenticated user")
     @GetMapping("/eligible")
     public ResponseEntity<ApiResponse<List<DiscountResponse>>> getEligible(
             @AuthenticationPrincipal User user) {
@@ -43,6 +49,7 @@ public class DiscountController {
         return ApiResponse.success(discounts, "Eligible discounts retrieved successfully");
     }
 
+    @Operation(summary = "Create a discount", description = "Creates a new discount (requires discount:write permission)")
     @PostMapping
     @RequiresPermission("discount:write")
     public ResponseEntity<ApiResponse<DiscountResponse>> create(@Valid @RequestBody DiscountRequest request) {
@@ -55,6 +62,7 @@ public class DiscountController {
         return ApiResponse.created(discount, "Discount created successfully");
     }
 
+    @Operation(summary = "Update a discount", description = "Updates an existing discount by UUID (requires discount:write permission)")
     @PutMapping("/{uuid}")
     @RequiresPermission("discount:write")
     public ResponseEntity<ApiResponse<DiscountResponse>> update(
@@ -63,6 +71,7 @@ public class DiscountController {
         return ApiResponse.success(discount, "Discount updated successfully");
     }
 
+    @Operation(summary = "Toggle discount status", description = "Activates or deactivates a discount (requires discount:write permission)")
     @PatchMapping("/{uuid}/status")
     @RequiresPermission("discount:write")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
@@ -71,6 +80,7 @@ public class DiscountController {
         return ApiResponse.success(null, "Discount status updated successfully");
     }
 
+    @Operation(summary = "Delete a discount", description = "Deletes a discount by UUID (requires discount:write permission)")
     @DeleteMapping("/{uuid}")
     @RequiresPermission("discount:write")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
@@ -78,6 +88,7 @@ public class DiscountController {
         return ApiResponse.success(null, "Discount deleted successfully");
     }
 
+    @Operation(summary = "Assign discount to users", description = "Assigns a discount to specific users (requires discount:write permission)")
     @PostMapping("/{uuid}/assign")
     @RequiresPermission("discount:write")
     public ResponseEntity<ApiResponse<Void>> assignToUsers(
@@ -86,6 +97,7 @@ public class DiscountController {
         return ApiResponse.success(null, "Discount assigned to users successfully");
     }
 
+    @Operation(summary = "Remove discount assignment", description = "Removes a discount assignment from a user (requires discount:write permission)")
     @DeleteMapping("/{uuid}/assign/{userUuid}")
     @RequiresPermission("discount:write")
     public ResponseEntity<ApiResponse<Void>> removeAssignment(

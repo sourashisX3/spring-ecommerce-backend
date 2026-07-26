@@ -9,6 +9,8 @@ import com.example.ecommerce_backend.modules.payment.dto.response.PaymentRespons
 import com.example.ecommerce_backend.modules.payment.dto.response.RefundResponse;
 import com.example.ecommerce_backend.modules.payment.service.PaymentService;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,13 +23,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/payments")
+@RequestMapping("/payments")
+@Tag(name = "Payment", description = "Payment API")
 public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
 
     @PostMapping("/pay")
+    @Operation(summary = "Process payment", description = "Process a payment for an order")
     public ResponseEntity<ApiResponse<PaymentResponse>> processPayment(
             @Valid @RequestBody PaymentRequest request,
             @AuthenticationPrincipal User user) {
@@ -36,18 +40,21 @@ public class PaymentController {
     }
 
     @GetMapping("/{uuid}")
+    @Operation(summary = "Get payment by UUID", description = "Retrieve a payment by UUID")
     public ResponseEntity<ApiResponse<PaymentResponse>> getByUuid(@PathVariable String uuid) {
         PaymentResponse payment = paymentService.getByUuid(uuid);
         return ApiResponse.success(payment, "Payment retrieved successfully");
     }
 
     @GetMapping("/order/{orderId}")
+    @Operation(summary = "Get payment by order ID", description = "Retrieve a payment by order ID")
     public ResponseEntity<ApiResponse<PaymentResponse>> getByOrderId(@PathVariable Long orderId) {
         PaymentResponse payment = paymentService.getByOrderId(orderId);
         return ApiResponse.success(payment, "Payment retrieved successfully");
     }
 
     @GetMapping
+    @Operation(summary = "Get user payments", description = "Retrieve payments for the authenticated user")
     public ResponseEntity<ApiResponse<List<PaymentResponse>>> getUserPayments(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false) Integer page,
@@ -62,6 +69,7 @@ public class PaymentController {
     }
 
     @GetMapping("/{paymentId}/refunds")
+    @Operation(summary = "Get refunds by payment", description = "Retrieve refunds for a specific payment")
     public ResponseEntity<ApiResponse<List<RefundResponse>>> getRefunds(
             @PathVariable Long paymentId) {
         List<RefundResponse> refunds = paymentService.getRefundsByPaymentId(paymentId);
@@ -70,6 +78,7 @@ public class PaymentController {
 
     @PostMapping("/refund")
     @RequiresPermission("payment:write")
+    @Operation(summary = "Process refund", description = "Process a refund for a payment")
     public ResponseEntity<ApiResponse<RefundResponse>> processRefund(
             @Valid @RequestBody RefundRequest request) {
         RefundResponse refund = paymentService.processRefund(request);

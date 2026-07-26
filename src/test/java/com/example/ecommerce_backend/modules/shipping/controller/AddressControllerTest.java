@@ -76,7 +76,7 @@ class AddressControllerTest {
 
         when(shippingAddressService.getAddresses(1L)).thenReturn(List.of(address));
 
-        mockMvc.perform(get("/api/addresses").with(authentication(auth())))
+        mockMvc.perform(get("/addresses").with(authentication(auth())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("addr-uuid"));
     }
@@ -89,7 +89,7 @@ class AddressControllerTest {
 
         when(shippingAddressService.getByUuid("addr-uuid", 1L)).thenReturn(address);
 
-        mockMvc.perform(get("/api/addresses/addr-uuid").with(authentication(auth())))
+        mockMvc.perform(get("/addresses/addr-uuid").with(authentication(auth())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("addr-uuid"));
     }
@@ -102,7 +102,7 @@ class AddressControllerTest {
 
         when(shippingAddressService.create(any(AddressRequest.class), eq(1L))).thenReturn(address);
 
-        mockMvc.perform(post("/api/addresses").with(authentication(auth()))
+        mockMvc.perform(post("/addresses").with(authentication(auth()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"recipientName\":\"John Doe\",\"phone\":\"1234567890\",\"addressLine1\":\"123 Main St\",\"city\":\"New York\",\"state\":\"NY\",\"postalCode\":\"10001\",\"country\":\"USA\"}"))
                 .andExpect(status().isCreated())
@@ -111,7 +111,7 @@ class AddressControllerTest {
 
     @Test
     void create_withInvalidRequest_shouldReturnBadRequest() throws Exception {
-        mockMvc.perform(post("/api/addresses").with(authentication(auth()))
+        mockMvc.perform(post("/addresses").with(authentication(auth()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());
@@ -126,7 +126,7 @@ class AddressControllerTest {
         when(shippingAddressService.update(eq("addr-uuid"), any(AddressRequest.class), eq(1L)))
                 .thenReturn(address);
 
-        mockMvc.perform(put("/api/addresses/addr-uuid").with(authentication(auth()))
+        mockMvc.perform(put("/addresses/addr-uuid").with(authentication(auth()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"recipientName\":\"Jane Doe\",\"phone\":\"9876543210\",\"addressLine1\":\"456 Oak St\",\"city\":\"Los Angeles\",\"state\":\"CA\",\"postalCode\":\"90001\",\"country\":\"USA\"}"))
                 .andExpect(status().isOk())
@@ -137,7 +137,7 @@ class AddressControllerTest {
     void setDefault_shouldReturnSuccess() throws Exception {
         doNothing().when(shippingAddressService).setDefault("addr-uuid", 1L);
 
-        mockMvc.perform(patch("/api/addresses/addr-uuid/default").with(authentication(auth())))
+        mockMvc.perform(patch("/addresses/addr-uuid/default").with(authentication(auth())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Default address updated successfully"));
     }
@@ -146,7 +146,7 @@ class AddressControllerTest {
     void delete_shouldReturnSuccess() throws Exception {
         doNothing().when(shippingAddressService).delete("addr-uuid", 1L);
 
-        mockMvc.perform(delete("/api/addresses/addr-uuid").with(authentication(auth())))
+        mockMvc.perform(delete("/addresses/addr-uuid").with(authentication(auth())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Address deleted successfully"));
     }

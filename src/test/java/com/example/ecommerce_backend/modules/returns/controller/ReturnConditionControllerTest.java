@@ -62,7 +62,7 @@ class ReturnConditionControllerTest {
 
         when(returnConditionService.getAll()).thenReturn(List.of(condition));
 
-        mockMvc.perform(get("/api/return-conditions"))
+        mockMvc.perform(get("/return-conditions"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].code").value("DAMAGED"));
     }
@@ -77,7 +77,7 @@ class ReturnConditionControllerTest {
 
         when(returnConditionService.getByUuid("condition-uuid")).thenReturn(condition);
 
-        mockMvc.perform(get("/api/return-conditions/condition-uuid"))
+        mockMvc.perform(get("/return-conditions/condition-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("DAMAGED"));
     }
@@ -92,7 +92,7 @@ class ReturnConditionControllerTest {
 
         when(returnConditionService.create(any())).thenReturn(response);
 
-        mockMvc.perform(post("/api/return-conditions")
+        mockMvc.perform(post("/return-conditions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"DAMAGED\",\"name\":\"Damaged\"}"))
                 .andExpect(status().isCreated())
@@ -109,7 +109,7 @@ class ReturnConditionControllerTest {
 
         when(returnConditionService.update(eq("condition-uuid"), any())).thenReturn(response);
 
-        mockMvc.perform(put("/api/return-conditions/condition-uuid")
+        mockMvc.perform(put("/return-conditions/condition-uuid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"DAMAGED\",\"name\":\"Damaged Item\"}"))
                 .andExpect(status().isOk())
@@ -120,7 +120,7 @@ class ReturnConditionControllerTest {
     void delete_shouldReturnSuccess() throws Exception {
         doNothing().when(returnConditionService).delete("condition-uuid");
 
-        mockMvc.perform(delete("/api/return-conditions/condition-uuid"))
+        mockMvc.perform(delete("/return-conditions/condition-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Return condition deleted successfully"));
     }

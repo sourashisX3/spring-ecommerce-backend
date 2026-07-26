@@ -7,6 +7,7 @@ import com.example.ecommerce_backend.modules.chat.entity.ChatRoom;
 import com.example.ecommerce_backend.modules.chat.service.ChatBotService;
 import com.example.ecommerce_backend.modules.chat.service.ChatService;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.context.annotation.Profile;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 @Controller
 @Profile("!test")
+@Tag(name = "Chat WebSocket", description = "Chat WebSocket API")
 public class ChatWebSocketController {
 
     private final ChatService chatService;

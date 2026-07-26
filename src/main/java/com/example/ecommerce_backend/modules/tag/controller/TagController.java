@@ -6,6 +6,8 @@ import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.tag.dto.request.TagRequest;
 import com.example.ecommerce_backend.modules.tag.dto.response.TagResponse;
 import com.example.ecommerce_backend.modules.tag.service.TagService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +17,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/tags")
+@Tag(name = "Tags", description = "Tag management APIs")
 public class TagController {
 
     @Autowired
     private TagService tagService;
 
     @GetMapping
+    @Operation(summary = "Get all tags", description = "Retrieves all tags, optionally filtered by active status")
     public ResponseEntity<ApiResponse<List<TagResponse>>> getAll(
             @RequestParam(required = false) Boolean active
     ) {
@@ -30,6 +34,7 @@ public class TagController {
 
     @PostMapping
     @RequiresPermission("tag:write")
+    @Operation(summary = "Create tag", description = "Creates a new tag")
     public ResponseEntity<ApiResponse<TagResponse>> create(@Valid @RequestBody TagRequest request) {
         TagResponse tag = tagService.create(request);
         return ApiResponse.created(tag, "Tag created successfully");
@@ -37,6 +42,7 @@ public class TagController {
 
     @PutMapping("/{uuid}")
     @RequiresPermission("tag:write")
+    @Operation(summary = "Update tag", description = "Updates an existing tag")
     public ResponseEntity<ApiResponse<TagResponse>> update(
             @PathVariable String uuid,
             @Valid @RequestBody TagRequest request
@@ -47,6 +53,7 @@ public class TagController {
 
     @PatchMapping("/{uuid}/status")
     @RequiresPermission("tag:write")
+    @Operation(summary = "Toggle tag status", description = "Toggles the active status of a tag")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
             @PathVariable String uuid,
             @Valid @RequestBody StatusRequest request
@@ -58,6 +65,7 @@ public class TagController {
 
     @DeleteMapping("/{uuid}")
     @RequiresPermission("tag:write")
+    @Operation(summary = "Delete tag", description = "Deletes a tag")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
         tagService.delete(uuid);
         return ApiResponse.success(null, "Tag deleted successfully");

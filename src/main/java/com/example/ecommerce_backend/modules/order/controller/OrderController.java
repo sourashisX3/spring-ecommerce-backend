@@ -8,6 +8,8 @@ import com.example.ecommerce_backend.modules.order.dto.request.UpdateOrderStatus
 import com.example.ecommerce_backend.modules.order.dto.response.OrderResponse;
 import com.example.ecommerce_backend.modules.order.service.OrderService;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,13 +22,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
+@Tag(name = "Order", description = "Order API")
 public class OrderController {
 
     @Autowired
     private OrderService orderService;
 
     @PostMapping("/checkout")
+    @Operation(summary = "Create order", description = "Create a new order from cart")
     public ResponseEntity<ApiResponse<OrderResponse>> createOrder(
             @Valid @RequestBody OrderRequest request,
             @AuthenticationPrincipal User user
@@ -36,6 +40,7 @@ public class OrderController {
     }
 
     @GetMapping
+    @Operation(summary = "Get user orders", description = "Retrieve orders for the authenticated user")
     public ResponseEntity<ApiResponse<List<OrderResponse>>> getUserOrders(
             @AuthenticationPrincipal User user,
             @RequestParam(required = false) Integer page,
@@ -51,6 +56,7 @@ public class OrderController {
     }
 
     @GetMapping("/{uuid}")
+    @Operation(summary = "Get order by UUID", description = "Retrieve an order by its UUID")
     public ResponseEntity<ApiResponse<OrderResponse>> getOrderByUuid(
             @PathVariable String uuid,
             @AuthenticationPrincipal User user
@@ -60,6 +66,7 @@ public class OrderController {
     }
 
     @PatchMapping("/{uuid}/cancel")
+    @Operation(summary = "Cancel order", description = "Cancel an order by UUID")
     public ResponseEntity<ApiResponse<OrderResponse>> cancelOrder(
             @PathVariable String uuid,
             @AuthenticationPrincipal User user
@@ -70,6 +77,7 @@ public class OrderController {
 
     @PutMapping("/{uuid}/status")
     @RequiresPermission("order:update_status")
+    @Operation(summary = "Update order status", description = "Update the status of an order")
     public ResponseEntity<ApiResponse<OrderResponse>> updateOrderStatus(
             @PathVariable String uuid,
             @Valid @RequestBody UpdateOrderStatusRequest request

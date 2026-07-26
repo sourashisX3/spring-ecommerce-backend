@@ -9,6 +9,8 @@ import com.example.ecommerce_backend.modules.coupon.dto.request.CouponRequest;
 import com.example.ecommerce_backend.modules.coupon.dto.request.CouponValidationRequest;
 import com.example.ecommerce_backend.modules.coupon.dto.response.CouponResponse;
 import com.example.ecommerce_backend.modules.coupon.service.CouponService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +20,14 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/coupons")
+@RequestMapping("/coupons")
+@Tag(name = "Coupon", description = "Coupon API")
 public class CouponController {
 
     @Autowired
     private CouponService couponService;
 
+    @Operation(summary = "Get all coupons", description = "Retrieves all coupons with optional filtering by active and global status")
     @GetMapping
     public ResponseEntity<ApiResponse<List<CouponResponse>>> getAll(
             @RequestParam(required = false) Boolean active,
@@ -33,12 +37,14 @@ public class CouponController {
         return ApiResponse.success(coupons, "Coupons retrieved successfully");
     }
 
+    @Operation(summary = "Get coupon by UUID", description = "Retrieves a coupon by its unique identifier")
     @GetMapping("/{uuid}")
     public ResponseEntity<ApiResponse<CouponResponse>> getByUuid(@PathVariable String uuid) {
         CouponResponse coupon = couponService.getByUuid(uuid);
         return ApiResponse.success(coupon, "Coupon retrieved successfully");
     }
 
+    @Operation(summary = "Create a coupon", description = "Creates a new coupon (requires coupon:write permission)")
     @PostMapping
     @RequiresPermission("coupon:write")
     public ResponseEntity<ApiResponse<CouponResponse>> create(@Valid @RequestBody CouponRequest request) {
@@ -46,6 +52,7 @@ public class CouponController {
         return ApiResponse.created(coupon, "Coupon created successfully");
     }
 
+    @Operation(summary = "Update a coupon", description = "Updates an existing coupon by UUID (requires coupon:write permission)")
     @PutMapping("/{uuid}")
     @RequiresPermission("coupon:write")
     public ResponseEntity<ApiResponse<CouponResponse>> update(
@@ -56,6 +63,7 @@ public class CouponController {
         return ApiResponse.success(coupon, "Coupon updated successfully");
     }
 
+    @Operation(summary = "Toggle coupon status", description = "Activates or deactivates a coupon (requires coupon:write permission)")
     @PatchMapping("/{uuid}/status")
     @RequiresPermission("coupon:write")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
@@ -67,6 +75,7 @@ public class CouponController {
         return ApiResponse.success(null, message);
     }
 
+    @Operation(summary = "Delete a coupon", description = "Deletes a coupon by UUID (requires coupon:write permission)")
     @DeleteMapping("/{uuid}")
     @RequiresPermission("coupon:write")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
@@ -74,6 +83,7 @@ public class CouponController {
         return ApiResponse.success(null, "Coupon deleted successfully");
     }
 
+    @Operation(summary = "Assign coupon to users", description = "Assigns a coupon to specific users (requires coupon:write permission)")
     @PostMapping("/{uuid}/assign")
     @RequiresPermission("coupon:write")
     public ResponseEntity<ApiResponse<Void>> assignToUsers(
@@ -84,6 +94,7 @@ public class CouponController {
         return ApiResponse.success(null, "Coupon assigned successfully");
     }
 
+    @Operation(summary = "Remove coupon assignment", description = "Removes a coupon assignment from a user (requires coupon:write permission)")
     @DeleteMapping("/{uuid}/assign/{userUuid}")
     @RequiresPermission("coupon:write")
     public ResponseEntity<ApiResponse<Void>> removeAssignment(
@@ -94,6 +105,7 @@ public class CouponController {
         return ApiResponse.success(null, "Assignment removed successfully");
     }
 
+    @Operation(summary = "Validate and apply coupon", description = "Validates a coupon code and applies it to an order subtotal")
     @PostMapping("/validate")
     public ResponseEntity<ApiResponse<BigDecimal>> validateAndApply(
             @Valid @RequestBody CouponValidationRequest request

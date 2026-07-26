@@ -73,7 +73,7 @@ class ReturnControllerTest {
 
         when(returnService.getAll()).thenReturn(List.of(ret));
 
-        mockMvc.perform(get("/api/returns"))
+        mockMvc.perform(get("/returns"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("return-uuid"));
     }
@@ -87,7 +87,7 @@ class ReturnControllerTest {
         Page<ReturnResponse> page = new PageImpl<>(List.of(ret));
         when(returnService.getAll(any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/returns?page=0&size=10"))
+        mockMvc.perform(get("/returns?page=0&size=10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("return-uuid"))
                 .andExpect(jsonPath("$.pagination").exists());
@@ -101,7 +101,7 @@ class ReturnControllerTest {
 
         when(returnService.getByUuid("return-uuid")).thenReturn(ret);
 
-        mockMvc.perform(get("/api/returns/return-uuid"))
+        mockMvc.perform(get("/returns/return-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("return-uuid"));
     }
@@ -114,7 +114,7 @@ class ReturnControllerTest {
 
         when(returnService.getByUserId(1L)).thenReturn(List.of(ret));
 
-        mockMvc.perform(get("/api/returns/my")
+        mockMvc.perform(get("/returns/my")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("return-uuid"));
@@ -129,7 +129,7 @@ class ReturnControllerTest {
         Page<ReturnResponse> page = new PageImpl<>(List.of(ret));
         when(returnService.getByUserId(eq(1L), any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/returns/my?page=0&size=10")
+        mockMvc.perform(get("/returns/my?page=0&size=10")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("return-uuid"))
@@ -144,7 +144,7 @@ class ReturnControllerTest {
 
         when(returnService.create(any(User.class), any())).thenReturn(response);
 
-        mockMvc.perform(post("/api/returns")
+        mockMvc.perform(post("/returns")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"orderUuid\":\"order-uuid\",\"reason\":\"Defective product\",\"items\":[{\"orderItemId\":1,\"quantity\":1}]}"))
@@ -162,7 +162,7 @@ class ReturnControllerTest {
         when(returnService.updateStatus(eq("return-uuid"), eq("APPROVED"), eq("Approved after review")))
                 .thenReturn(response);
 
-        mockMvc.perform(patch("/api/returns/return-uuid/status")
+        mockMvc.perform(patch("/returns/return-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"status\":\"APPROVED\",\"resolutionNotes\":\"Approved after review\"}"))
                 .andExpect(status().isOk())
@@ -173,7 +173,7 @@ class ReturnControllerTest {
     void delete_shouldReturnSuccess() throws Exception {
         doNothing().when(returnService).delete("return-uuid");
 
-        mockMvc.perform(delete("/api/returns/return-uuid"))
+        mockMvc.perform(delete("/returns/return-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Return request deleted successfully"));
     }

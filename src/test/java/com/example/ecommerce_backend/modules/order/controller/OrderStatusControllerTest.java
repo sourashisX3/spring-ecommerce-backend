@@ -74,7 +74,7 @@ class OrderStatusControllerTest {
     void getAll_shouldReturnStatuses() throws Exception {
         when(orderStatusService.getAll()).thenReturn(List.of(statusResponse));
 
-        mockMvc.perform(get("/api/order-statuses"))
+        mockMvc.perform(get("/order-statuses"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].code").value("PENDING"))
                 .andExpect(jsonPath("$.message").value("Order statuses retrieved successfully"));
@@ -84,7 +84,7 @@ class OrderStatusControllerTest {
     void getByUuid_shouldReturnStatus() throws Exception {
         when(orderStatusService.getByUuid("status-uuid-1")).thenReturn(statusResponse);
 
-        mockMvc.perform(get("/api/order-statuses/status-uuid-1"))
+        mockMvc.perform(get("/order-statuses/status-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("PENDING"))
                 .andExpect(jsonPath("$.message").value("Order status retrieved successfully"));
@@ -94,7 +94,7 @@ class OrderStatusControllerTest {
     void create_shouldReturnCreated() throws Exception {
         when(orderStatusService.create(any())).thenReturn(statusResponse);
 
-        mockMvc.perform(post("/api/order-statuses")
+        mockMvc.perform(post("/order-statuses")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\": \"PENDING\", \"name\": \"Pending\", \"description\": \"Order is pending\", \"sortOrder\": 1}"))
                 .andExpect(status().isCreated())
@@ -107,7 +107,7 @@ class OrderStatusControllerTest {
     void update_shouldReturnUpdatedStatus() throws Exception {
         when(orderStatusService.update(eq("status-uuid-1"), any())).thenReturn(statusResponse);
 
-        mockMvc.perform(put("/api/order-statuses/status-uuid-1")
+        mockMvc.perform(put("/order-statuses/status-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\": \"PENDING\", \"name\": \"Pending\", \"description\": \"Updated description\", \"sortOrder\": 2}"))
                 .andExpect(status().isOk())
@@ -123,7 +123,7 @@ class OrderStatusControllerTest {
                         .sortOrder(1).isActive(false).build()
         );
 
-        mockMvc.perform(patch("/api/order-statuses/status-uuid-1/status?active=false"))
+        mockMvc.perform(patch("/order-statuses/status-uuid-1/status?active=false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Order status updated successfully"))
                 .andExpect(jsonPath("$.response.isActive").value(false));
@@ -131,7 +131,7 @@ class OrderStatusControllerTest {
 
     @Test
     void delete_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/order-statuses/status-uuid-1"))
+        mockMvc.perform(delete("/order-statuses/status-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Order status deleted successfully"));
     }

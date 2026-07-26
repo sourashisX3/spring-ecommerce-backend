@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.core.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,15 +15,19 @@ import org.springframework.http.ResponseEntity;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(description = "Standard API response wrapper")
 public class ApiResponse<T> {
 
+    @Schema(description = "HTTP status code", example = "200")
     private int statusCode;
+
+    @Schema(description = "Response message", example = "Operation completed successfully")
     private String message;
+
+    @Schema(description = "Response payload")
     private T response;
 
-    /**
-     * Optional — present only on paginated endpoints, absent from JSON otherwise.
-     */
+    @Schema(description = "Pagination metadata — present only on paginated endpoints")
     private Pagination pagination;
 
     // ── Non-paginated ──

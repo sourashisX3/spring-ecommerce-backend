@@ -93,7 +93,7 @@ class CouponControllerTest {
     void getAll_shouldReturnCoupons() throws Exception {
         when(couponService.getAll(null, null)).thenReturn(List.of(couponResponse));
 
-        mockMvc.perform(get("/api/coupons"))
+        mockMvc.perform(get("/coupons"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].code").value("SAVE10"));
     }
@@ -102,7 +102,7 @@ class CouponControllerTest {
     void getAll_withFilters_shouldPassParams() throws Exception {
         when(couponService.getAll(eq(true), eq(false))).thenReturn(List.of(couponResponse));
 
-        mockMvc.perform(get("/api/coupons?active=true&global=false"))
+        mockMvc.perform(get("/coupons?active=true&global=false"))
                 .andExpect(status().isOk());
     }
 
@@ -110,7 +110,7 @@ class CouponControllerTest {
     void getByUuid_shouldReturnCoupon() throws Exception {
         when(couponService.getByUuid("coupon-uuid-1")).thenReturn(couponResponse);
 
-        mockMvc.perform(get("/api/coupons/coupon-uuid-1"))
+        mockMvc.perform(get("/coupons/coupon-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("SAVE10"));
     }
@@ -126,7 +126,7 @@ class CouponControllerTest {
 
         when(couponService.create(any(CouponRequest.class))).thenReturn(couponResponse);
 
-        mockMvc.perform(post("/api/coupons")
+        mockMvc.perform(post("/coupons")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -144,7 +144,7 @@ class CouponControllerTest {
 
         when(couponService.update(eq("coupon-uuid-1"), any(CouponRequest.class))).thenReturn(couponResponse);
 
-        mockMvc.perform(put("/api/coupons/coupon-uuid-1")
+        mockMvc.perform(put("/coupons/coupon-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -152,7 +152,7 @@ class CouponControllerTest {
 
     @Test
     void toggleStatus_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(patch("/api/coupons/coupon-uuid-1/status")
+        mockMvc.perform(patch("/coupons/coupon-uuid-1/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isActive\": false}"))
                 .andExpect(status().isOk())
@@ -161,7 +161,7 @@ class CouponControllerTest {
 
     @Test
     void delete_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/coupons/coupon-uuid-1"))
+        mockMvc.perform(delete("/coupons/coupon-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Coupon deleted successfully"));
     }
@@ -171,7 +171,7 @@ class CouponControllerTest {
         AssignCouponRequest assignRequest = new AssignCouponRequest();
         assignRequest.setUserUuids(List.of("user-uuid-1"));
 
-        mockMvc.perform(post("/api/coupons/coupon-uuid-1/assign")
+        mockMvc.perform(post("/coupons/coupon-uuid-1/assign")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(assignRequest)))
                 .andExpect(status().isOk())
@@ -180,7 +180,7 @@ class CouponControllerTest {
 
     @Test
     void removeAssignment_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/coupons/coupon-uuid-1/assign/user-uuid-1"))
+        mockMvc.perform(delete("/coupons/coupon-uuid-1/assign/user-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Assignment removed successfully"));
     }
@@ -195,7 +195,7 @@ class CouponControllerTest {
         when(couponService.validateAndApply(eq("SAVE10"), eq(1L), eq(BigDecimal.valueOf(100)), isNull()))
                 .thenReturn(BigDecimal.TEN);
 
-        mockMvc.perform(post("/api/coupons/validate")
+        mockMvc.perform(post("/coupons/validate")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validationRequest)))
                 .andExpect(status().isOk())

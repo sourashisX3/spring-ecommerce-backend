@@ -95,7 +95,7 @@ class OrderControllerTest {
     void createOrder_shouldReturnCreated() throws Exception {
         when(orderService.createOrder(eq(1L), any())).thenReturn(orderResponse);
 
-        mockMvc.perform(post("/api/orders/checkout")
+        mockMvc.perform(post("/orders/checkout")
                         .with(user(testUser))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"shippingAddressId\": 1, \"couponCode\": \"SAVE10\", \"notes\": \"Leave at door\"}"))
@@ -110,7 +110,7 @@ class OrderControllerTest {
         Page<OrderResponse> page = new PageImpl<>(List.of(orderResponse));
         when(orderService.getUserOrders(eq(1L), any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/orders?page=0&size=20")
+        mockMvc.perform(get("/orders?page=0&size=20")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("order-uuid-1"))
@@ -122,7 +122,7 @@ class OrderControllerTest {
     void getUserOrders_withoutPagination_shouldReturnList() throws Exception {
         when(orderService.getUserOrders(eq(1L))).thenReturn(List.of(orderResponse));
 
-        mockMvc.perform(get("/api/orders")
+        mockMvc.perform(get("/orders")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("order-uuid-1"))
@@ -133,7 +133,7 @@ class OrderControllerTest {
     void getOrderByUuid_shouldReturnOrder() throws Exception {
         when(orderService.getOrderByUuid("order-uuid-1", 1L)).thenReturn(orderResponse);
 
-        mockMvc.perform(get("/api/orders/order-uuid-1")
+        mockMvc.perform(get("/orders/order-uuid-1")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("order-uuid-1"))
@@ -144,7 +144,7 @@ class OrderControllerTest {
     void cancelOrder_shouldReturnCancelledOrder() throws Exception {
         when(orderService.cancelOrder("order-uuid-1", 1L)).thenReturn(orderResponse);
 
-        mockMvc.perform(patch("/api/orders/order-uuid-1/cancel")
+        mockMvc.perform(patch("/orders/order-uuid-1/cancel")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("order-uuid-1"))
@@ -172,7 +172,7 @@ class OrderControllerTest {
 
         when(orderService.updateOrderStatus("order-uuid-1", "CONFIRMED", "Payment received")).thenReturn(updated);
 
-        mockMvc.perform(put("/api/orders/order-uuid-1/status")
+        mockMvc.perform(put("/orders/order-uuid-1/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"status\": \"CONFIRMED\", \"reason\": \"Payment received\"}"))
                 .andExpect(status().isOk())

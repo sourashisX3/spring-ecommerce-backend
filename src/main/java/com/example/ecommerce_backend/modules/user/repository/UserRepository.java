@@ -19,6 +19,26 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("""
             SELECT u FROM User u
+            LEFT JOIN FETCH u.role r
+            LEFT JOIN FETCH r.permissions
+            LEFT JOIN FETCH u.userPermissions up
+            LEFT JOIN FETCH up.permission
+            WHERE u.email = :email
+            """)
+    Optional<User> findByEmailWithPermissions(@Param("email") String email);
+
+    @Query("""
+            SELECT u FROM User u
+            LEFT JOIN FETCH u.role r
+            LEFT JOIN FETCH r.permissions
+            LEFT JOIN FETCH u.userPermissions up
+            LEFT JOIN FETCH up.permission
+            WHERE u.phoneNumber = :phoneNumber
+            """)
+    Optional<User> findByPhoneNumberWithPermissions(@Param("phoneNumber") String phoneNumber);
+
+    @Query("""
+            SELECT u FROM User u
             WHERE (:search IS NULL OR :search = ''
                 OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
                 OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))

@@ -77,7 +77,7 @@ class WalletControllerTest {
 
         when(walletService.getWallet(1L)).thenReturn(wallet);
 
-        mockMvc.perform(get("/api/wallet")
+        mockMvc.perform(get("/wallet")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("wallet-uuid"))
@@ -94,7 +94,7 @@ class WalletControllerTest {
 
         when(walletService.getTransactions(1L)).thenReturn(List.of(txn));
 
-        mockMvc.perform(get("/api/wallet/transactions")
+        mockMvc.perform(get("/wallet/transactions")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("txn-uuid"));
@@ -111,7 +111,7 @@ class WalletControllerTest {
         Page<WalletTransactionResponse> page = new PageImpl<>(List.of(txn));
         when(walletService.getTransactions(eq(1L), any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/wallet/transactions?page=0&size=10")
+        mockMvc.perform(get("/wallet/transactions?page=0&size=10")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("txn-uuid"))

@@ -10,6 +10,8 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     Optional<ProductVariant> findByUuid(String uuid);
 
+    Optional<ProductVariant> findBySku(String sku);
+
     boolean existsBySku(String sku);
 
     @Query("SELECT COALESCE(SUM(v.stock), 0) FROM ProductVariant v WHERE v.product.id = :productId AND v.isActive = true")

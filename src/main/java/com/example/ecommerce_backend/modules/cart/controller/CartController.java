@@ -5,6 +5,8 @@ import com.example.ecommerce_backend.modules.cart.dto.request.CartItemRequest;
 import com.example.ecommerce_backend.modules.cart.dto.response.CartItemResponse;
 import com.example.ecommerce_backend.modules.cart.service.CartService;
 import com.example.ecommerce_backend.modules.user.entity.User;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +17,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/carts")
+@Tag(name = "Cart", description = "Cart API")
 public class CartController {
 
     @Autowired
     private CartService cartService;
 
     @GetMapping
+    @Operation(summary = "Get user cart", description = "Retrieves all cart items for the authenticated user")
     public ResponseEntity<ApiResponse<List<CartItemResponse>>> getCart(
             @AuthenticationPrincipal User user
     ) {
@@ -29,6 +33,7 @@ public class CartController {
     }
 
     @PostMapping("/{productUuid}")
+    @Operation(summary = "Add item to cart", description = "Adds a product to the authenticated user's cart")
     public ResponseEntity<ApiResponse<CartItemResponse>> addToCart(
             @PathVariable String productUuid,
             @Valid @RequestBody CartItemRequest request,
@@ -39,6 +44,7 @@ public class CartController {
     }
 
     @PatchMapping("/{itemUuid}")
+    @Operation(summary = "Update cart item quantity", description = "Updates the quantity of a specific cart item for the authenticated user")
     public ResponseEntity<ApiResponse<CartItemResponse>> updateQuantity(
             @PathVariable String itemUuid,
             @Valid @RequestBody CartItemRequest request,
@@ -49,6 +55,7 @@ public class CartController {
     }
 
     @DeleteMapping("/{itemUuid}")
+    @Operation(summary = "Remove item from cart", description = "Removes a specific item from the authenticated user's cart")
     public ResponseEntity<ApiResponse<Void>> removeFromCart(
             @PathVariable String itemUuid,
             @AuthenticationPrincipal User user
@@ -58,6 +65,7 @@ public class CartController {
     }
 
     @DeleteMapping
+    @Operation(summary = "Clear cart", description = "Removes all items from the authenticated user's cart")
     public ResponseEntity<ApiResponse<Void>> clearCart(
             @AuthenticationPrincipal User user
     ) {

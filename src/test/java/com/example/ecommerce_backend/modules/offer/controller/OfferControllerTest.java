@@ -69,7 +69,7 @@ class OfferControllerTest {
     void getAll_shouldReturnOffers() throws Exception {
         when(offerService.getAll(null, null)).thenReturn(List.of(offerResponse));
 
-        mockMvc.perform(get("/api/offers"))
+        mockMvc.perform(get("/offers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].title").value("Summer Sale"));
     }
@@ -78,7 +78,7 @@ class OfferControllerTest {
     void getAll_withFilters_shouldPassParams() throws Exception {
         when(offerService.getAll(eq(true), eq(false))).thenReturn(List.of(offerResponse));
 
-        mockMvc.perform(get("/api/offers?active=true&global=false"))
+        mockMvc.perform(get("/offers?active=true&global=false"))
                 .andExpect(status().isOk());
     }
 
@@ -86,7 +86,7 @@ class OfferControllerTest {
     void getByUuid_shouldReturnOffer() throws Exception {
         when(offerService.getByUuid("offer-uuid-1")).thenReturn(offerResponse);
 
-        mockMvc.perform(get("/api/offers/offer-uuid-1"))
+        mockMvc.perform(get("/offers/offer-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.title").value("Summer Sale"));
     }
@@ -102,7 +102,7 @@ class OfferControllerTest {
 
         when(offerService.create(any(OfferRequest.class))).thenReturn(offerResponse);
 
-        mockMvc.perform(post("/api/offers")
+        mockMvc.perform(post("/offers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -120,7 +120,7 @@ class OfferControllerTest {
 
         when(offerService.update(eq("offer-uuid-1"), any(OfferRequest.class))).thenReturn(offerResponse);
 
-        mockMvc.perform(put("/api/offers/offer-uuid-1")
+        mockMvc.perform(put("/offers/offer-uuid-1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk());
@@ -128,7 +128,7 @@ class OfferControllerTest {
 
     @Test
     void toggleStatus_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(patch("/api/offers/offer-uuid-1/status")
+        mockMvc.perform(patch("/offers/offer-uuid-1/status")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"isActive\": false}"))
                 .andExpect(status().isOk())
@@ -137,7 +137,7 @@ class OfferControllerTest {
 
     @Test
     void delete_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/offers/offer-uuid-1"))
+        mockMvc.perform(delete("/offers/offer-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Offer deleted successfully"));
     }
@@ -148,7 +148,7 @@ class OfferControllerTest {
         assignRequest.setUserUuids(List.of("user-uuid-1"));
         assignRequest.setUsageLimitPerUser(5);
 
-        mockMvc.perform(post("/api/offers/offer-uuid-1/assign")
+        mockMvc.perform(post("/offers/offer-uuid-1/assign")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(assignRequest)))
                 .andExpect(status().isOk())
@@ -157,7 +157,7 @@ class OfferControllerTest {
 
     @Test
     void removeAssignment_shouldReturnSuccess() throws Exception {
-        mockMvc.perform(delete("/api/offers/offer-uuid-1/assign/user-uuid-1"))
+        mockMvc.perform(delete("/offers/offer-uuid-1/assign/user-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Assignment removed successfully"));
     }
@@ -166,7 +166,7 @@ class OfferControllerTest {
     void getEligibleOffers_shouldReturnOffers() throws Exception {
         when(offerService.getEligibleOffers(1L)).thenReturn(List.of(offerResponse));
 
-        mockMvc.perform(get("/api/offers/eligible?userId=1"))
+        mockMvc.perform(get("/offers/eligible?userId=1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].title").value("Summer Sale"));
     }

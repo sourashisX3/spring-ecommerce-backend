@@ -73,7 +73,7 @@ class DeliveryControllerTest {
 
         when(deliveryService.getByOrderId(1L)).thenReturn(List.of(delivery));
 
-        mockMvc.perform(get("/api/deliveries/order/1")
+        mockMvc.perform(get("/deliveries/order/1")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("delivery-uuid"))
@@ -89,7 +89,7 @@ class DeliveryControllerTest {
 
         when(deliveryService.updateDelivery(eq("delivery-uuid"), any())).thenReturn(response);
 
-        mockMvc.perform(put("/api/deliveries/delivery-uuid")
+        mockMvc.perform(put("/deliveries/delivery-uuid")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"carrierCode\":\"UPS\",\"status\":\"SHIPPED\",\"trackingNumber\":\"TRACK456\"}"))

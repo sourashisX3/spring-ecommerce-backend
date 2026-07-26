@@ -72,7 +72,7 @@ class ShippingCarrierControllerTest {
 
         when(shippingCarrierService.getAll()).thenReturn(List.of(carrier));
 
-        mockMvc.perform(get("/api/shipping-carriers"))
+        mockMvc.perform(get("/shipping-carriers"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].code").value("UPS"));
     }
@@ -87,7 +87,7 @@ class ShippingCarrierControllerTest {
 
         when(shippingCarrierService.getByUuid("carrier-uuid")).thenReturn(carrier);
 
-        mockMvc.perform(get("/api/shipping-carriers/carrier-uuid"))
+        mockMvc.perform(get("/shipping-carriers/carrier-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("UPS"));
     }
@@ -102,7 +102,7 @@ class ShippingCarrierControllerTest {
 
         when(shippingCarrierService.create(any())).thenReturn(response);
 
-        mockMvc.perform(post("/api/shipping-carriers")
+        mockMvc.perform(post("/shipping-carriers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"FEDEX\",\"name\":\"FedEx\"}"))
                 .andExpect(status().isCreated())
@@ -119,7 +119,7 @@ class ShippingCarrierControllerTest {
 
         when(shippingCarrierService.update(eq("carrier-uuid"), any())).thenReturn(response);
 
-        mockMvc.perform(put("/api/shipping-carriers/carrier-uuid")
+        mockMvc.perform(put("/shipping-carriers/carrier-uuid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"UPS\",\"name\":\"UPS Updated\"}"))
                 .andExpect(status().isOk())
@@ -136,7 +136,7 @@ class ShippingCarrierControllerTest {
 
         when(shippingCarrierService.toggleStatus("carrier-uuid")).thenReturn(response);
 
-        mockMvc.perform(patch("/api/shipping-carriers/carrier-uuid/status"))
+        mockMvc.perform(patch("/shipping-carriers/carrier-uuid/status"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.isActive").value(false));
     }
@@ -145,14 +145,14 @@ class ShippingCarrierControllerTest {
     void delete_shouldReturnSuccess() throws Exception {
         doNothing().when(shippingCarrierService).delete("carrier-uuid");
 
-        mockMvc.perform(delete("/api/shipping-carriers/carrier-uuid"))
+        mockMvc.perform(delete("/shipping-carriers/carrier-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Shipping carrier deleted successfully"));
     }
 
     @Test
     void create_withInvalidRequest_shouldReturnBadRequest() throws Exception {
-        mockMvc.perform(post("/api/shipping-carriers")
+        mockMvc.perform(post("/shipping-carriers")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());

@@ -95,7 +95,7 @@ class PaymentControllerTest {
     void processPayment_shouldReturnCreated() throws Exception {
         when(paymentService.processPayment(any(), eq(1L))).thenReturn(paymentResponse);
 
-        mockMvc.perform(post("/api/payments/pay")
+        mockMvc.perform(post("/payments/pay")
                         .with(user(testUser))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"orderId\": 100, \"gatewayCode\": \"STRIPE\", \"amount\": 99.99, \"currency\": \"USD\", \"method\": \"credit_card\"}"))
@@ -109,7 +109,7 @@ class PaymentControllerTest {
     void getByUuid_shouldReturnPayment() throws Exception {
         when(paymentService.getByUuid("payment-uuid-1")).thenReturn(paymentResponse);
 
-        mockMvc.perform(get("/api/payments/payment-uuid-1"))
+        mockMvc.perform(get("/payments/payment-uuid-1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("payment-uuid-1"))
                 .andExpect(jsonPath("$.message").value("Payment retrieved successfully"));
@@ -119,7 +119,7 @@ class PaymentControllerTest {
     void getByOrderId_shouldReturnPayment() throws Exception {
         when(paymentService.getByOrderId(100L)).thenReturn(paymentResponse);
 
-        mockMvc.perform(get("/api/payments/order/100"))
+        mockMvc.perform(get("/payments/order/100"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("payment-uuid-1"))
                 .andExpect(jsonPath("$.message").value("Payment retrieved successfully"));
@@ -130,7 +130,7 @@ class PaymentControllerTest {
         Page<PaymentResponse> page = new PageImpl<>(List.of(paymentResponse));
         when(paymentService.getUserPayments(eq(1L), any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/payments?page=0&size=20")
+        mockMvc.perform(get("/payments?page=0&size=20")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("payment-uuid-1"))
@@ -142,7 +142,7 @@ class PaymentControllerTest {
     void getUserPayments_withoutPagination_shouldReturnList() throws Exception {
         when(paymentService.getUserPayments(eq(1L))).thenReturn(List.of(paymentResponse));
 
-        mockMvc.perform(get("/api/payments")
+        mockMvc.perform(get("/payments")
                         .with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("payment-uuid-1"))
@@ -157,7 +157,7 @@ class PaymentControllerTest {
 
         when(paymentService.getRefundsByPaymentId(1L)).thenReturn(List.of(refund));
 
-        mockMvc.perform(get("/api/payments/1/refunds"))
+        mockMvc.perform(get("/payments/1/refunds"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("refund-uuid-1"))
                 .andExpect(jsonPath("$.message").value("Refunds retrieved successfully"));
@@ -171,7 +171,7 @@ class PaymentControllerTest {
 
         when(paymentService.processRefund(any())).thenReturn(refund);
 
-        mockMvc.perform(post("/api/payments/refund")
+        mockMvc.perform(post("/payments/refund")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"paymentId\": 1, \"amount\": 10.00, \"reason\": \"Damaged item\", \"returnRequestId\": 5}"))
                 .andExpect(status().isCreated())

@@ -6,6 +6,8 @@ import com.example.ecommerce_backend.modules.brand.dto.request.BrandRequest;
 import com.example.ecommerce_backend.modules.brand.dto.response.BrandResponse;
 import com.example.ecommerce_backend.modules.brand.service.BrandService;
 import com.example.ecommerce_backend.core.dto.StatusRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +17,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/brands")
+@Tag(name = "Brand", description = "Brand API")
 public class BrandController {
 
     @Autowired
     private BrandService brandService;
 
     @GetMapping
+    @Operation(summary = "Get all brands", description = "Retrieves a list of all brands, optionally filtered by active status")
     public ResponseEntity<ApiResponse<List<BrandResponse>>> getAll(
             @RequestParam(required = false) Boolean active
     ) {
@@ -29,6 +33,7 @@ public class BrandController {
     }
 
     @GetMapping("/{slug}")
+    @Operation(summary = "Get brand by slug", description = "Retrieves a brand by its unique slug")
     public ResponseEntity<ApiResponse<BrandResponse>> getBySlug(@PathVariable String slug) {
         BrandResponse brand = brandService.getBySlug(slug);
         return ApiResponse.success(brand, "Brand retrieved successfully");
@@ -36,6 +41,7 @@ public class BrandController {
 
     @PostMapping
     @RequiresPermission("brand:write")
+    @Operation(summary = "Create a brand", description = "Creates a new brand with the provided details")
     public ResponseEntity<ApiResponse<BrandResponse>> create(@Valid @RequestBody BrandRequest request) {
         BrandResponse brand = brandService.create(request);
         return ApiResponse.created(brand, "Brand created successfully");
@@ -43,6 +49,7 @@ public class BrandController {
 
     @PutMapping("/{uuid}")
     @RequiresPermission("brand:write")
+    @Operation(summary = "Update a brand", description = "Updates an existing brand identified by UUID with the provided details")
     public ResponseEntity<ApiResponse<BrandResponse>> update(
             @PathVariable String uuid,
             @Valid @RequestBody BrandRequest request
@@ -53,6 +60,7 @@ public class BrandController {
 
     @PatchMapping("/{uuid}/status")
     @RequiresPermission("brand:write")
+    @Operation(summary = "Toggle brand status", description = "Activates or deactivates a brand identified by UUID")
     public ResponseEntity<ApiResponse<Void>> toggleStatus(
             @PathVariable String uuid,
             @Valid @RequestBody StatusRequest request
@@ -64,6 +72,7 @@ public class BrandController {
 
     @DeleteMapping("/{uuid}")
     @RequiresPermission("brand:write")
+    @Operation(summary = "Delete a brand", description = "Deletes a brand identified by UUID")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable String uuid) {
         brandService.delete(uuid);
         return ApiResponse.success(null, "Brand deleted successfully");

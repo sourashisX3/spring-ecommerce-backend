@@ -62,7 +62,7 @@ class ReturnTypeControllerTest {
 
         when(returnTypeService.getAll()).thenReturn(List.of(type));
 
-        mockMvc.perform(get("/api/return-types"))
+        mockMvc.perform(get("/return-types"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].code").value("REFUND"));
     }
@@ -77,7 +77,7 @@ class ReturnTypeControllerTest {
 
         when(returnTypeService.getByUuid("type-uuid")).thenReturn(type);
 
-        mockMvc.perform(get("/api/return-types/type-uuid"))
+        mockMvc.perform(get("/return-types/type-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.code").value("REFUND"));
     }
@@ -92,7 +92,7 @@ class ReturnTypeControllerTest {
 
         when(returnTypeService.create(any())).thenReturn(response);
 
-        mockMvc.perform(post("/api/return-types")
+        mockMvc.perform(post("/return-types")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"REFUND\",\"name\":\"Refund\"}"))
                 .andExpect(status().isCreated())
@@ -109,7 +109,7 @@ class ReturnTypeControllerTest {
 
         when(returnTypeService.update(eq("type-uuid"), any())).thenReturn(response);
 
-        mockMvc.perform(put("/api/return-types/type-uuid")
+        mockMvc.perform(put("/return-types/type-uuid")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"code\":\"REFUND\",\"name\":\"Full Refund\"}"))
                 .andExpect(status().isOk())
@@ -120,7 +120,7 @@ class ReturnTypeControllerTest {
     void delete_shouldReturnSuccess() throws Exception {
         doNothing().when(returnTypeService).delete("type-uuid");
 
-        mockMvc.perform(delete("/api/return-types/type-uuid"))
+        mockMvc.perform(delete("/return-types/type-uuid"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Return type deleted successfully"));
     }
