@@ -11,6 +11,8 @@ import com.example.ecommerce_backend.modules.wallet.entity.Wallet;
 import com.example.ecommerce_backend.modules.wallet.entity.WalletTransaction;
 import com.example.ecommerce_backend.modules.wallet.entity.WalletTransactionType;
 import com.example.ecommerce_backend.modules.wallet.exception.InsufficientBalanceException;
+import com.example.ecommerce_backend.modules.wallet.exception.InvalidAmountException;
+import com.example.ecommerce_backend.modules.wallet.exception.WalletInactiveException;
 import com.example.ecommerce_backend.modules.wallet.exception.WalletNotFoundException;
 import com.example.ecommerce_backend.modules.wallet.exception.WalletTransactionTypeNotFoundException;
 import com.example.ecommerce_backend.modules.wallet.repository.WalletRepository;
@@ -220,13 +222,13 @@ class WalletServiceTest {
     @Test
     void credit_withZeroAmount_shouldThrow() {
         assertThatThrownBy(() -> walletService.credit(1L, BigDecimal.ZERO, "order", 1L, "test"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidAmountException.class);
     }
 
     @Test
     void credit_withNegativeAmount_shouldThrow() {
         assertThatThrownBy(() -> walletService.credit(1L, BigDecimal.valueOf(-10), "order", 1L, "test"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidAmountException.class);
     }
 
     @Test
@@ -273,13 +275,63 @@ class WalletServiceTest {
     @Test
     void debit_withZeroAmount_shouldThrow() {
         assertThatThrownBy(() -> walletService.debit(1L, BigDecimal.ZERO, "order", 1L, "test"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidAmountException.class);
     }
 
     @Test
     void debit_withNegativeAmount_shouldThrow() {
         assertThatThrownBy(() -> walletService.debit(1L, BigDecimal.valueOf(-10), "order", 1L, "test"))
-                .isInstanceOf(IllegalArgumentException.class);
+                .isInstanceOf(InvalidAmountException.class);
+    }
+
+    // --- toggleStatus ---
+
+    @Test
+    void toggleStatus_shouldToggle() {
+        when(walletRepository.findByUuid("wallet-uuid")).thenReturn(Optional.of(wallet));
+
+        boolean result = walletService.toggleStatus("wallet-uuid", false);
+
+        assertThat(result).isTrue();
+        assertThat(wallet.isActive()).isFalse();
+        verify(walletRepository).save(wallet);
+    }
+
+    @Test
+    void toggleStatus_whenAlreadyInDesiredState_shouldReturnFalse() {
+        wallet.setActive(false);
+        when(walletRepository.findByUuid("wallet-uuid")).thenReturn(Optional.of(wallet));
+
+        boolean result = walletService.toggleStatus("wallet-uuid", false);
+
+        assertThat(result).isFalse();
+        verify(walletRepository, never()).save(any());
+    }
+
+    @Test
+    void toggleStatus_whenNotFound_shouldThrow() {
+        when(walletRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> walletService.toggleStatus("nonexistent", true))
+                .isInstanceOf(WalletNotFoundException.class);
+    }
+
+    @Test
+    void credit_whenWalletInactive_shouldThrow() {
+        wallet.setActive(false);
+        when(walletRepository.findByUserIdWithLock(1L)).thenReturn(Optional.of(wallet));
+
+        assertThatThrownBy(() -> walletService.credit(1L, BigDecimal.TEN, "order", 1L, "test"))
+                .isInstanceOf(WalletInactiveException.class);
+    }
+
+    @Test
+    void debit_whenWalletInactive_shouldThrow() {
+        wallet.setActive(false);
+        when(walletRepository.findByUserIdWithLock(1L)).thenReturn(Optional.of(wallet));
+
+        assertThatThrownBy(() -> walletService.debit(1L, BigDecimal.TEN, "order", 1L, "test"))
+                .isInstanceOf(WalletInactiveException.class);
     }
 
     @Test

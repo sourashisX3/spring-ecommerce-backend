@@ -31,4 +31,16 @@ public class CurrencyService {
         return currencyRepository.findByCode(code)
                 .orElseThrow(() -> new CurrencyNotFoundException(code));
     }
+
+    @Transactional
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        Currency currency = currencyRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CurrencyNotFoundException(uuid));
+        if (currency.isActive() == isActive) {
+            return false;
+        }
+        currency.setActive(isActive);
+        currencyRepository.save(currency);
+        return true;
+    }
 }

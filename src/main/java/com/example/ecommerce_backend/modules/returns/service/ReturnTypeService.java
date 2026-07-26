@@ -1,14 +1,14 @@
 package com.example.ecommerce_backend.modules.returns.service;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
-import com.example.ecommerce_backend.core.exception.BaseException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeConflictException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeNotFoundException;
 import com.example.ecommerce_backend.modules.returns.dto.request.ReturnTypeRequest;
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnTypeResponse;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnType;
 import com.example.ecommerce_backend.modules.returns.mapper.ReturnMapper;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnTypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +31,7 @@ public class ReturnTypeService {
     @Transactional(readOnly = true)
     public ReturnTypeResponse getByUuid(String uuid) {
         ReturnType entity = returnTypeRepository.findByUuid(uuid)
-                .orElseThrow(() -> new BaseException("Return type not found: " + uuid, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ReturnTypeNotFoundException("Return type not found: " + uuid));
         return ReturnMapper.toReturnTypeResponse(entity);
     }
 
@@ -39,7 +39,7 @@ public class ReturnTypeService {
     @RequiresPermission("return:write")
     public ReturnTypeResponse create(ReturnTypeRequest request) {
         if (returnTypeRepository.findByCode(request.getCode()).isPresent()) {
-            throw new BaseException("Return type code already exists: " + request.getCode(), HttpStatus.CONFLICT);
+            throw new ReturnTypeConflictException("Return type code already exists: " + request.getCode());
         }
         ReturnType entity = ReturnType.builder()
                 .code(request.getCode())
@@ -54,10 +54,10 @@ public class ReturnTypeService {
     @RequiresPermission("return:write")
     public ReturnTypeResponse update(String uuid, ReturnTypeRequest request) {
         ReturnType entity = returnTypeRepository.findByUuid(uuid)
-                .orElseThrow(() -> new BaseException("Return type not found: " + uuid, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ReturnTypeNotFoundException("Return type not found: " + uuid));
         if (!entity.getCode().equals(request.getCode())
                 && returnTypeRepository.findByCode(request.getCode()).isPresent()) {
-            throw new BaseException("Return type code already exists: " + request.getCode(), HttpStatus.CONFLICT);
+            throw new ReturnTypeConflictException("Return type code already exists: " + request.getCode());
         }
         entity.setCode(request.getCode());
         entity.setName(request.getName());
@@ -68,9 +68,22 @@ public class ReturnTypeService {
 
     @Transactional
     @RequiresPermission("return:write")
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        ReturnType entity = returnTypeRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ReturnTypeNotFoundException("Return type not found: " + uuid));
+        if (entity.isActive() == isActive) {
+            return false;
+        }
+        entity.setActive(isActive);
+        returnTypeRepository.save(entity);
+        return true;
+    }
+
+    @Transactional
+    @RequiresPermission("return:write")
     public void delete(String uuid) {
         ReturnType entity = returnTypeRepository.findByUuid(uuid)
-                .orElseThrow(() -> new BaseException("Return type not found: " + uuid, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ReturnTypeNotFoundException("Return type not found: " + uuid));
         returnTypeRepository.delete(entity);
     }
 }

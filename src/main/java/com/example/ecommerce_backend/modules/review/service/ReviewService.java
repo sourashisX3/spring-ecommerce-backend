@@ -40,7 +40,7 @@ public class ReviewService {
     public List<ReviewResponse> getReviews(String productUuid, Long currentUserId) {
         Product product = productRepository.findByUuid(productUuid)
                 .orElseThrow(() -> new ProductNotFoundException(productUuid));
-        return reviewRepository.findByProductId(product.getId()).stream()
+        return reviewRepository.findByProductIdAndIsActiveTrue(product.getId()).stream()
                 .map(review -> toResponseWithVotes(review, currentUserId))
                 .collect(Collectors.toList());
     }
@@ -49,8 +49,8 @@ public class ReviewService {
     public Page<ReviewResponse> getReviews(String productUuid, Pageable pageable, Long currentUserId) {
         Product product = productRepository.findByUuid(productUuid)
                 .orElseThrow(() -> new ProductNotFoundException(productUuid));
-        return reviewRepository.findByProductId(product.getId(), pageable)
-                .map(review -> toResponseWithVotes(review, currentUserId));
+        Page<Review> reviews = reviewRepository.findByProductIdAndIsActiveTrue(product.getId(), pageable);
+        return reviews.map(review -> toResponseWithVotes(review, currentUserId));
     }
 
     @Transactional
@@ -68,6 +68,19 @@ public class ReviewService {
 
         review = reviewRepository.save(review);
         return toResponseWithVotes(review, user.getId());
+    }
+
+    @Transactional
+    @RequiresPermission("product:write")
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        Review review = reviewRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ReviewNotFoundException(uuid));
+        if (review.isActive() == isActive) {
+            return false;
+        }
+        review.setActive(isActive);
+        reviewRepository.save(review);
+        return true;
     }
 
     @Transactional

@@ -105,6 +105,19 @@ public class VariantService {
 
     @Transactional
     @RequiresPermission("product:write")
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        ProductVariant variant = variantRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ProductVariantNotFoundException(uuid));
+        if (variant.isActive() == isActive) {
+            return false;
+        }
+        variant.setActive(isActive);
+        variantRepository.save(variant);
+        return true;
+    }
+
+    @Transactional
+    @RequiresPermission("product:write")
     public void deleteVariant(String variantUuid) {
         ProductVariant variant = variantRepository.findByUuid(variantUuid)
                 .orElseThrow(() -> new ProductVariantNotFoundException(variantUuid));

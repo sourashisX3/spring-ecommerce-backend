@@ -1,7 +1,6 @@
 package com.example.ecommerce_backend.modules.shipping.service;
 
 import com.example.ecommerce_backend.core.event.DeliveryStatusChangedEvent;
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.shipping.dto.request.DeliveryRequest;
 import com.example.ecommerce_backend.modules.shipping.dto.request.UpdateDeliveryRequest;
 import com.example.ecommerce_backend.modules.shipping.dto.response.DeliveryResponse;
@@ -10,6 +9,7 @@ import com.example.ecommerce_backend.modules.shipping.entity.ShippingAddress;
 import com.example.ecommerce_backend.modules.shipping.entity.ShippingCarrier;
 import com.example.ecommerce_backend.modules.shipping.exception.AddressNotFoundException;
 import com.example.ecommerce_backend.modules.shipping.exception.DeliveryNotFoundException;
+import com.example.ecommerce_backend.modules.shipping.exception.ShippingCarrierNotActiveException;
 import com.example.ecommerce_backend.modules.shipping.mapper.DeliveryMapper;
 import com.example.ecommerce_backend.modules.shipping.entity.DeliveryStatus;
 import com.example.ecommerce_backend.modules.shipping.repository.DeliveryRepository;
@@ -18,7 +18,6 @@ import com.example.ecommerce_backend.modules.shipping.repository.ShippingAddress
 import com.example.ecommerce_backend.modules.shipping.repository.ShippingCarrierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,10 +57,14 @@ public class DeliveryService {
                 .orElseThrow(() -> new AddressNotFoundException("id: " + request.getShippingAddressId()));
 
         ShippingCarrier carrier = shippingCarrierRepository.findByCode(request.getCarrierCode())
-                .orElseThrow(() -> new BaseException("Shipping carrier not found: " + request.getCarrierCode(), HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new DeliveryNotFoundException("Shipping carrier not found: " + request.getCarrierCode()));
+
+        if (!carrier.isActive()) {
+            throw new ShippingCarrierNotActiveException("Selected shipping carrier is not active");
+        }
 
         DeliveryStatus pendingStatus = deliveryStatusRepository.findByCode("PENDING")
-                .orElseThrow(() -> new BaseException("Delivery status not found: PENDING", HttpStatus.INTERNAL_SERVER_ERROR));
+                    .orElseThrow(() -> new DeliveryNotFoundException("Delivery status not found: PENDING"));
 
         Delivery delivery = Delivery.builder()
                 .orderId(orderId)
@@ -83,7 +86,10 @@ public class DeliveryService {
 
         if (request.getCarrierCode() != null) {
             ShippingCarrier carrier = shippingCarrierRepository.findByCode(request.getCarrierCode())
-                    .orElseThrow(() -> new BaseException("Shipping carrier not found: " + request.getCarrierCode(), HttpStatus.NOT_FOUND));
+                    .orElseThrow(() -> new DeliveryNotFoundException("Shipping carrier not found: " + request.getCarrierCode()));
+            if (!carrier.isActive()) {
+                throw new ShippingCarrierNotActiveException("Selected shipping carrier is not active");
+            }
             delivery.setCarrier(carrier);
         }
         if (request.getTrackingNumber() != null) {
@@ -91,7 +97,7 @@ public class DeliveryService {
         }
         if (request.getStatus() != null) {
             DeliveryStatus deliveryStatus = deliveryStatusRepository.findByCode(request.getStatus())
-                    .orElseThrow(() -> new BaseException("Delivery status not found: " + request.getStatus(), HttpStatus.NOT_FOUND));
+                    .orElseThrow(() -> new DeliveryNotFoundException("Delivery status not found: " + request.getStatus()));
             delivery.setStatus(deliveryStatus);
             if ("SHIPPED".equals(request.getStatus()) && delivery.getShippedAt() == null) {
                 delivery.setShippedAt(Instant.now());

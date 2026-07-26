@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.chat.service;
 
 import com.example.ecommerce_backend.modules.chat.entity.ChatBotQuestion;
+import com.example.ecommerce_backend.modules.chat.exception.ChatQuestionNotFoundException;
 import com.example.ecommerce_backend.modules.chat.repository.ChatBotQuestionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,5 +44,17 @@ public class ChatBotService {
                             .filter(c -> c.getQuestionKey().equals(selectedOption))
                             .findFirst();
                 });
+    }
+
+    @Transactional
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        ChatBotQuestion question = questionRepository.findByUuid(uuid)
+                .orElseThrow(() -> new ChatQuestionNotFoundException(uuid));
+        if (question.isActive() == isActive) {
+            return false;
+        }
+        question.setActive(isActive);
+        questionRepository.save(question);
+        return true;
     }
 }

@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.variant.controller;
 
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.variant.dto.request.VariantRequest;
 import com.example.ecommerce_backend.modules.variant.dto.response.VariantResponse;
 import com.example.ecommerce_backend.modules.variant.service.VariantService;
@@ -56,6 +57,17 @@ public class VariantController {
     ) {
         VariantResponse variant = variantService.updateVariant(variantUuid, request);
         return ApiResponse.success(variant, "Variant updated successfully");
+    }
+
+    @PatchMapping("/variants/{variantUuid}/status")
+    @Operation(summary = "Toggle variant status", description = "Activates or deactivates a product variant")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String variantUuid,
+            @Valid @RequestBody StatusRequest request
+    ) {
+        boolean changed = variantService.toggleStatus(variantUuid, request.isActive());
+        String message = changed ? "Variant status updated successfully" : "Variant is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/variants/{variantUuid}")

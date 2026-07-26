@@ -9,6 +9,7 @@ import com.example.ecommerce_backend.modules.cart.repository.CartRepository;
 import com.example.ecommerce_backend.modules.product.entity.Product;
 import com.example.ecommerce_backend.modules.product.exception.ProductNotFoundException;
 import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
+import com.example.ecommerce_backend.modules.cart.exception.ProductNotActiveException;
 import com.example.ecommerce_backend.modules.user.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,10 @@ public class CartService {
     public CartItemResponse addToCart(String productUuid, CartItemRequest request, User user) {
         Product product = productRepository.findByUuid(productUuid)
                 .orElseThrow(() -> new ProductNotFoundException(productUuid));
+
+        if (!product.isActive()) {
+            throw new ProductNotActiveException("Product is not available: " + product.getName());
+        }
 
         CartItem item = cartRepository.findByUserIdAndProductId(user.getId(), product.getId())
                 .orElseGet(() -> CartItem.builder()

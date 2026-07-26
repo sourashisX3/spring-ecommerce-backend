@@ -1,13 +1,13 @@
 package com.example.ecommerce_backend.modules.shipping.service;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.shipping.dto.request.ShippingCarrierRequest;
 import com.example.ecommerce_backend.modules.shipping.dto.response.ShippingCarrierResponse;
 import com.example.ecommerce_backend.modules.shipping.entity.ShippingCarrier;
+import com.example.ecommerce_backend.modules.shipping.exception.ShippingCarrierConflictException;
+import com.example.ecommerce_backend.modules.shipping.exception.ShippingCarrierNotFoundException;
 import com.example.ecommerce_backend.modules.shipping.repository.ShippingCarrierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +30,7 @@ public class ShippingCarrierService {
     @Transactional(readOnly = true)
     public ShippingCarrierResponse getByUuid(String uuid) {
         ShippingCarrier carrier = shippingCarrierRepository.findByUuid(uuid)
-                .orElseThrow(() -> new BaseException("Shipping carrier not found: " + uuid, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ShippingCarrierNotFoundException("Shipping carrier not found: " + uuid));
         return toResponse(carrier);
     }
 
@@ -38,7 +38,7 @@ public class ShippingCarrierService {
     @RequiresPermission("shipping:write")
     public ShippingCarrierResponse create(ShippingCarrierRequest request) {
         if (shippingCarrierRepository.findByCode(request.getCode()).isPresent()) {
-            throw new BaseException("Shipping carrier code already exists: " + request.getCode(), HttpStatus.CONFLICT);
+            throw new ShippingCarrierConflictException("Shipping carrier code already exists: " + request.getCode());
         }
         ShippingCarrier carrier = ShippingCarrier.builder()
                 .code(request.getCode())
@@ -53,7 +53,7 @@ public class ShippingCarrierService {
     @RequiresPermission("shipping:write")
     public ShippingCarrierResponse update(String uuid, ShippingCarrierRequest request) {
         ShippingCarrier carrier = shippingCarrierRepository.findByUuid(uuid)
-                .orElseThrow(() -> new BaseException("Shipping carrier not found: " + uuid, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ShippingCarrierNotFoundException("Shipping carrier not found: " + uuid));
         carrier.setCode(request.getCode());
         carrier.setName(request.getName());
         carrier.setTrackingUrlTemplate(request.getTrackingUrlTemplate());
@@ -65,7 +65,7 @@ public class ShippingCarrierService {
     @RequiresPermission("shipping:write")
     public ShippingCarrierResponse toggleStatus(String uuid) {
         ShippingCarrier carrier = shippingCarrierRepository.findByUuid(uuid)
-                .orElseThrow(() -> new BaseException("Shipping carrier not found: " + uuid, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ShippingCarrierNotFoundException("Shipping carrier not found: " + uuid));
         carrier.setActive(!carrier.isActive());
         carrier = shippingCarrierRepository.save(carrier);
         return toResponse(carrier);
@@ -75,7 +75,7 @@ public class ShippingCarrierService {
     @RequiresPermission("shipping:write")
     public void delete(String uuid) {
         ShippingCarrier carrier = shippingCarrierRepository.findByUuid(uuid)
-                .orElseThrow(() -> new BaseException("Shipping carrier not found: " + uuid, HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ShippingCarrierNotFoundException("Shipping carrier not found: " + uuid));
         shippingCarrierRepository.delete(carrier);
     }
 

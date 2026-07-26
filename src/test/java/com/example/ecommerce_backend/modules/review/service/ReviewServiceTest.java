@@ -90,6 +90,25 @@ class ReviewServiceTest {
     }
 
     @Test
+    void getReviews_shouldFilterInactiveReviews() {
+        Review inactiveReview = Review.builder()
+                .id(2L).uuid("inactive-review-uuid").product(product).user(user)
+                .rating(3).title("Old").comment("Meh")
+                .isActive(false).isVerifiedPurchase(false)
+                .build();
+        when(productRepository.findByUuid("product-uuid")).thenReturn(Optional.of(product));
+        when(reviewRepository.findByProductId(1L)).thenReturn(List.of(review, inactiveReview));
+        when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "like")).thenReturn(0L);
+        when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "dislike")).thenReturn(0L);
+        when(reviewVoteRepository.findByReviewIdAndUserId(1L, 1L)).thenReturn(Optional.empty());
+
+        List<ReviewResponse> result = reviewService.getReviews("product-uuid", 1L);
+
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getUuid()).isEqualTo("review-uuid");
+    }
+
+    @Test
     void getReviews_whenProductNotFound_shouldThrow() {
         when(productRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 

@@ -1,13 +1,16 @@
 package com.example.ecommerce_backend.modules.wallet.controller;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.Pagination;
+import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.user.entity.User;
 import com.example.ecommerce_backend.modules.wallet.dto.response.WalletResponse;
 import com.example.ecommerce_backend.modules.wallet.dto.response.WalletTransactionResponse;
 import com.example.ecommerce_backend.modules.wallet.service.WalletService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,5 +58,17 @@ public class WalletController {
         }
         List<WalletTransactionResponse> transactions = walletService.getTransactions(user.getId());
         return ApiResponse.success(transactions, "Transactions retrieved successfully");
+    }
+
+    @PatchMapping("/{uuid}/status")
+    @RequiresPermission("wallet:write")
+    @Operation(summary = "Toggle wallet status", description = "Activates or deactivates a wallet. When deactivated, debits are blocked.")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String uuid,
+            @Valid @RequestBody StatusRequest request
+    ) {
+        boolean changed = walletService.toggleStatus(uuid, request.isActive());
+        String message = changed ? "Wallet status updated successfully" : "Wallet is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 }

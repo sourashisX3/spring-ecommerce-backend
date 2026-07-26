@@ -29,9 +29,18 @@ public class OrderStatusResponse {
     @Schema(description = "Sort order", example = "1")
     private int sortOrder;
 
-    @JsonProperty("isActive")
     @Schema(description = "Whether status is active", example = "true")
     private boolean isActive;
+
+    @JsonProperty("isActive")
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @JsonProperty("isActive")
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
 
     @Schema(description = "Creation timestamp")
     private Instant createdAt;

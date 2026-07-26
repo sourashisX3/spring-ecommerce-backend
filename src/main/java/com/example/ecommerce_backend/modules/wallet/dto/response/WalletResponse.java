@@ -26,9 +26,18 @@ public class WalletResponse {
     @Schema(description = "Currency", example = "USD")
     private String currency;
 
-    @JsonProperty("isActive")
     @Schema(description = "Whether the wallet is active", example = "true")
     private boolean isActive;
+
+    @JsonProperty("isActive")
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @JsonProperty("isActive")
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
 
     @Schema(description = "Creation timestamp")
     private Instant createdAt;

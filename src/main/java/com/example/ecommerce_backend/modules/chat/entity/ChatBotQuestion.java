@@ -3,6 +3,9 @@ package com.example.ecommerce_backend.modules.chat.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
+import java.util.UUID;
+
 @Data
 @Entity
 @Builder
@@ -14,6 +17,9 @@ public class ChatBotQuestion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(unique = true, nullable = false)
+    private String uuid;
 
     @Column(name = "parent_id")
     private Long parentId;
@@ -41,4 +47,21 @@ public class ChatBotQuestion {
     @Column(nullable = false)
     @Builder.Default
     private boolean isActive = true;
+
+    private Instant createdAt;
+
+    private Instant updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        Instant now = Instant.now();
+        this.uuid = UUID.randomUUID().toString();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = Instant.now();
+    }
 }

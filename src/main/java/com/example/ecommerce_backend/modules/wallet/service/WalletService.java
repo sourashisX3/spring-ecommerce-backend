@@ -8,6 +8,8 @@ import com.example.ecommerce_backend.modules.wallet.entity.Wallet;
 import com.example.ecommerce_backend.modules.wallet.entity.WalletTransaction;
 import com.example.ecommerce_backend.modules.wallet.entity.WalletTransactionType;
 import com.example.ecommerce_backend.modules.wallet.exception.InsufficientBalanceException;
+import com.example.ecommerce_backend.modules.wallet.exception.InvalidAmountException;
+import com.example.ecommerce_backend.modules.wallet.exception.WalletInactiveException;
 import com.example.ecommerce_backend.modules.wallet.exception.WalletNotFoundException;
 import com.example.ecommerce_backend.modules.wallet.exception.WalletTransactionTypeNotFoundException;
 import com.example.ecommerce_backend.modules.wallet.mapper.WalletMapper;
@@ -68,12 +70,28 @@ public class WalletService {
     }
 
     @Transactional
+    public boolean toggleStatus(String uuid, boolean isActive) {
+        Wallet wallet = walletRepository.findByUuid(uuid)
+                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for uuid: " + uuid));
+        if (wallet.isActive() == isActive) {
+            return false;
+        }
+        wallet.setActive(isActive);
+        walletRepository.save(wallet);
+        return true;
+    }
+
+    @Transactional
     public WalletResponse credit(Long userId, BigDecimal amount, String referenceType, Long referenceId, String description) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Credit amount must be positive");
+            throw new InvalidAmountException("Credit amount must be positive");
         }
         Wallet wallet = walletRepository.findByUserIdWithLock(userId)
                 .orElseThrow(() -> new WalletNotFoundException("Wallet not found for user"));
+
+        if (!wallet.isActive()) {
+            throw new WalletInactiveException("Wallet is deactivated. Credits are not allowed.");
+        }
 
         BigDecimal balanceBefore = wallet.getBalance();
         BigDecimal balanceAfter = balanceBefore.add(amount);
@@ -101,10 +119,14 @@ public class WalletService {
     @Transactional
     public WalletResponse debit(Long userId, BigDecimal amount, String referenceType, Long referenceId, String description) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Debit amount must be positive");
+            throw new InvalidAmountException("Debit amount must be positive");
         }
         Wallet wallet = walletRepository.findByUserIdWithLock(userId)
                 .orElseThrow(() -> new WalletNotFoundException("Wallet not found for user"));
+
+        if (!wallet.isActive()) {
+            throw new WalletInactiveException("Wallet is deactivated. Debits are not allowed.");
+        }
 
         BigDecimal balanceBefore = wallet.getBalance();
         if (balanceBefore.compareTo(amount) < 0) {

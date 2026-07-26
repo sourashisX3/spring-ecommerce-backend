@@ -1,9 +1,10 @@
 package com.example.ecommerce_backend.modules.returns.service;
 
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.returns.dto.request.ReturnTypeRequest;
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnTypeResponse;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnType;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeConflictException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeNotFoundException;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnTypeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ class ReturnTypeServiceTest {
         when(returnTypeRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> returnTypeService.getByUuid("nonexistent"))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnTypeNotFoundException.class);
     }
 
     // --- create ---
@@ -108,7 +109,7 @@ class ReturnTypeServiceTest {
         when(returnTypeRepository.findByCode("REFUND")).thenReturn(Optional.of(returnType));
 
         assertThatThrownBy(() -> returnTypeService.create(request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnTypeConflictException.class);
     }
 
     // --- update ---
@@ -137,7 +138,7 @@ class ReturnTypeServiceTest {
         when(returnTypeRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> returnTypeService.update("nonexistent", request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnTypeNotFoundException.class);
     }
 
     @Test
@@ -156,7 +157,7 @@ class ReturnTypeServiceTest {
         when(returnTypeRepository.findByCode("EXCHANGE")).thenReturn(Optional.of(other));
 
         assertThatThrownBy(() -> returnTypeService.update("type-uuid", request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnTypeConflictException.class);
     }
 
     // --- delete ---
@@ -175,6 +176,38 @@ class ReturnTypeServiceTest {
         when(returnTypeRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> returnTypeService.delete("nonexistent"))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnTypeNotFoundException.class);
+    }
+
+    // --- toggleStatus ---
+
+    @Test
+    void toggleStatus_shouldToggle() {
+        when(returnTypeRepository.findByUuid("type-uuid")).thenReturn(Optional.of(returnType));
+
+        boolean result = returnTypeService.toggleStatus("type-uuid", false);
+
+        assertThat(result).isTrue();
+        assertThat(returnType.isActive()).isFalse();
+        verify(returnTypeRepository).save(returnType);
+    }
+
+    @Test
+    void toggleStatus_whenAlreadyInDesiredState_shouldReturnFalse() {
+        returnType.setActive(false);
+        when(returnTypeRepository.findByUuid("type-uuid")).thenReturn(Optional.of(returnType));
+
+        boolean result = returnTypeService.toggleStatus("type-uuid", false);
+
+        assertThat(result).isFalse();
+        verify(returnTypeRepository, never()).save(any());
+    }
+
+    @Test
+    void toggleStatus_whenNotFound_shouldThrow() {
+        when(returnTypeRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> returnTypeService.toggleStatus("nonexistent", true))
+                .isInstanceOf(ReturnTypeNotFoundException.class);
     }
 }

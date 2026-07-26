@@ -90,12 +90,20 @@ public class PaymentService {
         PaymentGateway gateway = paymentGatewayRepository.findByCode(request.getGatewayCode())
                 .orElseThrow(() -> new PaymentGatewayNotFoundException(request.getGatewayCode()));
 
+        if (!gateway.isActive()) {
+            throw new PaymentFailedException("Selected payment gateway is not active");
+        }
+
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new OrderNotFoundException("id: " + request.getOrderId()));
 
         String currencyCode = request.getCurrency() != null ? request.getCurrency() : "USD";
         Currency currency = currencyRepository.findByCode(currencyCode)
                 .orElseThrow(() -> new CurrencyNotFoundException(currencyCode));
+
+        if (!currency.isActive()) {
+            throw new PaymentFailedException("Selected currency is not active");
+        }
 
         PaymentStatus defaultStatus = paymentStatusRepository.findByCode("PENDING")
                 .orElseThrow(() -> new PaymentStatusNotFoundException("PENDING"));

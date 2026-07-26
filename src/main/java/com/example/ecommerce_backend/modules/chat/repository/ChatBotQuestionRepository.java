@@ -13,4 +13,6 @@ public interface ChatBotQuestionRepository extends JpaRepository<ChatBotQuestion
     List<ChatBotQuestion> findByParentIdAndIsActiveTrueOrderBySortOrderAsc(Long parentId);
 
     Optional<ChatBotQuestion> findByQuestionKey(String questionKey);
+
+    Optional<ChatBotQuestion> findByUuid(String uuid);
 }

@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.chat.service;
 
 import com.example.ecommerce_backend.modules.chat.entity.ChatBotQuestion;
+import com.example.ecommerce_backend.modules.chat.exception.ChatQuestionNotFoundException;
 import com.example.ecommerce_backend.modules.chat.repository.ChatBotQuestionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +13,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ChatBotServiceTest {
@@ -122,6 +125,41 @@ class ChatBotServiceTest {
         Optional<ChatBotQuestion> result = chatBotService.getNextQuestionByKey("nonexistent", "option");
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    void toggleStatus_shouldToggle() {
+        ChatBotQuestion q = ChatBotQuestion.builder()
+                .id(1L).uuid("question-uuid").questionKey("help")
+                .questionText("Help").isActive(true).build();
+        when(questionRepository.findByUuid("question-uuid")).thenReturn(Optional.of(q));
+
+        boolean result = chatBotService.toggleStatus("question-uuid", false);
+
+        assertThat(result).isTrue();
+        assertThat(q.isActive()).isFalse();
+        verify(questionRepository).save(q);
+    }
+
+    @Test
+    void toggleStatus_whenAlreadyInDesiredState_shouldReturnFalse() {
+        ChatBotQuestion q = ChatBotQuestion.builder()
+                .id(1L).uuid("question-uuid").questionKey("help")
+                .questionText("Help").isActive(false).build();
+        when(questionRepository.findByUuid("question-uuid")).thenReturn(Optional.of(q));
+
+        boolean result = chatBotService.toggleStatus("question-uuid", false);
+
+        assertThat(result).isFalse();
+        verify(questionRepository, never()).save(any());
+    }
+
+    @Test
+    void toggleStatus_whenNotFound_shouldThrow() {
+        when(questionRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> chatBotService.toggleStatus("nonexistent", true))
+                .isInstanceOf(ChatQuestionNotFoundException.class);
     }
 
     @Test

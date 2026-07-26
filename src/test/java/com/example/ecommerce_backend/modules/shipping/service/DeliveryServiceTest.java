@@ -1,8 +1,8 @@
 package com.example.ecommerce_backend.modules.shipping.service;
 
 import com.example.ecommerce_backend.core.event.DeliveryStatusChangedEvent;
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.shipping.dto.request.DeliveryRequest;
+import com.example.ecommerce_backend.modules.shipping.exception.ShippingCarrierNotActiveException;
 import com.example.ecommerce_backend.modules.shipping.dto.request.UpdateDeliveryRequest;
 import com.example.ecommerce_backend.modules.shipping.dto.response.DeliveryResponse;
 import com.example.ecommerce_backend.modules.shipping.entity.Delivery;
@@ -150,7 +150,21 @@ class DeliveryServiceTest {
         when(shippingCarrierRepository.findByCode("UNKNOWN")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> deliveryService.createDelivery(1L, request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(DeliveryNotFoundException.class);
+    }
+
+    @Test
+    void createDelivery_whenCarrierInactive_shouldThrow() {
+        carrier.setActive(false);
+        DeliveryRequest request = new DeliveryRequest();
+        request.setShippingAddressId(1L);
+        request.setCarrierCode("UPS");
+
+        when(shippingAddressRepository.findById(1L)).thenReturn(Optional.of(address));
+        when(shippingCarrierRepository.findByCode("UPS")).thenReturn(Optional.of(carrier));
+
+        assertThatThrownBy(() -> deliveryService.createDelivery(1L, request))
+                .isInstanceOf(ShippingCarrierNotActiveException.class);
     }
 
     @Test
@@ -164,7 +178,7 @@ class DeliveryServiceTest {
         when(deliveryStatusRepository.findByCode("PENDING")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> deliveryService.createDelivery(1L, request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(DeliveryNotFoundException.class);
     }
 
     // --- updateDelivery ---
@@ -210,7 +224,20 @@ class DeliveryServiceTest {
         when(shippingCarrierRepository.findByCode("UNKNOWN")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> deliveryService.updateDelivery("delivery-uuid", request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(DeliveryNotFoundException.class);
+    }
+
+    @Test
+    void updateDelivery_whenCarrierInactive_shouldThrow() {
+        UpdateDeliveryRequest request = new UpdateDeliveryRequest();
+        request.setCarrierCode("UPS");
+        carrier.setActive(false);
+
+        when(deliveryRepository.findByUuid("delivery-uuid")).thenReturn(Optional.of(delivery));
+        when(shippingCarrierRepository.findByCode("UPS")).thenReturn(Optional.of(carrier));
+
+        assertThatThrownBy(() -> deliveryService.updateDelivery("delivery-uuid", request))
+                .isInstanceOf(ShippingCarrierNotActiveException.class);
     }
 
     @Test
@@ -222,7 +249,7 @@ class DeliveryServiceTest {
         when(deliveryStatusRepository.findByCode("UNKNOWN")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> deliveryService.updateDelivery("delivery-uuid", request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(DeliveryNotFoundException.class);
     }
 
     @Test

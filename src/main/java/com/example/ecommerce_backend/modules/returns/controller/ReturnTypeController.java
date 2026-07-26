@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.returns.controller;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.returns.dto.request.ReturnTypeRequest;
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnTypeResponse;
 import com.example.ecommerce_backend.modules.returns.service.ReturnTypeService;
@@ -51,6 +52,18 @@ public class ReturnTypeController {
             @PathVariable String uuid, @Valid @RequestBody ReturnTypeRequest request) {
         ReturnTypeResponse type = returnTypeService.update(uuid, request);
         return ApiResponse.success(type, "Return type updated successfully");
+    }
+
+    @PatchMapping("/{uuid}/status")
+    @Operation(summary = "Toggle return type status", description = "Activates or deactivates a return type")
+    @RequiresPermission("return:write")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String uuid,
+            @Valid @RequestBody StatusRequest request
+    ) {
+        boolean changed = returnTypeService.toggleStatus(uuid, request.isActive());
+        String message = changed ? "Return type status updated successfully" : "Return type is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/{uuid}")

@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.returns.controller;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.returns.dto.request.ReturnConditionRequest;
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnConditionResponse;
 import com.example.ecommerce_backend.modules.returns.service.ReturnConditionService;
@@ -51,6 +52,18 @@ public class ReturnConditionController {
             @PathVariable String uuid, @Valid @RequestBody ReturnConditionRequest request) {
         ReturnConditionResponse condition = returnConditionService.update(uuid, request);
         return ApiResponse.success(condition, "Return condition updated successfully");
+    }
+
+    @PatchMapping("/{uuid}/status")
+    @Operation(summary = "Toggle return condition status", description = "Activates or deactivates a return condition")
+    @RequiresPermission("return:write")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String uuid,
+            @Valid @RequestBody StatusRequest request
+    ) {
+        boolean changed = returnConditionService.toggleStatus(uuid, request.isActive());
+        String message = changed ? "Return condition status updated successfully" : "Return condition is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/{uuid}")

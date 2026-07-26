@@ -153,6 +153,10 @@ public class DataSeeder implements ApplicationRunner {
         permissions.put("return:write", "Manage returns, types, and conditions");
         permissions.put("wallet:read", "View wallet");
         permissions.put("wallet:write", "Manage wallet credits/debits");
+        permissions.put("currency:read", "View currencies");
+        permissions.put("currency:write", "Manage currencies");
+        permissions.put("chatbot:read", "View chat bot questions");
+        permissions.put("chatbot:write", "Manage chat bot questions");
 
         for (Map.Entry<String, String> entry : permissions.entrySet()) {
             permissionsRepository.findByPermissionName(entry.getKey())
@@ -284,12 +288,19 @@ public class DataSeeder implements ApplicationRunner {
                     permissionsRepository.findByPermissionName("order:write").get(),
                     permissionsRepository.findByPermissionName("order:update_status").get(),
                     permissionsRepository.findByPermissionName("payment:read").get(),
+                    permissionsRepository.findByPermissionName("payment:write").get(),
                     permissionsRepository.findByPermissionName("shipping:read").get(),
+                    permissionsRepository.findByPermissionName("shipping:write").get(),
                     permissionsRepository.findByPermissionName("delivery:read").get(),
                     permissionsRepository.findByPermissionName("delivery:write").get(),
                     permissionsRepository.findByPermissionName("return:read").get(),
                     permissionsRepository.findByPermissionName("return:write").get(),
                     permissionsRepository.findByPermissionName("wallet:read").get(),
+                    permissionsRepository.findByPermissionName("wallet:write").get(),
+                    permissionsRepository.findByPermissionName("currency:read").get(),
+                    permissionsRepository.findByPermissionName("currency:write").get(),
+                    permissionsRepository.findByPermissionName("chatbot:read").get(),
+                    permissionsRepository.findByPermissionName("chatbot:write").get(),
                     permissionsRepository.findByPermissionName("user:read").get(),
                     permissionsRepository.findByPermissionName("coupon:read").get(),
                     permissionsRepository.findByPermissionName("coupon:write").get(),

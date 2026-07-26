@@ -18,6 +18,7 @@ import com.example.ecommerce_backend.modules.payment.entity.PaymentStatus;
 import com.example.ecommerce_backend.modules.payment.entity.Refund;
 import com.example.ecommerce_backend.modules.payment.entity.RefundStatus;
 import org.springframework.data.domain.Pageable;
+import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentFailedException;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentGatewayNotFoundException;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentNotFoundException;
@@ -231,6 +232,39 @@ class PaymentServiceTest {
 
         assertThatThrownBy(() -> paymentService.processPayment(request, 1L))
                 .isInstanceOf(PaymentGatewayNotFoundException.class);
+    }
+
+    @Test
+    void processPayment_whenGatewayInactive_shouldThrow() {
+        gateway.setActive(false);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(paymentGatewayRepository.findByCode("STRIPE")).thenReturn(Optional.of(gateway));
+
+        PaymentRequest request = new PaymentRequest();
+        request.setOrderId(100L);
+        request.setGatewayCode("STRIPE");
+        request.setAmount(BigDecimal.TEN);
+
+        assertThatThrownBy(() -> paymentService.processPayment(request, 1L))
+                .isInstanceOf(BaseException.class);
+    }
+
+    @Test
+    void processPayment_whenCurrencyInactive_shouldThrow() {
+        usdCurrency.setActive(false);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(paymentGatewayRepository.findByCode("STRIPE")).thenReturn(Optional.of(gateway));
+        when(orderRepository.findById(100L)).thenReturn(Optional.of(order));
+        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(usdCurrency));
+
+        PaymentRequest request = new PaymentRequest();
+        request.setOrderId(100L);
+        request.setGatewayCode("STRIPE");
+        request.setAmount(BigDecimal.TEN);
+        request.setCurrency("USD");
+
+        assertThatThrownBy(() -> paymentService.processPayment(request, 1L))
+                .isInstanceOf(BaseException.class);
     }
 
     @Test

@@ -91,6 +91,10 @@ public class OrderService {
         Currency currency = currencyRepository.findByCode("USD")
                 .orElseThrow(() -> new CurrencyNotFoundException("USD"));
 
+        if (!currency.isActive()) {
+            throw new InvalidOrderStateException("Selected currency is not active");
+        }
+
         Order order = Order.builder()
                 .user(user)
                 .subtotal(BigDecimal.ZERO)

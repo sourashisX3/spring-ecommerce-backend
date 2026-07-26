@@ -124,4 +124,15 @@ class ReturnConditionControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Return condition deleted successfully"));
     }
+
+    @Test
+    void toggleStatus_shouldReturnSuccess() throws Exception {
+        when(returnConditionService.toggleStatus("condition-uuid", false)).thenReturn(true);
+
+        mockMvc.perform(patch("/return-conditions/condition-uuid/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Return condition status updated successfully"));
+    }
 }

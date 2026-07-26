@@ -124,4 +124,15 @@ class ReturnTypeControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Return type deleted successfully"));
     }
+
+    @Test
+    void toggleStatus_shouldReturnSuccess() throws Exception {
+        when(returnTypeService.toggleStatus("type-uuid", false)).thenReturn(true);
+
+        mockMvc.perform(patch("/return-types/type-uuid/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Return type status updated successfully"));
+    }
 }

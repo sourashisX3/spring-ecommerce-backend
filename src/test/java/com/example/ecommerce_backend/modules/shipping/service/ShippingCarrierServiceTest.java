@@ -1,7 +1,8 @@
 package com.example.ecommerce_backend.modules.shipping.service;
 
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.shipping.dto.request.ShippingCarrierRequest;
+import com.example.ecommerce_backend.modules.shipping.exception.ShippingCarrierConflictException;
+import com.example.ecommerce_backend.modules.shipping.exception.ShippingCarrierNotFoundException;
 import com.example.ecommerce_backend.modules.shipping.dto.response.ShippingCarrierResponse;
 import com.example.ecommerce_backend.modules.shipping.entity.ShippingCarrier;
 import com.example.ecommerce_backend.modules.shipping.repository.ShippingCarrierRepository;
@@ -79,7 +80,7 @@ class ShippingCarrierServiceTest {
         when(shippingCarrierRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> shippingCarrierService.getByUuid("nonexistent"))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ShippingCarrierNotFoundException.class);
     }
 
     // --- create ---
@@ -108,7 +109,7 @@ class ShippingCarrierServiceTest {
         when(shippingCarrierRepository.findByCode("UPS")).thenReturn(Optional.of(carrier));
 
         assertThatThrownBy(() -> shippingCarrierService.create(request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ShippingCarrierConflictException.class);
     }
 
     // --- update ---
@@ -137,7 +138,7 @@ class ShippingCarrierServiceTest {
         when(shippingCarrierRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> shippingCarrierService.update("nonexistent", request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ShippingCarrierNotFoundException.class);
     }
 
     // --- toggleStatus ---
@@ -157,7 +158,7 @@ class ShippingCarrierServiceTest {
         when(shippingCarrierRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> shippingCarrierService.toggleStatus("nonexistent"))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ShippingCarrierNotFoundException.class);
     }
 
     // --- delete ---
@@ -176,6 +177,6 @@ class ShippingCarrierServiceTest {
         when(shippingCarrierRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> shippingCarrierService.delete("nonexistent"))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ShippingCarrierNotFoundException.class);
     }
 }

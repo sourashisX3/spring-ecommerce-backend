@@ -11,8 +11,13 @@ import com.example.ecommerce_backend.modules.returns.entity.ReturnItem;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnRequest;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnType;
 import com.example.ecommerce_backend.modules.returns.exception.InvalidReturnStateException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnConditionNotActiveException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnConditionNotFoundException;
 import com.example.ecommerce_backend.modules.returns.exception.ReturnNotFoundException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnStatusNotActiveException;
 import com.example.ecommerce_backend.modules.returns.exception.ReturnStatusNotFoundException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeNotActiveException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeNotFoundException;
 import com.example.ecommerce_backend.modules.returns.mapper.ReturnMapper;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnStatus;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnConditionRepository;
@@ -88,11 +93,18 @@ public class ReturnService {
         ReturnType returnType = null;
         if (request.getReturnTypeCode() != null) {
             returnType = returnTypeRepository.findByCode(request.getReturnTypeCode())
-                    .orElseThrow(() -> new RuntimeException("Return type not found: " + request.getReturnTypeCode()));
+                    .orElseThrow(() -> new ReturnTypeNotFoundException("Return type not found: " + request.getReturnTypeCode()));
+            if (!returnType.isActive()) {
+                throw new ReturnTypeNotActiveException("Selected return type is not active");
+            }
         }
 
         ReturnStatus pendingStatus = returnStatusRepository.findByCode("PENDING")
                 .orElseThrow(() -> new ReturnStatusNotFoundException("PENDING"));
+
+        if (!pendingStatus.isActive()) {
+            throw new ReturnStatusNotActiveException("Default return status is not active");
+        }
 
         ReturnRequest entity = ReturnRequest.builder()
                 .user(user)
@@ -108,7 +120,10 @@ public class ReturnService {
                     ReturnCondition condition = null;
                     if (itemDto.getConditionCode() != null) {
                         condition = returnConditionRepository.findByCode(itemDto.getConditionCode())
-                                .orElseThrow(() -> new RuntimeException("Return condition not found: " + itemDto.getConditionCode()));
+                                .orElseThrow(() -> new ReturnConditionNotFoundException("Return condition not found: " + itemDto.getConditionCode()));
+                        if (!condition.isActive()) {
+                            throw new ReturnConditionNotActiveException("Selected return condition is not active");
+                        }
                     }
                     return ReturnItem.builder()
                             .returnRequest(finalEntity)
@@ -135,6 +150,9 @@ public class ReturnService {
 
         ReturnStatus newStatus = returnStatusRepository.findByCode(statusCode)
                 .orElseThrow(() -> new ReturnStatusNotFoundException(statusCode));
+        if (!newStatus.isActive()) {
+            throw new ReturnStatusNotActiveException("Target return status is not active");
+        }
         entity.setStatus(newStatus);
         if (resolutionNotes != null) {
             entity.setResolutionNotes(resolutionNotes);

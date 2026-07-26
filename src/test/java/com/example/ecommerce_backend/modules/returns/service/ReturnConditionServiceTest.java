@@ -1,9 +1,10 @@
 package com.example.ecommerce_backend.modules.returns.service;
 
-import com.example.ecommerce_backend.core.exception.BaseException;
 import com.example.ecommerce_backend.modules.returns.dto.request.ReturnConditionRequest;
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnConditionResponse;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnCondition;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnConditionConflictException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnConditionNotFoundException;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnConditionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ class ReturnConditionServiceTest {
         when(returnConditionRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> returnConditionService.getByUuid("nonexistent"))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnConditionNotFoundException.class);
     }
 
     // --- create ---
@@ -108,7 +109,7 @@ class ReturnConditionServiceTest {
         when(returnConditionRepository.findByCode("DAMAGED")).thenReturn(Optional.of(condition));
 
         assertThatThrownBy(() -> returnConditionService.create(request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnConditionConflictException.class);
     }
 
     // --- update ---
@@ -137,7 +138,7 @@ class ReturnConditionServiceTest {
         when(returnConditionRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> returnConditionService.update("nonexistent", request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnConditionNotFoundException.class);
     }
 
     @Test
@@ -156,7 +157,7 @@ class ReturnConditionServiceTest {
         when(returnConditionRepository.findByCode("OPEN_BOX")).thenReturn(Optional.of(other));
 
         assertThatThrownBy(() -> returnConditionService.update("cond-uuid", request))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnConditionConflictException.class);
     }
 
     // --- delete ---
@@ -175,6 +176,38 @@ class ReturnConditionServiceTest {
         when(returnConditionRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> returnConditionService.delete("nonexistent"))
-                .isInstanceOf(BaseException.class);
+                .isInstanceOf(ReturnConditionNotFoundException.class);
+    }
+
+    // --- toggleStatus ---
+
+    @Test
+    void toggleStatus_shouldToggle() {
+        when(returnConditionRepository.findByUuid("cond-uuid")).thenReturn(Optional.of(condition));
+
+        boolean result = returnConditionService.toggleStatus("cond-uuid", false);
+
+        assertThat(result).isTrue();
+        assertThat(condition.isActive()).isFalse();
+        verify(returnConditionRepository).save(condition);
+    }
+
+    @Test
+    void toggleStatus_whenAlreadyInDesiredState_shouldReturnFalse() {
+        condition.setActive(false);
+        when(returnConditionRepository.findByUuid("cond-uuid")).thenReturn(Optional.of(condition));
+
+        boolean result = returnConditionService.toggleStatus("cond-uuid", false);
+
+        assertThat(result).isFalse();
+        verify(returnConditionRepository, never()).save(any());
+    }
+
+    @Test
+    void toggleStatus_whenNotFound_shouldThrow() {
+        when(returnConditionRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> returnConditionService.toggleStatus("nonexistent", true))
+                .isInstanceOf(ReturnConditionNotFoundException.class);
     }
 }

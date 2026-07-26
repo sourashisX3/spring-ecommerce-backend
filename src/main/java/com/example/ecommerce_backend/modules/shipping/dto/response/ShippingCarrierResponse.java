@@ -22,9 +22,19 @@ public class ShippingCarrierResponse {
     private String name;
     @Schema(description = "Tracking URL template", example = "https://www.ups.com/track?num={trackingNumber}")
     private String trackingUrlTemplate;
-    @JsonProperty("isActive")
     @Schema(description = "Whether the carrier is active", example = "true")
     private boolean isActive;
+
+    @JsonProperty("isActive")
+    public boolean isActive() {
+        return isActive;
+    }
+
+    @JsonProperty("isActive")
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
     @Schema(description = "Creation timestamp")
     private Instant createdAt;
     @Schema(description = "Last update timestamp")

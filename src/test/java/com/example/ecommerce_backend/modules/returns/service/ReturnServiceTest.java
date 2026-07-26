@@ -7,8 +7,12 @@ import com.example.ecommerce_backend.modules.returns.dto.request.ReturnRequestDt
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnResponse;
 import com.example.ecommerce_backend.modules.returns.entity.*;
 import com.example.ecommerce_backend.modules.returns.exception.InvalidReturnStateException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnConditionNotActiveException;
 import com.example.ecommerce_backend.modules.returns.exception.ReturnNotFoundException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnStatusNotActiveException;
 import com.example.ecommerce_backend.modules.returns.exception.ReturnStatusNotFoundException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeNotActiveException;
+import com.example.ecommerce_backend.modules.returns.exception.ReturnTypeNotFoundException;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnConditionRepository;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnItemRepository;
 import com.example.ecommerce_backend.modules.returns.repository.ReturnRequestRepository;
@@ -248,7 +252,67 @@ class ReturnServiceTest {
         when(orderRepository.findByUuid("order-uuid")).thenReturn(Optional.of(order));
 
         assertThatThrownBy(() -> returnService.create(user, request))
-                .isInstanceOf(RuntimeException.class);
+                .isInstanceOf(ReturnTypeNotFoundException.class);
+    }
+
+    @Test
+    void create_whenReturnTypeInactive_shouldThrow() {
+        returnType.setActive(false);
+        ReturnRequestDto request = new ReturnRequestDto();
+        request.setOrderUuid("order-uuid");
+        request.setReturnTypeCode("REFUND");
+        request.setReason("Defective");
+
+        ReturnRequestDto.ReturnItemDto itemDto = new ReturnRequestDto.ReturnItemDto();
+        itemDto.setOrderItemId(1L);
+        itemDto.setQuantity(1);
+        request.setItems(List.of(itemDto));
+
+        when(orderRepository.findByUuid("order-uuid")).thenReturn(Optional.of(order));
+        when(returnTypeRepository.findByCode("REFUND")).thenReturn(Optional.of(returnType));
+
+        assertThatThrownBy(() -> returnService.create(user, request))
+                .isInstanceOf(ReturnTypeNotActiveException.class);
+    }
+
+    @Test
+    void create_whenPendingStatusInactive_shouldThrow() {
+        pendingStatus.setActive(false);
+        ReturnRequestDto request = new ReturnRequestDto();
+        request.setOrderUuid("order-uuid");
+        request.setReason("Defective");
+
+        ReturnRequestDto.ReturnItemDto itemDto = new ReturnRequestDto.ReturnItemDto();
+        itemDto.setOrderItemId(1L);
+        itemDto.setQuantity(1);
+        request.setItems(List.of(itemDto));
+
+        when(orderRepository.findByUuid("order-uuid")).thenReturn(Optional.of(order));
+        when(returnStatusRepository.findByCode("PENDING")).thenReturn(Optional.of(pendingStatus));
+
+        assertThatThrownBy(() -> returnService.create(user, request))
+                .isInstanceOf(ReturnStatusNotActiveException.class);
+    }
+
+    @Test
+    void create_whenReturnConditionInactive_shouldThrow() {
+        returnCondition.setActive(false);
+        ReturnRequestDto request = new ReturnRequestDto();
+        request.setOrderUuid("order-uuid");
+        request.setReason("Defective");
+
+        ReturnRequestDto.ReturnItemDto itemDto = new ReturnRequestDto.ReturnItemDto();
+        itemDto.setOrderItemId(1L);
+        itemDto.setQuantity(1);
+        itemDto.setConditionCode("DAMAGED");
+        request.setItems(List.of(itemDto));
+
+        when(orderRepository.findByUuid("order-uuid")).thenReturn(Optional.of(order));
+        when(returnStatusRepository.findByCode("PENDING")).thenReturn(Optional.of(pendingStatus));
+        when(returnConditionRepository.findByCode("DAMAGED")).thenReturn(Optional.of(returnCondition));
+
+        assertThatThrownBy(() -> returnService.create(user, request))
+                .isInstanceOf(ReturnConditionNotActiveException.class);
     }
 
     @Test
@@ -296,6 +360,16 @@ class ReturnServiceTest {
 
         assertThatThrownBy(() -> returnService.updateStatus("return-uuid", "UNKNOWN", null))
                 .isInstanceOf(ReturnStatusNotFoundException.class);
+    }
+
+    @Test
+    void updateStatus_whenTargetStatusInactive_shouldThrow() {
+        approvedStatus.setActive(false);
+        when(returnRequestRepository.findByUuid("return-uuid")).thenReturn(Optional.of(returnRequest));
+        when(returnStatusRepository.findByCode("APPROVED")).thenReturn(Optional.of(approvedStatus));
+
+        assertThatThrownBy(() -> returnService.updateStatus("return-uuid", "APPROVED", null))
+                .isInstanceOf(ReturnStatusNotActiveException.class);
     }
 
     @Test

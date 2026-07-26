@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.chat.service;
 
 import com.example.ecommerce_backend.modules.chat.entity.ChatMessage;
 import com.example.ecommerce_backend.modules.chat.entity.ChatRoom;
+import com.example.ecommerce_backend.modules.chat.exception.ChatRoomNotFoundException;
 import com.example.ecommerce_backend.modules.chat.repository.ChatMessageRepository;
 import com.example.ecommerce_backend.modules.chat.repository.ChatRoomRepository;
 import org.junit.jupiter.api.Test;
@@ -128,8 +129,7 @@ class ChatServiceTest {
         when(chatRoomRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> chatService.assignAgent("nonexistent", 1L))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("nonexistent");
+                .isInstanceOf(ChatRoomNotFoundException.class);
     }
 
     @Test
@@ -148,8 +148,7 @@ class ChatServiceTest {
         when(chatRoomRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> chatService.escalateToAgent("nonexistent"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("nonexistent");
+                .isInstanceOf(ChatRoomNotFoundException.class);
     }
 
     @Test
@@ -169,8 +168,7 @@ class ChatServiceTest {
         when(chatRoomRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> chatService.closeRoom("nonexistent"))
-                .isInstanceOf(RuntimeException.class)
-                .hasMessageContaining("nonexistent");
+                .isInstanceOf(ChatRoomNotFoundException.class);
     }
 
     @Test

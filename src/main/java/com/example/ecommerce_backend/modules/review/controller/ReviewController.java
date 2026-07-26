@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.review.controller;
 
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.Pagination;
+import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.review.dto.request.ReviewRequest;
 import com.example.ecommerce_backend.modules.review.dto.request.VoteRequest;
 import com.example.ecommerce_backend.modules.review.dto.response.ReviewResponse;
@@ -62,6 +63,17 @@ public class ReviewController {
     ) {
         ReviewResponse review = reviewService.createReview(productUuid, request, user);
         return ApiResponse.created(review, "Review created successfully");
+    }
+
+    @PatchMapping("/reviews/{reviewUuid}/status")
+    @Operation(summary = "Toggle review status", description = "Activates or deactivates a review")
+    public ResponseEntity<ApiResponse<Void>> toggleStatus(
+            @PathVariable String reviewUuid,
+            @Valid @RequestBody StatusRequest request
+    ) {
+        boolean changed = reviewService.toggleStatus(reviewUuid, request.isActive());
+        String message = changed ? "Review status updated successfully" : "Review is already " + (request.isActive() ? "active" : "inactive");
+        return ApiResponse.success(null, message);
     }
 
     @DeleteMapping("/reviews/{reviewUuid}")

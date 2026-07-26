@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.chat.service;
 
 import com.example.ecommerce_backend.modules.chat.entity.ChatMessage;
 import com.example.ecommerce_backend.modules.chat.entity.ChatRoom;
+import com.example.ecommerce_backend.modules.chat.exception.ChatRoomNotFoundException;
 import com.example.ecommerce_backend.modules.chat.repository.ChatMessageRepository;
 import com.example.ecommerce_backend.modules.chat.repository.ChatRoomRepository;
 import org.springframework.data.domain.Page;
@@ -57,7 +58,7 @@ public class ChatService {
     @Transactional
     public ChatRoom assignAgent(String roomUuid, Long agentId) {
         ChatRoom room = chatRoomRepository.findByUuid(roomUuid)
-                .orElseThrow(() -> new RuntimeException("Chat room not found: " + roomUuid));
+                .orElseThrow(() -> new ChatRoomNotFoundException("Chat room not found: " + roomUuid));
         room.setAgentId(agentId);
         room.setStatus("ACTIVE");
         room.setAssignedAt(Instant.now());
@@ -67,7 +68,7 @@ public class ChatService {
     @Transactional
     public ChatRoom escalateToAgent(String roomUuid) {
         ChatRoom room = chatRoomRepository.findByUuid(roomUuid)
-                .orElseThrow(() -> new RuntimeException("Chat room not found: " + roomUuid));
+                .orElseThrow(() -> new ChatRoomNotFoundException("Chat room not found: " + roomUuid));
         room.setStatus("AWAITING_AGENT");
         return chatRoomRepository.save(room);
     }
@@ -75,7 +76,7 @@ public class ChatService {
     @Transactional
     public ChatRoom closeRoom(String roomUuid) {
         ChatRoom room = chatRoomRepository.findByUuid(roomUuid)
-                .orElseThrow(() -> new RuntimeException("Chat room not found: " + roomUuid));
+                .orElseThrow(() -> new ChatRoomNotFoundException("Chat room not found: " + roomUuid));
         room.setStatus("CLOSED");
         room.setClosedAt(Instant.now());
         return chatRoomRepository.save(room);

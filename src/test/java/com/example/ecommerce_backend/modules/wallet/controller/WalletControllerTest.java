@@ -26,7 +26,11 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import org.springframework.http.MediaType;
+
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -116,5 +120,17 @@ class WalletControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response[0].uuid").value("txn-uuid"))
                 .andExpect(jsonPath("$.pagination").exists());
+    }
+
+    @Test
+    void toggleStatus_shouldReturnSuccess() throws Exception {
+        when(walletService.toggleStatus("wallet-uuid", false)).thenReturn(true);
+
+        mockMvc.perform(patch("/wallet/wallet-uuid/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"active\":false}")
+                        .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Wallet status updated successfully"));
     }
 }
