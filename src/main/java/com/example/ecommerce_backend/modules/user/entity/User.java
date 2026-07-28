@@ -10,10 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -87,15 +84,23 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<String> denied = this.userPermissions != null
+                ? this.userPermissions.stream()
+                    .filter(up -> up.getPermission() != null && up.getEffect() == UserPermission.Effect.DENY)
+                    .map(up -> up.getPermission().getPermissionName())
+                    .collect(Collectors.toSet())
+                : Set.of();
+
         Stream<String> rolePermissions = role != null && role.getPermissions() != null
                 ? role.getPermissions().stream().map(p -> p.getPermissionName())
                 : Stream.empty();
-        Stream<String> userPermissions = this.userPermissions != null
+        Stream<String> grantedUserPermissions = this.userPermissions != null
                 ? this.userPermissions.stream()
-                    .filter(up -> up.getPermission() != null)
+                    .filter(up -> up.getPermission() != null && up.getEffect() == UserPermission.Effect.GRANT)
                     .map(up -> up.getPermission().getPermissionName())
                 : Stream.empty();
-        return Stream.concat(rolePermissions, userPermissions)
+        return Stream.concat(rolePermissions, grantedUserPermissions)
+                .filter(p -> !denied.contains(p))
                 .distinct()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());

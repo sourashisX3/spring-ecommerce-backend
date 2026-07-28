@@ -1,9 +1,10 @@
-package com.example.ecommerce_backend.core.config;
+package com.example.ecommerce_backend.core.auth;
 
+import com.example.ecommerce_backend.core.ratelimit.RateLimitFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,16 +26,17 @@ import java.util.List;
 @Profile("!test")
 public class SecurityConfig {
 
+    private final RateLimitFilter rateLimitFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(RateLimitFilter rateLimitFilter, JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.rateLimitFilter = rateLimitFilter;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-//            .csrf(csrf -> csrf.disable())
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
@@ -43,8 +45,18 @@ public class SecurityConfig {
                 .requestMatchers("/ws/**").permitAll()
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write(
+                        "{\"statusCode\":401,\"message\":\"Authentication required. Provide a valid JWT token in the Authorization header.\"}"
+                    );
+                })
+            );
         return http.build();
     }
 

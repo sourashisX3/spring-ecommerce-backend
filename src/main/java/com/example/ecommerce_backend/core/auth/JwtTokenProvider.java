@@ -1,4 +1,4 @@
-package com.example.ecommerce_backend.core.config;
+package com.example.ecommerce_backend.core.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

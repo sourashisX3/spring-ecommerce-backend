@@ -1,4 +1,4 @@
-package com.example.ecommerce_backend.core.config;
+package com.example.ecommerce_backend.core.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

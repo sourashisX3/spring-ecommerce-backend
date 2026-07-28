@@ -1,6 +1,6 @@
 package com.example.ecommerce_backend.core.service;
 
-import com.example.ecommerce_backend.core.config.JwtTokenProvider;
+import com.example.ecommerce_backend.core.auth.JwtTokenProvider;
 import com.example.ecommerce_backend.core.entity.RefreshToken;
 import com.example.ecommerce_backend.core.repository.RefreshTokenRepository;
 import com.example.ecommerce_backend.modules.auth.exception.InvalidTokenException;

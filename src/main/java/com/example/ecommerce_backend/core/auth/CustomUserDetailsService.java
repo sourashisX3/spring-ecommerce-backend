@@ -1,4 +1,4 @@
-package com.example.ecommerce_backend.core.config;
+package com.example.ecommerce_backend.core.auth;
 
 import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;

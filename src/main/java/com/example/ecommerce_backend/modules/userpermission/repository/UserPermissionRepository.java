@@ -15,4 +15,6 @@ public interface UserPermissionRepository extends JpaRepository<UserPermission, 
     Page<UserPermission> findByUserId(Long userId, Pageable pageable);
 
     Optional<UserPermission> findByUserIdAndPermissionId(Long userId, Long permissionId);
+
+    long countByPermissionId(Long permissionId);
 }

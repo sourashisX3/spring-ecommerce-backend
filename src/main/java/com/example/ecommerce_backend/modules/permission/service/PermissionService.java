@@ -125,17 +125,13 @@ public class PermissionService {
         Permission permission = permissionsRepository.findById(id)
                 .orElseThrow(() -> new PermissionNotFoundException(id));
 
-        boolean inRoles = rolesRepository.findAll().stream()
-                .anyMatch(role -> role.getPermissions().stream().anyMatch(p -> p.getId().equals(id)));
-
-        if (inRoles) {
+        long roleCount = rolesRepository.countByPermissionId(id);
+        if (roleCount > 0) {
             throw new PermissionInUseException(permission.getPermissionName());
         }
 
-        boolean inUserPerms = userPermissionRepository.findAll().stream()
-                .anyMatch(up -> up.getPermission().getId().equals(id));
-
-        if (inUserPerms) {
+        long userPermCount = userPermissionRepository.countByPermissionId(id);
+        if (userPermCount > 0) {
             throw new PermissionInUseException(permission.getPermissionName());
         }
 

@@ -1,5 +1,6 @@
-package com.example.ecommerce_backend.core.config;
+package com.example.ecommerce_backend.core.auth;
 
+import com.example.ecommerce_backend.modules.user.entity.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,8 +14,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.ecommerce_backend.modules.user.entity.User;
-import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import java.io.IOException;
 
 @Component
@@ -22,12 +21,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
-    private final UserRepository userRepository;
 
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService, UserRepository userRepository) {
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, UserDetailsService userDetailsService) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userDetailsService = userDetailsService;
-        this.userRepository = userRepository;
     }
 
     @Override
@@ -43,9 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             try {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                userRepository.findByEmail(email)
-                        .filter(User::isActive)
-                        .orElseThrow(() -> new UsernameNotFoundException("Account deactivated or not found"));
+                if (!((User) userDetails).isActive()) {
+                    throw new UsernameNotFoundException("Account deactivated or not found");
+                }
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(

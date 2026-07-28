@@ -14,6 +14,9 @@ public interface RolesRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByRoleName(String roleName);
     boolean existsByRoleName(String roleName);
 
+    @Query("SELECT COUNT(r) FROM Role r JOIN r.permissions p WHERE p.id = :permissionId")
+    long countByPermissionId(@Param("permissionId") Long permissionId);
+
     @Query("""
             SELECT r FROM Role r
             WHERE (:search IS NULL OR :search = ''

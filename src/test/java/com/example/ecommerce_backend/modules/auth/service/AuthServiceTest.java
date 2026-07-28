@@ -1,6 +1,6 @@
 package com.example.ecommerce_backend.modules.auth.service;
 
-import com.example.ecommerce_backend.core.config.JwtTokenProvider;
+import com.example.ecommerce_backend.core.auth.JwtTokenProvider;
 import com.example.ecommerce_backend.core.event.UserRegisteredEvent;
 import com.example.ecommerce_backend.core.service.RefreshTokenService;
 import com.example.ecommerce_backend.modules.auth.dto.request.LoginRequest;

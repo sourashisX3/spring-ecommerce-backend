@@ -4,7 +4,6 @@ import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.permission.exception.PermissionRequiredException;
 import com.example.ecommerce_backend.modules.permission.service.PermissionService;
 import com.example.ecommerce_backend.modules.user.entity.User;
-import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -17,11 +16,9 @@ import org.springframework.stereotype.Component;
 public class AuthorizationAspect {
 
     private final PermissionService permissionService;
-    private final UserRepository userRepository;
 
-    public AuthorizationAspect(PermissionService permissionService, UserRepository userRepository) {
+    public AuthorizationAspect(PermissionService permissionService) {
         this.permissionService = permissionService;
-        this.userRepository = userRepository;
     }
 
     @Around("@annotation(requiresPermission)")
@@ -32,9 +29,7 @@ public class AuthorizationAspect {
             throw new PermissionRequiredException("Authentication required");
         }
 
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new PermissionRequiredException("Authenticated user not found"));
+        User user = (User) authentication.getPrincipal();
 
         if (!permissionService.hasPermission(user, requiresPermission.value())) {
             throw new PermissionRequiredException("Access denied. Required permission: " + requiresPermission.value());
