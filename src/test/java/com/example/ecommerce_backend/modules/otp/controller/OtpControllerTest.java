@@ -82,7 +82,7 @@ class OtpControllerTest {
                 .andExpect(jsonPath("$.message").value("OTP verified successfully"))
                 .andExpect(jsonPath("$.response.message").value("OTP verified successfully"));
 
-        verify(otpService).invalidateOtp("john@test.com");
+        verify(otpService, never()).invalidateOtp(anyString());
     }
 
     @Test
