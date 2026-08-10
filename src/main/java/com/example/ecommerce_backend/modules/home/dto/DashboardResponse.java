@@ -28,4 +28,6 @@ public class DashboardResponse {
     private long unreadNotificationCount;
     @Schema(description = "List of recent orders")
     private List<OrderResponse> recentOrders;
+    @Schema(description = "Store-wide analytics; present only for privileged roles")
+    private DashboardAnalytics analytics;
 }
