@@ -38,6 +38,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -249,73 +250,58 @@ public class DataSeeder implements ApplicationRunner {
     }
 
     private void seedRoles() {
-        Permission allPermission = permissionsRepository.findByPermissionName("*:*")
-                .orElseThrow(() -> new RuntimeException("*:* permission not found after seeding"));
+        Permission allPermission = perm("*:*");
+        ensureRoleHasPermissions("SUPER_ADMIN", "Super admin with full access", Set.of(allPermission));
 
-        if (rolesRepository.findByRoleName("SUPER_ADMIN").isEmpty()) {
-            log.info("Seeding SUPER_ADMIN role");
-            rolesRepository.save(
-                    Role.builder()
-                            .roleName("SUPER_ADMIN")
-                            .roleDescription("Super admin with full access")
-                            .permissions(Set.of(allPermission))
-                            .build()
-            );
-        }
+        Permission userRead = perm("user:read");
+        ensureRoleHasPermissions("USER", "Default user role", Set.of(userRead));
 
-        Permission userRead = permissionsRepository.findByPermissionName("user:read")
-                .orElseThrow(() -> new RuntimeException("user:read permission not found after seeding"));
+        Set<Permission> adminPermissions = Set.of(
+                perm("product:read"), perm("product:write"),
+                perm("category:read"), perm("category:write"),
+                perm("brand:read"), perm("brand:write"),
+                perm("tag:read"), perm("tag:write"),
+                perm("order:read"), perm("order:write"), perm("order:update_status"),
+                perm("payment:read"), perm("payment:write"),
+                perm("shipping:read"), perm("shipping:write"),
+                perm("delivery:read"), perm("delivery:write"),
+                perm("return:read"), perm("return:write"),
+                perm("wallet:read"), perm("wallet:write"),
+                perm("currency:read"), perm("currency:write"),
+                perm("chatbot:read"), perm("chatbot:write"),
+                perm("user:read"), perm("user:write"),
+                perm("coupon:read"), perm("coupon:write"),
+                perm("discount:read"), perm("discount:write"),
+                perm("offer:read"), perm("offer:write"),
+                perm("role:read"), perm("permission:read"), perm("user_permission:read")
+        );
+        ensureRoleHasPermissions("ADMIN", "Administrator with moderate access", adminPermissions);
+    }
 
-        if (rolesRepository.findByRoleName("USER").isEmpty()) {
-            log.info("Seeding USER role");
-            rolesRepository.save(
-                    Role.builder()
-                            .roleName("USER")
-                            .roleDescription("Default user role")
-                            .permissions(Set.of(userRead))
-                            .build()
-            );
-        }
+    private Permission perm(String name) {
+        return permissionsRepository.findByPermissionName(name)
+                .orElseThrow(() -> new RuntimeException(name + " permission not found after seeding"));
+    }
 
-        if (rolesRepository.findByRoleName("ADMIN").isEmpty()) {
-            log.info("Seeding ADMIN role");
-            Set<Permission> adminPermissions = Set.of(
-                    permissionsRepository.findByPermissionName("product:read").get(),
-                    permissionsRepository.findByPermissionName("category:read").get(),
-                    permissionsRepository.findByPermissionName("brand:read").get(),
-                    permissionsRepository.findByPermissionName("tag:read").get(),
-                    permissionsRepository.findByPermissionName("order:read").get(),
-                    permissionsRepository.findByPermissionName("order:write").get(),
-                    permissionsRepository.findByPermissionName("order:update_status").get(),
-                    permissionsRepository.findByPermissionName("payment:read").get(),
-                    permissionsRepository.findByPermissionName("payment:write").get(),
-                    permissionsRepository.findByPermissionName("shipping:read").get(),
-                    permissionsRepository.findByPermissionName("shipping:write").get(),
-                    permissionsRepository.findByPermissionName("delivery:read").get(),
-                    permissionsRepository.findByPermissionName("delivery:write").get(),
-                    permissionsRepository.findByPermissionName("return:read").get(),
-                    permissionsRepository.findByPermissionName("return:write").get(),
-                    permissionsRepository.findByPermissionName("wallet:read").get(),
-                    permissionsRepository.findByPermissionName("wallet:write").get(),
-                    permissionsRepository.findByPermissionName("currency:read").get(),
-                    permissionsRepository.findByPermissionName("currency:write").get(),
-                    permissionsRepository.findByPermissionName("chatbot:read").get(),
-                    permissionsRepository.findByPermissionName("chatbot:write").get(),
-                    permissionsRepository.findByPermissionName("user:read").get(),
-                    permissionsRepository.findByPermissionName("coupon:read").get(),
-                    permissionsRepository.findByPermissionName("coupon:write").get(),
-                    permissionsRepository.findByPermissionName("discount:read").get(),
-                    permissionsRepository.findByPermissionName("discount:write").get(),
-                    permissionsRepository.findByPermissionName("offer:read").get(),
-                    permissionsRepository.findByPermissionName("offer:write").get()
-            );
-            rolesRepository.save(
-                    Role.builder()
-                            .roleName("ADMIN")
-                            .roleDescription("Administrator with moderate access")
-                            .permissions(adminPermissions)
-                            .build()
-            );
+    private void ensureRoleHasPermissions(String roleName, String description, Set<Permission> required) {
+        Role role = rolesRepository.findByRoleName(roleName)
+                .orElseGet(() -> {
+                    log.info("Seeding {} role", roleName);
+                    return rolesRepository.save(
+                            Role.builder()
+                                    .roleName(roleName)
+                                    .roleDescription(description)
+                                    .permissions(Set.of())
+                                    .build()
+                    );
+                });
+        Set<Permission> existing = role.getPermissions() != null ? role.getPermissions() : Set.of();
+        Set<Permission> merged = new HashSet<>(existing);
+        merged.addAll(required);
+        if (merged.size() != existing.size()) {
+            log.info("Updating permissions for {} role ({} -> {})", roleName, existing.size(), merged.size());
+            role.setPermissions(merged);
+            rolesRepository.save(role);
         }
     }
 

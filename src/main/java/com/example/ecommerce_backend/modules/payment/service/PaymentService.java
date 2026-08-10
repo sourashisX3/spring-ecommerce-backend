@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.payment.service;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.order.entity.Order;
 import com.example.ecommerce_backend.modules.order.entity.OrderStatus;
 import com.example.ecommerce_backend.modules.order.exception.OrderNotFoundException;
@@ -171,6 +172,12 @@ public class PaymentService {
     public Page<PaymentResponse> getUserPayments(Long userId, Pageable pageable) {
         return paymentRepository.findByUserId(userId, pageable)
                 .map(PaymentMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    @RequiresPermission("payment:read")
+    public Page<PaymentResponse> listAll(Pageable pageable) {
+        return paymentRepository.findAll(pageable).map(PaymentMapper::toResponse);
     }
 
     @Transactional

@@ -20,6 +20,10 @@ public class ReviewResponse {
     private Long id;
     @Schema(description = "Review UUID", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
     private String uuid;
+    @Schema(description = "Product UUID", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
+    private String productUuid;
+    @Schema(description = "Product name", example = "Scented Candle")
+    private String productName;
     @Schema(description = "Rating score", example = "5")
     private int rating;
     @Schema(description = "Review title", example = "Great product!")

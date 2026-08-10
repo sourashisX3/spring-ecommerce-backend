@@ -68,6 +68,20 @@ public class PaymentController {
         return ApiResponse.success(payments, "Payments retrieved successfully");
     }
 
+    @GetMapping("/all")
+    @Operation(summary = "Get all payments (admin)", description = "Retrieve all payments across users")
+    public ResponseEntity<ApiResponse<List<PaymentResponse>>> listAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt"));
+            Page<PaymentResponse> payments = paymentService.listAll(pageable);
+            return ApiResponse.paginated(payments.getContent(), "Payments retrieved successfully", Pagination.of(payments));
+        }
+        List<PaymentResponse> payments = paymentService.listAll(Pageable.unpaged()).getContent();
+        return ApiResponse.success(payments, "Payments retrieved successfully");
+    }
+
     @GetMapping("/{paymentId}/refunds")
     @Operation(summary = "Get refunds by payment", description = "Retrieve refunds for a specific payment")
     public ResponseEntity<ApiResponse<List<RefundResponse>>> getRefunds(

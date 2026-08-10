@@ -53,6 +53,21 @@ public class ReviewService {
         return reviews.map(review -> toResponseWithVotes(review, currentUserId));
     }
 
+    @Transactional(readOnly = true)
+    @RequiresPermission("product:write")
+    public List<ReviewResponse> listAll() {
+        return reviewRepository.findAll().stream()
+                .map(review -> toResponseWithVotes(review, null))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    @RequiresPermission("product:write")
+    public Page<ReviewResponse> listAll(Pageable pageable) {
+        return reviewRepository.findAll(pageable)
+                .map(review -> toResponseWithVotes(review, null));
+    }
+
     @Transactional
     public ReviewResponse createReview(String productUuid, ReviewRequest request, User user) {
         Product product = productRepository.findByUuid(productUuid)

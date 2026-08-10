@@ -1,7 +1,6 @@
 package com.example.ecommerce_backend.core.auth;
 
 import com.example.ecommerce_backend.core.ratelimit.RateLimitFilter;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -28,10 +27,14 @@ public class SecurityConfig {
 
     private final RateLimitFilter rateLimitFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RestAuthenticationHandlers restAuthenticationHandlers;
 
-    public SecurityConfig(RateLimitFilter rateLimitFilter, JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(RateLimitFilter rateLimitFilter,
+                          JwtAuthenticationFilter jwtAuthenticationFilter,
+                          RestAuthenticationHandlers restAuthenticationHandlers) {
         this.rateLimitFilter = rateLimitFilter;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.restAuthenticationHandlers = restAuthenticationHandlers;
     }
 
     @Bean
@@ -39,6 +42,9 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(restAuthenticationHandlers)
+                .accessDeniedHandler(restAuthenticationHandlers))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/auth/**", "/otp/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
@@ -47,16 +53,7 @@ public class SecurityConfig {
             )
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.setContentType("application/json");
-                    response.getWriter().write(
-                        "{\"statusCode\":401,\"message\":\"Authentication required. Provide a valid JWT token in the Authorization header.\"}"
-                    );
-                })
-            );
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()));
         return http.build();
     }
 

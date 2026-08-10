@@ -54,6 +54,14 @@ public class ChatController {
         return ApiResponse.success(rooms, "Open chat rooms retrieved");
     }
 
+    @Operation(summary = "Get all chat rooms (admin)", description = "Retrieves all chat rooms with pagination")
+    @GetMapping("/rooms/all")
+    public ResponseEntity<ApiResponse<Page<ChatRoomResponse>>> listAllRooms(@ParameterObject Pageable pageable) {
+        Page<ChatRoomResponse> rooms = chatService.listAllRooms(pageable)
+                .map(ChatRoomResponse::from);
+        return ApiResponse.success(rooms, "Chat rooms retrieved");
+    }
+
     @Operation(summary = "Get room messages", description = "Retrieves all messages for a specific chat room with pagination")
     @GetMapping("/rooms/{uuid}/messages")
     public ResponseEntity<ApiResponse<Page<ChatMessageResponse>>> getRoomMessages(

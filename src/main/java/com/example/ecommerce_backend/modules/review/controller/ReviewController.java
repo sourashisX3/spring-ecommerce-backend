@@ -54,6 +54,26 @@ public class ReviewController {
         }
     }
 
+    @GetMapping("/reviews")
+    @Operation(summary = "List all reviews (admin)", description = "Retrieves all reviews with optional pagination")
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> listAll(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+            Page<ReviewResponse> reviews = reviewService.listAll(pageable);
+            return ApiResponse.paginated(
+                    reviews.getContent(),
+                    "Reviews retrieved successfully",
+                    Pagination.of(reviews)
+            );
+        } else {
+            List<ReviewResponse> reviews = reviewService.listAll();
+            return ApiResponse.success(reviews, "Reviews retrieved successfully");
+        }
+    }
+
     @PostMapping("/products/{productUuid}/reviews")
     @Operation(summary = "Create a review", description = "Creates a new review for a product")
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(

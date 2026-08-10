@@ -4,6 +4,8 @@ import com.example.ecommerce_backend.core.event.*;
 import com.example.ecommerce_backend.modules.notification.dto.NotificationResponse;
 import com.example.ecommerce_backend.modules.notification.entity.Notification;
 import com.example.ecommerce_backend.modules.notification.repository.NotificationRepository;
+import com.example.ecommerce_backend.modules.user.entity.User;
+import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -15,19 +17,26 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Profile("!test")
 public class NotificationService {
 
     private static final Logger log = LoggerFactory.getLogger(NotificationService.class);
 
+    private static final List<String> ADMIN_ROLE_NAMES = List.of("ADMIN", "SUPER_ADMIN");
+
     private final NotificationRepository notificationRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserRepository userRepository;
 
     public NotificationService(NotificationRepository notificationRepository,
-                               SimpMessagingTemplate messagingTemplate) {
+                               SimpMessagingTemplate messagingTemplate,
+                               UserRepository userRepository) {
         this.notificationRepository = notificationRepository;
         this.messagingTemplate = messagingTemplate;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
@@ -63,6 +72,25 @@ public class NotificationService {
         sendAndPush(event.userId(), "ORDER_CONFIRMED",
                 "Order Confirmed", "Your order has been placed successfully",
                 "ecommerce://orders/" + event.orderUuid());
+
+        notifyAdminsOfNewOrder(event.userId(), event.orderUuid());
+    }
+
+    private void notifyAdminsOfNewOrder(Long customerUserId, String orderUuid) {
+        try {
+            List<User> admins = userRepository.findByRole_RoleNameIn(ADMIN_ROLE_NAMES);
+            for (User admin : admins) {
+                if (admin.getId().equals(customerUserId)) {
+                    continue;
+                }
+                sendAndPush(admin.getId(), "NEW_ORDER",
+                        "New Order Placed",
+                        "A new order has been placed and is awaiting fulfillment",
+                        "ecommerce://orders/" + orderUuid);
+            }
+        } catch (Exception e) {
+            log.error("Failed to notify admins of new order {}: {}", orderUuid, e.getMessage());
+        }
     }
 
     @Async
@@ -122,11 +150,16 @@ public class NotificationService {
 
             NotificationResponse response = NotificationResponse.from(notification);
 
-            messagingTemplate.convertAndSendToUser(
-                    userId.toString(),
-                    "/queue/notifications",
-                    response
-            );
+            String email = userRepository.findById(userId)
+                    .map(User::getEmail)
+                    .orElse(null);
+            if (email != null) {
+                messagingTemplate.convertAndSendToUser(
+                        email,
+                        "/queue/notifications",
+                        response
+                );
+            }
         } catch (Exception e) {
             log.error("Failed to send notification to user {}: {}", userId, e.getMessage());
         }

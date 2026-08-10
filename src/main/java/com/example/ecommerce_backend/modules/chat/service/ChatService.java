@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.chat.service;
 
+import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.chat.entity.ChatMessage;
 import com.example.ecommerce_backend.modules.chat.entity.ChatRoom;
 import com.example.ecommerce_backend.modules.chat.exception.ChatRoomNotFoundException;
@@ -48,6 +49,12 @@ public class ChatService {
     @Transactional(readOnly = true)
     public Page<ChatRoom> getOpenRooms(Pageable pageable) {
         return chatRoomRepository.findByStatusOrderByCreatedAtAsc("AWAITING_AGENT", pageable);
+    }
+
+    @Transactional(readOnly = true)
+    @RequiresPermission("chatbot:write")
+    public Page<ChatRoom> listAllRooms(Pageable pageable) {
+        return chatRoomRepository.findAll(pageable);
     }
 
     @Transactional(readOnly = true)

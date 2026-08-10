@@ -2,7 +2,6 @@ package com.example.ecommerce_backend.modules.auth.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -36,10 +35,6 @@ public class RegisterRequest {
     @Size(min = 6, message = "Password must be at least 6 characters")
     @Schema(description = "Password (min 6 characters)", example = "password123", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
-
-    @Nullable
-    @Schema(description = "Role ID", example = "1")
-    private Long roleId;
 
     @Schema(description = "Street address", example = "123 Main St")
     private String streetAddress;

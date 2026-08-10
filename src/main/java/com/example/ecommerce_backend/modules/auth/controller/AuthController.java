@@ -4,6 +4,7 @@ import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.modules.auth.dto.request.LoginRequest;
 import com.example.ecommerce_backend.modules.auth.dto.request.RefreshTokenRequest;
 import com.example.ecommerce_backend.modules.auth.dto.request.RegisterRequest;
+import com.example.ecommerce_backend.modules.auth.dto.request.ResetPasswordRequest;
 import com.example.ecommerce_backend.modules.auth.dto.response.AuthResponse;
 import com.example.ecommerce_backend.modules.otp.dto.request.SendOtpRequest;
 import com.example.ecommerce_backend.modules.otp.dto.request.VerifyOtpRequest;
@@ -63,6 +64,13 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         AuthResponse response = authService.verifyOtp(request);
         return ApiResponse.success(response, "OTP verified successfully");
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password", description = "Resets the user's password after verifying a valid OTP")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ApiResponse.success(null, "Password reset successfully");
     }
 
     @PostMapping("/logout")

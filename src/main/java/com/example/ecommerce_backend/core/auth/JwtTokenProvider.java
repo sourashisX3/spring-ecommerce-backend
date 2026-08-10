@@ -38,6 +38,14 @@ public class JwtTokenProvider {
         return generateToken(userDetails, refreshExpirationMs);
     }
 
+    public long getAccessExpirationSeconds() {
+        return accessExpirationMs / 1000;
+    }
+
+    public long getRefreshExpirationSeconds() {
+        return refreshExpirationMs / 1000;
+    }
+
     private String generateToken(UserDetails userDetails, long expirationMs) {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()

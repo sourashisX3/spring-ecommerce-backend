@@ -12,6 +12,8 @@ public class ReviewMapper {
         return ReviewResponse.builder()
                 .id(review.getId())
                 .uuid(review.getUuid())
+                .productUuid(review.getProduct().getUuid())
+                .productName(review.getProduct().getName())
                 .rating(review.getRating())
                 .title(review.getTitle())
                 .comment(review.getComment())

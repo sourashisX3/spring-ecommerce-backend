@@ -6,6 +6,7 @@ import com.example.ecommerce_backend.core.service.RefreshTokenService;
 import com.example.ecommerce_backend.modules.auth.dto.request.LoginRequest;
 import com.example.ecommerce_backend.modules.auth.dto.request.RefreshTokenRequest;
 import com.example.ecommerce_backend.modules.auth.dto.request.RegisterRequest;
+import com.example.ecommerce_backend.modules.auth.dto.request.ResetPasswordRequest;
 import com.example.ecommerce_backend.modules.auth.dto.response.AuthResponse;
 import com.example.ecommerce_backend.modules.otp.dto.request.SendOtpRequest;
 import com.example.ecommerce_backend.modules.otp.dto.request.VerifyOtpRequest;
@@ -15,7 +16,6 @@ import com.example.ecommerce_backend.modules.auth.mapper.AuthMapper;
 import com.example.ecommerce_backend.modules.otp.exception.InvalidOtpException;
 import com.example.ecommerce_backend.modules.otp.service.OtpService;
 import com.example.ecommerce_backend.modules.role.entity.Role;
-import com.example.ecommerce_backend.modules.role.exception.RoleNotFoundException;
 import com.example.ecommerce_backend.modules.role.repository.RolesRepository;
 import com.example.ecommerce_backend.modules.user.entity.User;
 import com.example.ecommerce_backend.modules.user.exception.EmailAlreadyExistsException;
@@ -73,14 +73,8 @@ public class AuthService {
             throw new PhoneAlreadyExistsException(request.getPhoneNumber());
         }
 
-        Role role;
-        if (request.getRoleId() != null) {
-            role = rolesRepository.findById(request.getRoleId())
-                    .orElseThrow(() -> new RoleNotFoundException(request.getRoleId()));
-        } else {
-            role = rolesRepository.findByRoleName("USER")
-                    .orElseGet(() -> rolesRepository.save(Role.builder().roleName("USER").build()));
-        }
+        Role role = rolesRepository.findByRoleName("USER")
+                .orElseGet(() -> rolesRepository.save(Role.builder().roleName("USER").build()));
 
         User user = AuthMapper.toUser(request, passwordEncoder.encode(request.getPassword()), role);
 
@@ -98,10 +92,6 @@ public class AuthService {
         );
 
         User user = findUserByIdentifier(request.getEmailOrPhone());
-
-        if (!user.isActive()) {
-            throw new AccountDeactivatedException();
-        }
 
         return buildAuthResponse(user);
     }
@@ -129,7 +119,7 @@ public class AuthService {
                 .token(newAccessToken)
                 .refreshToken(newRefreshToken)
                 .tokenType("Bearer")
-                .expiresIn(86400)
+                .expiresIn(jwtTokenProvider.getAccessExpirationSeconds())
                 .user(UserMapper.toUserResponse(user))
                 .build();
     }
@@ -159,6 +149,18 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        if (!otpService.validateOtp(request.getEmailOrPhone(), request.getOtp())) {
+            throw new InvalidOtpException();
+        }
+
+        User user = findUserByIdentifier(request.getEmailOrPhone());
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+        otpService.invalidateOtp(request.getEmailOrPhone());
+    }
+
     private User findUserByIdentifier(String emailOrPhone) {
         if (emailOrPhone.contains("@")) {
             return userRepository.findByEmail(emailOrPhone)
@@ -181,6 +183,11 @@ public class AuthService {
         String refreshToken = jwtTokenProvider.generateRefreshToken(userDetails);
         refreshTokenService.storeRefreshToken(refreshToken, user.getId());
 
-        return AuthMapper.toAuthResponse(accessToken, refreshToken, UserMapper.toUserResponse(user));
+        return AuthMapper.toAuthResponse(
+                accessToken,
+                refreshToken,
+                jwtTokenProvider.getAccessExpirationSeconds(),
+                UserMapper.toUserResponse(user)
+        );
     }
 }

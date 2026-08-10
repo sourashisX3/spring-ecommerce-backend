@@ -181,6 +181,8 @@ public class DummyDataSeeder implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        ensureSeedUserPasswords();
+
         if (userRepository.findByEmail("superadmin@example.com").isPresent()) {
             log.info("Dummy data already exists, skipping seeding");
             return;
@@ -203,6 +205,18 @@ public class DummyDataSeeder implements ApplicationRunner {
         seedCartItems();
         seedWishlistItems();
         seedNotifications();
+    }
+
+    private void ensureSeedUserPasswords() {
+        String encoded = passwordEncoder.encode(PASSWORD);
+        for (String email : List.of("superadmin@example.com", "admin@example.com", "user@example.com")) {
+            userRepository.findByEmail(email).ifPresent(user -> {
+                log.info("Resetting password for seed user {}", email);
+                user.setPassword(encoded);
+                user.setActive(true);
+                userRepository.save(user);
+            });
+        }
     }
 
     private Role getRole(String name) {

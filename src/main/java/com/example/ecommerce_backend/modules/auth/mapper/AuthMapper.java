@@ -35,12 +35,12 @@ public class AuthMapper {
                 .build();
     }
 
-    public static AuthResponse toAuthResponse(String accessToken, String refreshToken, UserResponse user) {
+    public static AuthResponse toAuthResponse(String accessToken, String refreshToken, long expiresInSeconds, UserResponse user) {
         return AuthResponse.builder()
                 .token(accessToken)
                 .refreshToken(refreshToken)
                 .tokenType("Bearer")
-                .expiresIn(86400)
+                .expiresIn(expiresInSeconds)
                 .user(user)
                 .build();
     }

@@ -67,8 +67,6 @@ public class ProductSpecification {
 
             if (active != null) {
                 predicates.add(cb.equal(root.get("isActive"), active));
-            } else {
-                predicates.add(cb.equal(root.get("isActive"), true));
             }
 
             query.distinct(true);

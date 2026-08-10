@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,6 +57,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<Void>> handleBadCredentials(BadCredentialsException ex) {
         log.warn("BadCredentialsException: {}", ex.getMessage());
+        return ApiResponse.error(HttpStatus.UNAUTHORIZED, "Invalid email/phone or password");
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDisabledAccount(DisabledException ex) {
+        log.warn("Disabled account login attempt: {}", ex.getMessage());
+        return ApiResponse.error(HttpStatus.FORBIDDEN, "Account has been deactivated");
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleLockedAccount(LockedException ex) {
+        log.warn("Locked account login attempt: {}", ex.getMessage());
+        return ApiResponse.error(HttpStatus.LOCKED, "Account is locked. Please try again later.");
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAuthentication(AuthenticationException ex) {
+        log.warn("Authentication failure: {}", ex.getMessage());
         return ApiResponse.error(HttpStatus.UNAUTHORIZED, "Invalid email/phone or password");
     }
 
