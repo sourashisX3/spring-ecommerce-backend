@@ -12,6 +12,8 @@ public interface ShippingAddressRepository extends JpaRepository<ShippingAddress
 
     List<ShippingAddress> findByUserId(Long userId);
 
+    void deleteByUserId(Long userId);
+
     Optional<ShippingAddress> findByUserIdAndIsDefaultTrue(Long userId);
 
     List<ShippingAddress> findByUserIdOrderByCreatedAtDesc(Long userId);

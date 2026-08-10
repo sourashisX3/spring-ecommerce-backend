@@ -13,9 +13,26 @@ import com.example.ecommerce_backend.modules.user.entity.UserAddress;
 import com.example.ecommerce_backend.modules.user.exception.AuthenticationRequiredException;
 import com.example.ecommerce_backend.modules.user.exception.CannotDeactivateProtectedUserException;
 import com.example.ecommerce_backend.modules.user.exception.CannotDeleteProtectedRoleException;
+import com.example.ecommerce_backend.modules.user.exception.UserHasBusinessRecordsException;
 import com.example.ecommerce_backend.modules.user.exception.UserNotFoundException;
 import com.example.ecommerce_backend.modules.user.mapper.UserMapper;
 import com.example.ecommerce_backend.modules.user.repository.UserRepository;
+import com.example.ecommerce_backend.core.repository.RefreshTokenRepository;
+import com.example.ecommerce_backend.modules.cart.repository.CartRepository;
+import com.example.ecommerce_backend.modules.coupon.repository.CouponAssignmentRepository;
+import com.example.ecommerce_backend.modules.coupon.repository.CouponUsageRepository;
+import com.example.ecommerce_backend.modules.discount.repository.DiscountAssignmentRepository;
+import com.example.ecommerce_backend.modules.offer.repository.OfferAssignmentRepository;
+import com.example.ecommerce_backend.modules.offer.repository.OfferUsageRepository;
+import com.example.ecommerce_backend.modules.order.repository.OrderRepository;
+import com.example.ecommerce_backend.modules.payment.repository.PaymentRepository;
+import com.example.ecommerce_backend.modules.returns.repository.ReturnRequestRepository;
+import com.example.ecommerce_backend.modules.review.repository.ReviewVoteRepository;
+import com.example.ecommerce_backend.modules.review.repository.ReviewRepository;
+import com.example.ecommerce_backend.modules.shipping.repository.ShippingAddressRepository;
+import com.example.ecommerce_backend.modules.wallet.repository.WalletRepository;
+import com.example.ecommerce_backend.modules.wallet.repository.WalletTransactionRepository;
+import com.example.ecommerce_backend.modules.wishlist.repository.WishlistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.data.domain.Page;
@@ -25,6 +42,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Set;
 
 @Service
@@ -44,6 +62,54 @@ public class UserService {
 
     @Autowired
     private OtpService otpService;
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private ReturnRequestRepository returnRequestRepository;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
+
+    @Autowired
+    private ReviewVoteRepository reviewVoteRepository;
+
+    @Autowired
+    private WalletRepository walletRepository;
+
+    @Autowired
+    private WalletTransactionRepository walletTransactionRepository;
+
+    @Autowired
+    private CartRepository cartRepository;
+
+    @Autowired
+    private WishlistRepository wishlistRepository;
+
+    @Autowired
+    private ShippingAddressRepository shippingAddressRepository;
+
+    @Autowired
+    private CouponAssignmentRepository couponAssignmentRepository;
+
+    @Autowired
+    private CouponUsageRepository couponUsageRepository;
+
+    @Autowired
+    private DiscountAssignmentRepository discountAssignmentRepository;
+
+    @Autowired
+    private OfferAssignmentRepository offerAssignmentRepository;
+
+    @Autowired
+    private OfferUsageRepository offerUsageRepository;
 
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(String search, Boolean active, Pageable pageable) {
@@ -138,6 +204,31 @@ public class UserService {
         if (user.getRole() != null && "SUPER_ADMIN".equals(user.getRole().getRoleName())) {
             throw new CannotDeleteProtectedRoleException(user.getRole().getRoleName());
         }
+        boolean hasBusinessRecords = orderRepository.countByUserId(id) > 0
+                || paymentRepository.countByUserId(id) > 0
+                || returnRequestRepository.countByUserId(id) > 0
+                || reviewRepository.countByUserId(id) > 0
+                || reviewVoteRepository.countByUserId(id) > 0;
+        java.util.Optional<com.example.ecommerce_backend.modules.wallet.entity.Wallet> wallet =
+                walletRepository.findByUserId(id);
+        if (wallet.isPresent()
+                && (wallet.get().getBalance() != null && wallet.get().getBalance().compareTo(BigDecimal.ZERO) != 0
+                || walletTransactionRepository.countByWalletId(wallet.get().getId()) > 0)) {
+            hasBusinessRecords = true;
+        }
+        if (hasBusinessRecords) {
+            throw new UserHasBusinessRecordsException();
+        }
+        walletRepository.findByUserId(id).ifPresent(walletRepository::delete);
+        refreshTokenRepository.deleteByUserId(id);
+        cartRepository.deleteByUserId(id);
+        wishlistRepository.deleteByUserId(id);
+        shippingAddressRepository.deleteByUserId(id);
+        couponAssignmentRepository.deleteByUserId(id);
+        couponUsageRepository.deleteByUserId(id);
+        discountAssignmentRepository.deleteByUserId(id);
+        offerAssignmentRepository.deleteByUserId(id);
+        offerUsageRepository.deleteByUserId(id);
         userRepository.delete(user);
     }
 

@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.core.auth;
 
 import com.example.ecommerce_backend.core.ratelimit.RateLimitFilter;
+import com.example.ecommerce_backend.core.ratelimit.RateLimitService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -25,14 +26,14 @@ import java.util.List;
 @Profile("!test")
 public class SecurityConfig {
 
-    private final RateLimitFilter rateLimitFilter;
+    private final RateLimitService rateLimitService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final RestAuthenticationHandlers restAuthenticationHandlers;
 
-    public SecurityConfig(RateLimitFilter rateLimitFilter,
+    public SecurityConfig(RateLimitService rateLimitService,
                           JwtAuthenticationFilter jwtAuthenticationFilter,
                           RestAuthenticationHandlers restAuthenticationHandlers) {
-        this.rateLimitFilter = rateLimitFilter;
+        this.rateLimitService = rateLimitService;
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.restAuthenticationHandlers = restAuthenticationHandlers;
     }
@@ -51,8 +52,8 @@ public class SecurityConfig {
                 .requestMatchers("/ws/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(new RateLimitFilter(rateLimitService), JwtAuthenticationFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()));
         return http.build();
     }

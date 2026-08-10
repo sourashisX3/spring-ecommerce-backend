@@ -14,7 +14,6 @@ import com.example.ecommerce_backend.modules.otp.dto.request.VerifyOtpRequest;
 import com.example.ecommerce_backend.modules.otp.exception.InvalidOtpException;
 import com.example.ecommerce_backend.modules.otp.service.OtpService;
 import com.example.ecommerce_backend.modules.role.entity.Role;
-import com.example.ecommerce_backend.modules.role.exception.RoleNotFoundException;
 import com.example.ecommerce_backend.modules.role.repository.RolesRepository;
 import com.example.ecommerce_backend.modules.user.entity.User;
 import com.example.ecommerce_backend.modules.user.entity.UserAddress;
@@ -32,6 +31,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -115,6 +115,7 @@ class AuthServiceTest {
         when(userDetailsService.loadUserByUsername(activeUser.getEmail())).thenReturn(userDetails);
         when(jwtTokenProvider.generateAccessToken(userDetails)).thenReturn("access-token");
         when(jwtTokenProvider.generateRefreshToken(userDetails)).thenReturn("refresh-token");
+        when(jwtTokenProvider.getAccessExpirationSeconds()).thenReturn(86400L);
         when(refreshTokenService.storeRefreshToken("refresh-token", activeUser.getId())).thenReturn("refresh-token");
     }
 
@@ -174,13 +175,11 @@ class AuthServiceTest {
     }
 
     @Test
-    void register_withCustomRole_shouldUseProvidedRole() {
-        Role customRole = Role.builder().id(2L).roleName("ADMIN").build();
+    void register_shouldAlwaysAssignUserRole() {
         RegisterRequest request = createRegisterRequest();
-        request.setRoleId(2L);
         when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
         when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.empty());
-        when(rolesRepository.findById(2L)).thenReturn(Optional.of(customRole));
+        when(rolesRepository.findByRoleName("USER")).thenReturn(Optional.of(userRole));
         when(passwordEncoder.encode(request.getPassword())).thenReturn("encoded-pass");
         when(userRepository.save(any(User.class))).thenReturn(activeUser);
         mockBuildAuthResponse();
@@ -189,19 +188,8 @@ class AuthServiceTest {
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
-        assertThat(userCaptor.getValue().getRole()).isEqualTo(customRole);
-    }
-
-    @Test
-    void register_whenCustomRoleNotFound_shouldThrow() {
-        RegisterRequest request = createRegisterRequest();
-        request.setRoleId(99L);
-        when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.empty());
-        when(userRepository.findByPhoneNumber(request.getPhoneNumber())).thenReturn(Optional.empty());
-        when(rolesRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> authService.register(request))
-                .isInstanceOf(RoleNotFoundException.class);
+        assertThat(userCaptor.getValue().getRole()).isEqualTo(userRole);
+        verify(rolesRepository, never()).findById(anyLong());
     }
 
     @Test
@@ -259,15 +247,17 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_whenUserDeactivated_shouldThrow() {
+    void login_whenUserDeactivated_shouldPropagateAuthenticationFailure() {
         LoginRequest request = new LoginRequest();
         request.setEmailOrPhone("jane@test.com");
         request.setPassword("password123");
 
-        when(userRepository.findByEmail("jane@test.com")).thenReturn(Optional.of(inactiveUser));
+        doThrow(new DisabledException("Account is disabled"))
+                .when(authenticationManager)
+                .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(AccountDeactivatedException.class);
+                .isInstanceOf(DisabledException.class);
     }
 
     @Test

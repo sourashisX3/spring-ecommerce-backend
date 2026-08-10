@@ -128,7 +128,7 @@ class WalletControllerTest {
 
         mockMvc.perform(patch("/wallet/wallet-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":false}")
+                        .content("{\"isActive\":false}")
                         .with(authentication(new UsernamePasswordAuthenticationToken(testUser, null, testUser.getAuthorities()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Wallet status updated successfully"));

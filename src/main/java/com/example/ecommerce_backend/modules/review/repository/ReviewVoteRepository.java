@@ -10,4 +10,6 @@ public interface ReviewVoteRepository extends JpaRepository<ReviewVote, Long> {
     Optional<ReviewVote> findByReviewIdAndUserId(Long reviewId, Long userId);
 
     long countByReviewIdAndVoteType(Long reviewId, String voteType);
+
+    long countByUserId(Long userId);
 }

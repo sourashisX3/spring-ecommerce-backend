@@ -55,7 +55,7 @@ class RefundStatusControllerTest {
 
         mockMvc.perform(patch("/refund-statuses/status-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":false}"))
+                        .content("{\"isActive\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Refund status updated successfully"));
     }
@@ -66,7 +66,7 @@ class RefundStatusControllerTest {
 
         mockMvc.perform(patch("/refund-statuses/status-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":true}"))
+                        .content("{\"isActive\":true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Refund status is already active"));
     }

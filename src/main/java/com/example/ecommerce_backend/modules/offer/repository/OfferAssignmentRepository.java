@@ -15,6 +15,8 @@ public interface OfferAssignmentRepository extends JpaRepository<OfferAssignment
 
     List<OfferAssignment> findByUserId(Long userId);
 
+    void deleteByUserId(Long userId);
+
     long countByOfferId(Long offerId);
 
     List<OfferAssignment> findByUserIdAndOfferIsActiveTrueAndOfferValidFromLessThanEqualAndOfferValidUntilGreaterThanEqual(

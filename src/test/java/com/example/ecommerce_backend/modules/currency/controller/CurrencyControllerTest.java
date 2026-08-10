@@ -55,7 +55,7 @@ class CurrencyControllerTest {
 
         mockMvc.perform(patch("/currencies/currency-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":false}"))
+                        .content("{\"isActive\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Currency status updated successfully"));
     }
@@ -66,7 +66,7 @@ class CurrencyControllerTest {
 
         mockMvc.perform(patch("/currencies/currency-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":true}"))
+                        .content("{\"isActive\":true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Currency is already active"));
     }

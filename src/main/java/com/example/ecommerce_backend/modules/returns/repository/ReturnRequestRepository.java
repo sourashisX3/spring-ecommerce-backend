@@ -16,4 +16,6 @@ public interface ReturnRequestRepository extends JpaRepository<ReturnRequest, Lo
 
     List<ReturnRequest> findByOrderId(Long orderId);
     List<ReturnRequest> findByStatus_Code(String statusCode);
+
+    long countByUserId(Long userId);
 }

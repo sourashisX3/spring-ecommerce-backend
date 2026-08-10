@@ -1,9 +1,11 @@
 package com.example.ecommerce_backend.modules.otp.service;
 
+import com.example.ecommerce_backend.modules.otp.exception.OtpCooldownException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OtpServiceTest {
 
@@ -29,11 +31,11 @@ class OtpServiceTest {
     }
 
     @Test
-    void generateOtp_shouldOverwritePreviousOtp() {
+    void generateOtp_withinCooldown_shouldThrow() {
         otpService.generateOtp("john@test.com");
-        String newOtp = otpService.generateOtp("john@test.com");
 
-        assertThat(otpService.validateOtp("john@test.com", newOtp)).isTrue();
+        assertThatThrownBy(() -> otpService.generateOtp("john@test.com"))
+                .isInstanceOf(OtpCooldownException.class);
     }
 
     @Test

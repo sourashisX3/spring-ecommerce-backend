@@ -31,4 +31,6 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Object[]> getRatingDistributionByProductId(Long productId);
 
     List<Review> findTop5ByProductIdAndIsActiveTrueOrderByCreatedAtDesc(Long productId);
+
+    long countByUserId(Long userId);
 }

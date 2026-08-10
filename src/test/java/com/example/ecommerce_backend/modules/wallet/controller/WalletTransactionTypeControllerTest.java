@@ -55,7 +55,7 @@ class WalletTransactionTypeControllerTest {
 
         mockMvc.perform(patch("/wallet-transaction-types/type-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":false}"))
+                        .content("{\"isActive\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Wallet transaction type status updated successfully"));
     }
@@ -66,7 +66,7 @@ class WalletTransactionTypeControllerTest {
 
         mockMvc.perform(patch("/wallet-transaction-types/type-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":true}"))
+                        .content("{\"isActive\":true}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Wallet transaction type is already active"));
     }

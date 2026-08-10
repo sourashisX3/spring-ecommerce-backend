@@ -7,17 +7,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
-@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class RateLimitFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimitFilter.class);
@@ -48,6 +43,10 @@ public class RateLimitFilter extends OncePerRequestFilter {
             response.setStatus(429);
             response.setHeader("Retry-After", "60");
             response.setContentType("application/json");
+            if (request.getHeader("Origin") != null) {
+                response.setHeader("Access-Control-Allow-Origin", "*");
+                response.setHeader("Vary", "Origin");
+            }
             response.getWriter().write("{\"statusCode\":429,\"message\":\"Too many requests. Please try again later.\"}");
             return;
         }
@@ -61,6 +60,7 @@ public class RateLimitFilter extends OncePerRequestFilter {
         }
 
         if (path.contains("/auth/login")) return "auth_login";
+        if (path.contains("/auth/refresh")) return "auth_refresh";
         if (path.contains("/auth/register")) return "auth_register";
         if (path.contains("/auth/send-otp")) return "auth_send-otp";
         if (path.contains("/auth/")) return "auth_login";

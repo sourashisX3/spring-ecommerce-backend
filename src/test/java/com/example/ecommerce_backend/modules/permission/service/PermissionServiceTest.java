@@ -238,8 +238,8 @@ class PermissionServiceTest {
     @Test
     void deletePermission_shouldDeleteWhenNotInUse() {
         when(permissionsRepository.findById(1L)).thenReturn(Optional.of(productRead));
-        when(rolesRepository.findAll()).thenReturn(List.of());
-        when(userPermissionRepository.findAll()).thenReturn(List.of());
+        when(rolesRepository.countByPermissionId(1L)).thenReturn(0L);
+        when(userPermissionRepository.countByPermissionId(1L)).thenReturn(0L);
 
         permissionService.deletePermission(1L);
 
@@ -256,10 +256,8 @@ class PermissionServiceTest {
 
     @Test
     void deletePermission_whenAssignedToRole_shouldThrow() {
-        Role roleWithPerm = Role.builder().id(1L).permissions(Set.of(productRead)).build();
-
         when(permissionsRepository.findById(1L)).thenReturn(Optional.of(productRead));
-        when(rolesRepository.findAll()).thenReturn(List.of(roleWithPerm));
+        when(rolesRepository.countByPermissionId(1L)).thenReturn(1L);
 
         assertThatThrownBy(() -> permissionService.deletePermission(1L))
                 .isInstanceOf(PermissionInUseException.class);
@@ -267,12 +265,9 @@ class PermissionServiceTest {
 
     @Test
     void deletePermission_whenAssignedToUser_shouldThrow() {
-        UserPermission up = UserPermission.builder()
-                .permission(productRead).build();
-
         when(permissionsRepository.findById(1L)).thenReturn(Optional.of(productRead));
-        when(rolesRepository.findAll()).thenReturn(List.of());
-        when(userPermissionRepository.findAll()).thenReturn(List.of(up));
+        when(rolesRepository.countByPermissionId(1L)).thenReturn(0L);
+        when(userPermissionRepository.countByPermissionId(1L)).thenReturn(1L);
 
         assertThatThrownBy(() -> permissionService.deletePermission(1L))
                 .isInstanceOf(PermissionInUseException.class);

@@ -14,4 +14,6 @@ public interface OfferUsageRepository extends JpaRepository<OfferUsage, Long> {
     long countByOfferId(Long offerId);
 
     long countByUserIdAndOfferId(Long userId, Long offerId);
+
+    void deleteByUserId(Long userId);
 }

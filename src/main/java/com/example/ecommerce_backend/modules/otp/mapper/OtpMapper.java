@@ -12,4 +12,11 @@ public class OtpMapper {
                 .message(message)
                 .build();
     }
+
+    public static OtpResponse toOtpResponse(String message, String otp) {
+        return OtpResponse.builder()
+                .message(message)
+                .otp(otp)
+                .build();
+    }
 }

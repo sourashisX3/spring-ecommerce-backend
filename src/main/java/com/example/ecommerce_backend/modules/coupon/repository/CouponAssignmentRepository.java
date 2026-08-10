@@ -15,6 +15,8 @@ public interface CouponAssignmentRepository extends JpaRepository<CouponAssignme
 
     List<CouponAssignment> findByUserId(Long userId);
 
+    void deleteByUserId(Long userId);
+
     List<CouponAssignment> findByUserIdAndCouponIsActiveTrueAndCouponValidFromLessThanEqualAndCouponValidUntilGreaterThanEqual(
             Long userId, Instant validFrom, Instant validUntil);
 }

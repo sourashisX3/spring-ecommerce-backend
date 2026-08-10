@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,14 +23,17 @@ public class OtpController {
     @Autowired
     private OtpService otpService;
 
+    @Value("${otp.expose-in-response:false}")
+    private boolean exposeOtpInResponse;
+
     @PostMapping("/send")
     @Operation(summary = "Send OTP", description = "Send an OTP to the specified email or phone number")
     public ResponseEntity<ApiResponse<OtpResponse>> sendOtp(@Valid @RequestBody SendOtpRequest request) {
-        otpService.generateOtp(request.getEmailOrPhone());
-        return ApiResponse.success(
-                OtpMapper.toOtpResponse("OTP sent successfully"),
-                "OTP sent successfully"
-        );
+        String otp = otpService.generateOtp(request.getEmailOrPhone());
+        OtpResponse response = exposeOtpInResponse
+                ? OtpMapper.toOtpResponse("OTP sent successfully", otp)
+                : OtpMapper.toOtpResponse("OTP sent successfully");
+        return ApiResponse.success(response, "OTP sent successfully");
     }
 
     @PostMapping("/verify")
@@ -37,7 +41,6 @@ public class OtpController {
     public ResponseEntity<ApiResponse<OtpResponse>> verifyOtp(@Valid @RequestBody VerifyOtpRequest request) {
         boolean valid = otpService.validateOtp(request.getEmailOrPhone(), request.getOtp());
         if (valid) {
-            otpService.invalidateOtp(request.getEmailOrPhone());
             return ApiResponse.success(
                     OtpMapper.toOtpResponse("OTP verified successfully"),
                     "OTP verified successfully"

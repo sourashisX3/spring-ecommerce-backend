@@ -15,4 +15,7 @@ public class OtpResponse {
 
     @Schema(description = "Response message", example = "OTP sent successfully")
     private String message;
+
+    @Schema(description = "OTP code, only present when otp.expose-in-response is enabled (development/testing)", example = "123456")
+    private String otp;
 }

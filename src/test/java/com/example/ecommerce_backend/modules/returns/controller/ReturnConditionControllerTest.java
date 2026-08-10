@@ -131,7 +131,7 @@ class ReturnConditionControllerTest {
 
         mockMvc.perform(patch("/return-conditions/condition-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":false}"))
+                        .content("{\"isActive\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Return condition status updated successfully"));
     }

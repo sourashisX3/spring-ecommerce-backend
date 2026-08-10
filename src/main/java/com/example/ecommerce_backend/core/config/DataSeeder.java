@@ -253,8 +253,7 @@ public class DataSeeder implements ApplicationRunner {
         Permission allPermission = perm("*:*");
         ensureRoleHasPermissions("SUPER_ADMIN", "Super admin with full access", Set.of(allPermission));
 
-        Permission userRead = perm("user:read");
-        ensureRoleHasPermissions("USER", "Default user role", Set.of(userRead));
+        ensureRoleHasPermissions("USER", "Default user role", Set.of());
 
         Set<Permission> adminPermissions = Set.of(
                 perm("product:read"), perm("product:write"),

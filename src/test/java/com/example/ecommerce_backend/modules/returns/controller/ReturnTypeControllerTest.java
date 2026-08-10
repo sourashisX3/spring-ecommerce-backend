@@ -131,7 +131,7 @@ class ReturnTypeControllerTest {
 
         mockMvc.perform(patch("/return-types/type-uuid/status")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"active\":false}"))
+                        .content("{\"isActive\":false}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Return type status updated successfully"));
     }

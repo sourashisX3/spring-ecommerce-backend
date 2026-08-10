@@ -76,7 +76,7 @@ class ReviewServiceTest {
     @Test
     void getReviews_shouldReturnList() {
         when(productRepository.findByUuid("product-uuid")).thenReturn(Optional.of(product));
-        when(reviewRepository.findByProductId(1L)).thenReturn(List.of(review));
+        when(reviewRepository.findByProductIdAndIsActiveTrue(1L)).thenReturn(List.of(review));
         when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "like")).thenReturn(3L);
         when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "dislike")).thenReturn(1L);
         when(reviewVoteRepository.findByReviewIdAndUserId(1L, 1L)).thenReturn(Optional.empty());
@@ -91,13 +91,8 @@ class ReviewServiceTest {
 
     @Test
     void getReviews_shouldFilterInactiveReviews() {
-        Review inactiveReview = Review.builder()
-                .id(2L).uuid("inactive-review-uuid").product(product).user(user)
-                .rating(3).title("Old").comment("Meh")
-                .isActive(false).isVerifiedPurchase(false)
-                .build();
         when(productRepository.findByUuid("product-uuid")).thenReturn(Optional.of(product));
-        when(reviewRepository.findByProductId(1L)).thenReturn(List.of(review, inactiveReview));
+        when(reviewRepository.findByProductIdAndIsActiveTrue(1L)).thenReturn(List.of(review));
         when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "like")).thenReturn(0L);
         when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "dislike")).thenReturn(0L);
         when(reviewVoteRepository.findByReviewIdAndUserId(1L, 1L)).thenReturn(Optional.empty());
@@ -121,7 +116,7 @@ class ReviewServiceTest {
     @Test
     void getReviews_withPageable_shouldReturnPage() {
         when(productRepository.findByUuid("product-uuid")).thenReturn(Optional.of(product));
-        when(reviewRepository.findByProductId(eq(1L), any(PageRequest.class)))
+        when(reviewRepository.findByProductIdAndIsActiveTrue(eq(1L), any(PageRequest.class)))
                 .thenReturn(new PageImpl<>(List.of(review)));
         when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "like")).thenReturn(3L);
         when(reviewVoteRepository.countByReviewIdAndVoteType(1L, "dislike")).thenReturn(1L);

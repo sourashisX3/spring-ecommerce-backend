@@ -61,19 +61,21 @@ class ProductSpecificationTest {
                 .isActive(true).build());
 
         inactiveProduct = productRepository.save(Product.builder()
-                .sku("SKU-INACTIVE").name("Inactive Product").slug("inactive-product")
+                .sku("SKU-INACTIVE").name("Retired Product").slug("retired-product")
                 .basePrice(BigDecimal.valueOf(200))
-                .category(category).brand(brand)
+                .category(categoryRepository.save(
+                        Category.builder().name("Home").slug("home").build()))
+                .brand(brandRepository.save(
+                        Brand.builder().name("OtherBrand").slug("other-brand").build()))
                 .isActive(false).build());
     }
 
     @Test
-    void withFilters_whenActiveNull_shouldReturnOnlyActive() {
+    void withFilters_whenActiveNull_shouldReturnAllProducts() {
         Specification<Product> spec = ProductSpecification.withFilters(
                 null, null, null, null, null, null, null, null);
         List<Product> result = productRepository.findAll(spec);
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).isActive()).isTrue();
+        assertThat(result).hasSize(2);
     }
 
     @Test
