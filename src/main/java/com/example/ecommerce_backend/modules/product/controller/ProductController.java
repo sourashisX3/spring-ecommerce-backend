@@ -33,9 +33,9 @@ public class ProductController {
     @GetMapping
     @Operation(summary = "Get all products", description = "Retrieves products with optional filtering, sorting and pagination")
     public ResponseEntity<ApiResponse<List<ProductResponse>>> getAllProducts(
-            @RequestParam(required = false) String categorySlug,
-            @RequestParam(required = false) String brandSlug,
-            @RequestParam(required = false) String tagSlug,
+            @RequestParam(required = false) List<String> categorySlugs,
+            @RequestParam(required = false) List<String> brandSlugs,
+            @RequestParam(required = false) List<String> tagSlugs,
             @RequestParam(required = false) String search,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
@@ -65,7 +65,7 @@ public class ProductController {
         if (page != null && size != null) {
             Pageable pageable = PageRequest.of(page, size, sort);
             Page<ProductResponse> products = productService.getAllProducts(
-                    categorySlug, brandSlug, tagSlug, search,
+                    categorySlugs, brandSlugs, tagSlugs, search,
                     minPrice, maxPrice, isFeatured, active,
                     filters, pageable
             );
@@ -76,7 +76,7 @@ public class ProductController {
             );
         } else {
             List<ProductResponse> products = productService.getAllProducts(
-                    categorySlug, brandSlug, tagSlug, search,
+                    categorySlugs, brandSlugs, tagSlugs, search,
                     minPrice, maxPrice, isFeatured, active,
                     filters, sort
             );

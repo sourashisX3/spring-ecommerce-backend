@@ -67,9 +67,9 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public Page<ProductResponse> getAllProducts(
-            String categorySlug,
-            String brandSlug,
-            String tagSlug,
+            List<String> categorySlugs,
+            List<String> brandSlugs,
+            List<String> tagSlugs,
             String search,
             BigDecimal minPrice,
             BigDecimal maxPrice,
@@ -78,13 +78,10 @@ public class ProductService {
             Map<String, String> attributeFilters,
             Pageable pageable
     ) {
-        Set<Long> categoryIds = null;
-        if (categorySlug != null && !categorySlug.isBlank()) {
-            categoryIds = categoryService.getDescendantCategoryIds(categorySlug);
-        }
+        Set<Long> categoryIds = resolveCategoryIds(categorySlugs);
 
         Specification<Product> spec = ProductSpecification.withFilters(
-                categoryIds, brandSlug, tagSlug, search, minPrice, maxPrice, isFeatured, active
+                categoryIds, brandSlugs, tagSlugs, search, minPrice, maxPrice, isFeatured, active
         );
 
         Page<Product> products = productRepository.findAll(spec, pageable);
@@ -114,9 +111,9 @@ public class ProductService {
 
     @Transactional(readOnly = true)
     public List<ProductResponse> getAllProducts(
-            String categorySlug,
-            String brandSlug,
-            String tagSlug,
+            List<String> categorySlugs,
+            List<String> brandSlugs,
+            List<String> tagSlugs,
             String search,
             BigDecimal minPrice,
             BigDecimal maxPrice,
@@ -125,13 +122,10 @@ public class ProductService {
             Map<String, String> attributeFilters,
             Sort sort
     ) {
-        Set<Long> categoryIds = null;
-        if (categorySlug != null && !categorySlug.isBlank()) {
-            categoryIds = categoryService.getDescendantCategoryIds(categorySlug);
-        }
+        Set<Long> categoryIds = resolveCategoryIds(categorySlugs);
 
         Specification<Product> spec = ProductSpecification.withFilters(
-                categoryIds, brandSlug, tagSlug, search, minPrice, maxPrice, isFeatured, active
+                categoryIds, brandSlugs, tagSlugs, search, minPrice, maxPrice, isFeatured, active
         );
 
         List<Product> products = productRepository.findAll(spec, sort);
@@ -155,6 +149,19 @@ public class ProductService {
         });
 
         return responseList;
+    }
+
+    private Set<Long> resolveCategoryIds(List<String> categorySlugs) {
+        if (categorySlugs == null || categorySlugs.isEmpty()) {
+            return null;
+        }
+        Set<Long> ids = new HashSet<>();
+        for (String slug : categorySlugs) {
+            if (slug != null && !slug.isBlank()) {
+                ids.addAll(categoryService.getDescendantCategoryIds(slug));
+            }
+        }
+        return ids;
     }
 
     @Transactional(readOnly = true)

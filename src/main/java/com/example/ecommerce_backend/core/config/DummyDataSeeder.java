@@ -184,7 +184,9 @@ public class DummyDataSeeder implements ApplicationRunner {
         ensureSeedUserPasswords();
 
         if (userRepository.findByEmail("superadmin@example.com").isPresent()) {
-            log.info("Dummy data already exists, skipping seeding");
+            log.info("Dummy data already exists, refreshing catalog");
+            upgradeLegacyProductImages();
+            seedBulkCatalog();
             return;
         }
 
@@ -196,6 +198,8 @@ public class DummyDataSeeder implements ApplicationRunner {
         seedBrands();
         seedTags();
         seedProducts();
+        upgradeLegacyProductImages();
+        seedBulkCatalog();
         seedCoupons();
         seedDiscounts();
         seedOffers();
@@ -555,6 +559,124 @@ public class DummyDataSeeder implements ApplicationRunner {
                 .orElseThrow(() -> new RuntimeException("Tag " + slug + " not found"));
     }
 
+    private void upgradeLegacyProductImages() {
+        String[] slugs = {
+                "iphone-16-pro-max",
+                "samsung-galaxy-s25-ultra",
+                "macbook-air-m4",
+                "dell-xps-16",
+                "sony-wh-1000xm6",
+                "nike-air-max-270",
+                "adidas-ultraboost-25",
+                "lg-oled-evo-c5-65",
+        };
+        for (String slug : slugs) {
+            productRepository.findBySlug(slug).ifPresent(product -> {
+                List<ProductImage> images = productImageRepository.findByProductId(product.getId());
+                images.sort(Comparator.comparingInt(ProductImage::getSortOrder));
+                for (int i = 0; i < images.size(); i++) {
+                    if (images.get(i).getImageUrl().contains("placehold.co")) {
+                        images.get(i).setImageUrl(
+                                "http://localhost:8083/api/v1/images/products/" + slug + "-" + (i + 1) + ".svg");
+                        productImageRepository.save(images.get(i));
+                    }
+                }
+            });
+        }
+    }
+
+    private void seedBulkCatalog() {
+        if (productRepository.findBySlug("apple-airpods-pro-3").isPresent()) {
+            return;
+        }
+        log.info("Seeding bulk catalog ({} products)", BULK_PRODUCTS.size());
+
+        Tag bestSeller = getTag("best-seller");
+        Tag sale = getTag("sale");
+        Tag featured = getTag("featured");
+        Tag trending = getTag("trending");
+
+        for (int i = 0; i < BULK_PRODUCTS.size(); i++) {
+            BulkProduct b = BULK_PRODUCTS.get(i);
+            Product product = productRepository.save(Product.builder()
+                    .sku(b.sku())
+                    .name(b.name())
+                    .slug(b.slug())
+                    .description("Premium " + b.name() + " crafted for everyday use. Durable build, tested quality, ready to ship.")
+                    .shortDescription("Popular " + b.name() + " selection")
+                    .basePrice(BigDecimal.valueOf(b.price()))
+                    .category(getCategory(b.category()))
+                    .brand(getBrand(b.brand()))
+                    .tags(i % 3 == 0 ? Set.of(bestSeller, trending) : i % 4 == 0 ? Set.of(featured, sale) : Set.of(sale))
+                    .isActive(b.active())
+                    .isFeatured(i % 5 == 0)
+                    .attributes(Map.of("color", b.color(), "model", b.name()))
+                    .build());
+
+            productVariantRepository.save(ProductVariant.builder()
+                    .sku(b.sku() + "-STD")
+                    .name(b.name() + " (Standard)")
+                    .price(BigDecimal.valueOf(b.price()))
+                    .stock(b.stock())
+                    .product(product)
+                    .isActive(b.active())
+                    .isDefault(true)
+                    .sortOrder(0)
+                    .attributes(Map.of("configuration", "Standard"))
+                    .build());
+
+            seedProductImages(product, b.slug(), List.of(
+                    "http://localhost:8083/api/v1/images/products/" + b.slug() + "-1.svg",
+                    "http://localhost:8083/api/v1/images/products/" + b.slug() + "-2.svg"));
+        }
+    }
+
+    private record BulkProduct(String slug, String name, String sku, double price,
+                               String category, String brand, String color, int stock, boolean active) {
+    }
+
+    private static final List<BulkProduct> BULK_PRODUCTS = List.of(
+            new BulkProduct("apple-airpods-pro-3", "Apple AirPods Pro 3", "APL-APP3-001", 249.99, "headphones", "apple", "White", 32, true),
+            new BulkProduct("samsung-galaxy-buds3-pro", "Samsung Galaxy Buds3 Pro", "SAM-GB3P-001", 229.99, "headphones", "samsung", "Silver", 28, true),
+            new BulkProduct("sony-wf-1000xm7", "Sony WF-1000XM7", "SONY-WF10-001", 299.99, "headphones", "sony", "Black", 22, true),
+            new BulkProduct("sony-wh-ch720n", "Sony WH-CH720N", "SONY-CH720-001", 149.99, "headphones", "sony", "Black", 18, true),
+            new BulkProduct("sony-ult-earbuds", "Sony ULT Earbuds", "SONY-ULT-001", 199.99, "headphones", "sony", "Blue", 15, false),
+            new BulkProduct("apple-iphone-16", "Apple iPhone 16", "APL-IP16-001", 799.99, "mobile-phones", "apple", "Black", 26, true),
+            new BulkProduct("apple-iphone-16-pro", "Apple iPhone 16 Pro", "APL-IP16P-001", 999.99, "mobile-phones", "apple", "Desert Titanium", 20, true),
+            new BulkProduct("samsung-galaxy-s25", "Samsung Galaxy S25", "SAM-GS25-001", 799.99, "mobile-phones", "samsung", "Icy Blue", 24, true),
+            new BulkProduct("samsung-galaxy-z-flip-7", "Samsung Galaxy Z Flip 7", "SAM-ZFL7-001", 1099.99, "mobile-phones", "samsung", "Silver Shadow", 12, false),
+            new BulkProduct("apple-macbook-pro-16-m4", "Apple MacBook Pro 16\" M4", "APL-MBP16-001", 2499.99, "laptops", "apple", "Space Black", 9, true),
+            new BulkProduct("apple-macbook-air-15-m4", "Apple MacBook Air 15\" M4", "APL-MBA15-001", 1299.99, "laptops", "apple", "Starlight", 14, true),
+            new BulkProduct("dell-xps-13", "Dell XPS 13", "DELL-XPS13-001", 1099.99, "laptops", "dell", "Platinum", 16, true),
+            new BulkProduct("dell-inspiron-15", "Dell Inspiron 15", "DELL-INSP15-001", 699.99, "laptops", "dell", "Silver", 21, true),
+            new BulkProduct("dell-alienware-m16", "Dell Alienware M16", "DELL-AW16-001", 1999.99, "laptops", "dell", "Legendary White", 8, false),
+            new BulkProduct("lg-gram-17", "LG Gram 17", "LG-GRAM17-001", 1499.99, "laptops", "lg", "Black", 10, true),
+            new BulkProduct("lg-55-oled-evo-c5", "LG 55\" OLED evo C5", "LG-OLED55-001", 1399.99, "electronics", "lg", "Black", 12, true),
+            new BulkProduct("lg-cinebeam-q", "LG CineBeam Q Projector", "LG-CBQ-001", 799.99, "electronics", "lg", "White", 6, true),
+            new BulkProduct("samsung-75-neo-qled", "Samsung 75\" Neo QLED", "SAM-75NQL-001", 1999.99, "electronics", "samsung", "Black", 7, true),
+            new BulkProduct("samsung-32-m8-monitor", "Samsung Smart Monitor M8", "SAM-M8-001", 599.99, "electronics", "samsung", "Spring Green", 13, false),
+            new BulkProduct("lg-soundbar-s90tr", "LG Soundbar S90TR", "LG-SB90-001", 499.99, "electronics", "lg", "Black", 11, true),
+            new BulkProduct("lg-ultragear-27", "LG UltraGear 27\" 360Hz", "LG-UG27-001", 699.99, "electronics", "lg", "Black/Red", 9, true),
+            new BulkProduct("nike-dri-fit-tee", "Nike Dri-FIT Running Tee", "NKE-DFT-001", 34.99, "mens-clothing", "nike", "Black", 45, true),
+            new BulkProduct("nike-air-force-1", "Nike Air Force 1", "NKE-AF1-001", 109.99, "mens-clothing", "nike", "White", 30, true),
+            new BulkProduct("nike-dunk-low", "Nike Dunk Low", "NKE-DL-001", 109.99, "mens-clothing", "nike", "University Red", 27, true),
+            new BulkProduct("nike-pegasus-41", "Nike Pegasus 41", "NKE-PG41-001", 129.99, "mens-clothing", "nike", "Black/White", 25, true),
+            new BulkProduct("nike-react-infinity", "Nike React Infinity Run", "NKE-RIR-001", 159.99, "mens-clothing", "nike", "Multi", 19, false),
+            new BulkProduct("adidas-stan-smith", "Adidas Stan Smith", "ADI-SS-001", 99.99, "mens-clothing", "adidas", "White/Green", 34, true),
+            new BulkProduct("adidas-samba-og", "Adidas Samba OG", "ADI-SAM-001", 99.99, "mens-clothing", "adidas", "Black/White", 31, true),
+            new BulkProduct("adidas-nmd-r1", "Adidas NMD R1", "ADI-NMD-001", 139.99, "mens-clothing", "adidas", "Grey", 23, true),
+            new BulkProduct("adidas-tiro-24-jacket", "Adidas Tiro 24 Track Jacket", "ADI-T24-001", 64.99, "mens-clothing", "adidas", "Navy", 38, true),
+            new BulkProduct("nike-waffle-one", "Nike Waffle One", "NKE-WO-001", 99.99, "womens-clothing", "nike", "Sesame", 29, true),
+            new BulkProduct("nike-pro-sports-bra", "Nike Pro Sports Bra", "NKE-PSB-001", 49.99, "womens-clothing", "nike", "White", 42, true),
+            new BulkProduct("nike-windrunner-jacket", "Nike Windrunner Jacket", "NKE-WRJ-001", 89.99, "womens-clothing", "nike", "Black", 24, true),
+            new BulkProduct("adidas-superstar", "Adidas Superstar", "ADI-SS-002", 99.99, "womens-clothing", "adidas", "White/Black", 33, true),
+            new BulkProduct("adidas-essentials-tee", "Adidas Essentials 3-Stripes Tee", "ADI-EST-001", 29.99, "womens-clothing", "adidas", "Pink", 48, true),
+            new BulkProduct("adidas-forum-low", "Adidas Forum Low", "ADI-FL-001", 109.99, "womens-clothing", "adidas", "Cloud White", 26, true),
+            new BulkProduct("adidas-ultraboost-light", "Adidas Ultraboost Light", "ADI-UBL-001", 169.99, "womens-clothing", "adidas", "Core Black", 21, false),
+            new BulkProduct("lg-air-fryer-42", "LG Air Fryer 4.2L", "LG-AF42-001", 129.99, "home-kitchen", "lg", "Graphite", 17, true),
+            new BulkProduct("lg-cordzero-vacuum", "LG CordZero Stick Vacuum", "LG-CZV-001", 399.99, "home-kitchen", "lg", "Silver", 12, true),
+            new BulkProduct("lg-puricare-purifier", "LG PuriCare Air Purifier", "LG-PC-001", 249.99, "home-kitchen", "lg", "White", 14, true));
+
     private void seedProducts() {
         Category mobilePhones = getCategory("mobile-phones");
         Category laptops = getCategory("laptops");
@@ -744,29 +866,29 @@ public class DummyDataSeeder implements ApplicationRunner {
                 List.of(10, 5));
 
         seedProductImages(iphone, "iPhone-16-Pro-Max", List.of(
-                "https://placehold.co/600x400?text=iPhone+16+Pro+Max+Front",
-                "https://placehold.co/600x400?text=iPhone+16+Pro+Max+Back"));
+                "http://localhost:8083/api/v1/images/products/iphone-16-pro-max-1.svg",
+                "http://localhost:8083/api/v1/images/products/iphone-16-pro-max-2.svg"));
         seedProductImages(galaxy, "Galaxy-S25-Ultra", List.of(
-                "https://placehold.co/600x400?text=Galaxy+S25+Ultra+Front",
-                "https://placehold.co/600x400?text=Galaxy+S25+Ultra+Back"));
+                "http://localhost:8083/api/v1/images/products/samsung-galaxy-s25-ultra-1.svg",
+                "http://localhost:8083/api/v1/images/products/samsung-galaxy-s25-ultra-2.svg"));
         seedProductImages(macbook, "MacBook-Air-M4", List.of(
-                "https://placehold.co/600x400?text=MacBook+Air+M4+Open",
-                "https://placehold.co/600x400?text=MacBook+Air+M4+Closed"));
+                "http://localhost:8083/api/v1/images/products/macbook-air-m4-1.svg",
+                "http://localhost:8083/api/v1/images/products/macbook-air-m4-2.svg"));
         seedProductImages(dellXps, "Dell-XPS-16", List.of(
-                "https://placehold.co/600x400?text=Dell+XPS+16+Front",
-                "https://placehold.co/600x400?text=Dell+XPS+16+Keyboard"));
+                "http://localhost:8083/api/v1/images/products/dell-xps-16-1.svg",
+                "http://localhost:8083/api/v1/images/products/dell-xps-16-2.svg"));
         seedProductImages(sonyHeadphones, "Sony-WH1000XM6", List.of(
-                "https://placehold.co/600x400?text=Sony+WH-1000XM6+Folded",
-                "https://placehold.co/600x400?text=Sony+WH-1000XM6+Earcup"));
+                "http://localhost:8083/api/v1/images/products/sony-wh-1000xm6-1.svg",
+                "http://localhost:8083/api/v1/images/products/sony-wh-1000xm6-2.svg"));
         seedProductImages(nikeShoes, "Nike-Air-Max-270", List.of(
-                "https://placehold.co/600x400?text=Nike+Air+Max+270+Side",
-                "https://placehold.co/600x400?text=Nike+Air+Max+270+Top"));
+                "http://localhost:8083/api/v1/images/products/nike-air-max-270-1.svg",
+                "http://localhost:8083/api/v1/images/products/nike-air-max-270-2.svg"));
         seedProductImages(adidasShoes, "Adidas-Ultraboost-25", List.of(
-                "https://placehold.co/600x400?text=Ultraboost+25+Side",
-                "https://placehold.co/600x400?text=Ultraboost+25+Back"));
+                "http://localhost:8083/api/v1/images/products/adidas-ultraboost-25-1.svg",
+                "http://localhost:8083/api/v1/images/products/adidas-ultraboost-25-2.svg"));
         seedProductImages(lgTV, "LG-OLED-C5", List.of(
-                "https://placehold.co/600x400?text=LG+OLED+65+Front",
-                "https://placehold.co/600x400?text=LG+OLED+65+Remote"));
+                "http://localhost:8083/api/v1/images/products/lg-oled-evo-c5-65-1.svg",
+                "http://localhost:8083/api/v1/images/products/lg-oled-evo-c5-65-2.svg"));
     }
 
     private void seedPhoneVariants(Product product, String skuPrefix, String baseName,

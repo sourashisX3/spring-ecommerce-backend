@@ -16,8 +16,8 @@ public class ProductSpecification {
 
     public static Specification<Product> withFilters(
             Set<Long> categoryIds,
-            String brandSlug,
-            String tagSlug,
+            List<String> brandSlugs,
+            List<String> tagSlugs,
             String search,
             BigDecimal minPrice,
             BigDecimal maxPrice,
@@ -34,14 +34,14 @@ public class ProductSpecification {
                 predicates.add(cb.disjunction());
             }
 
-            if (brandSlug != null && !brandSlug.isBlank()) {
+            if (brandSlugs != null && !brandSlugs.isEmpty()) {
                 Join<Object, Object> brandJoin = root.join("brand");
-                predicates.add(cb.equal(brandJoin.get("slug"), brandSlug));
+                predicates.add(brandJoin.get("slug").in(brandSlugs));
             }
 
-            if (tagSlug != null && !tagSlug.isBlank()) {
+            if (tagSlugs != null && !tagSlugs.isEmpty()) {
                 Join<Object, Object> tagJoin = root.join("tags");
-                predicates.add(cb.equal(tagJoin.get("slug"), tagSlug));
+                predicates.add(tagJoin.get("slug").in(tagSlugs));
             }
 
             if (search != null && !search.isBlank()) {
