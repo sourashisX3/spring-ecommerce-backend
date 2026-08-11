@@ -2,6 +2,8 @@ package com.example.ecommerce_backend.modules.user.service;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.service.RefreshTokenService;
+import com.example.ecommerce_backend.modules.file.dto.FileUploadResponse;
+import com.example.ecommerce_backend.modules.file.service.FileService;
 import com.example.ecommerce_backend.modules.otp.exception.InvalidOtpException;
 import com.example.ecommerce_backend.modules.otp.service.OtpService;
 import com.example.ecommerce_backend.modules.permission.service.PermissionService;
@@ -41,6 +43,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.util.Set;
@@ -110,6 +113,9 @@ public class UserService {
 
     @Autowired
     private OfferUsageRepository offerUsageRepository;
+
+    @Autowired
+    private FileService fileService;
 
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(String search, Boolean active, Pageable pageable) {
@@ -252,6 +258,15 @@ public class UserService {
             if (request.getZipCode() != null) address.setZipCode(request.getZipCode());
             user.setAddress(address);
         }
+        user = userRepository.save(user);
+        return UserMapper.toUserResponse(user);
+    }
+
+    @Transactional
+    public UserResponse updateProfilePicture(MultipartFile file) {
+        FileUploadResponse uploaded = fileService.upload(file);
+        User user = getCurrentUserEntity();
+        user.setProfilePictureUrl(uploaded.getUrl());
         user = userRepository.save(user);
         return UserMapper.toUserResponse(user);
     }

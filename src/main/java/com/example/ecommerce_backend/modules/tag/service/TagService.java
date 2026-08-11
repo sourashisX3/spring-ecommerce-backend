@@ -8,6 +8,8 @@ import com.example.ecommerce_backend.modules.tag.exception.TagNotFoundException;
 import com.example.ecommerce_backend.modules.tag.mapper.TagMapper;
 import com.example.ecommerce_backend.modules.tag.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,12 @@ public class TagService {
                 .filter(t -> active == null || t.isActive() == active)
                 .map(TagMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TagResponse> getAll(String search, Boolean active, Pageable pageable) {
+        return tagRepository.search(search, active, pageable)
+                .map(TagMapper::toResponse);
     }
 
     @Transactional

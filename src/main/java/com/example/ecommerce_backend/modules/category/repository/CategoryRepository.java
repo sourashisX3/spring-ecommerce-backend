@@ -1,6 +1,8 @@
 package com.example.ecommerce_backend.modules.category.repository;
 
 import com.example.ecommerce_backend.modules.category.entity.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +16,15 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @EntityGraph(attributePaths = {"parent"})
     List<Category> findAll();
+
+    @EntityGraph(attributePaths = {"parent"})
+    @Query("""
+            SELECT c FROM Category c
+            WHERE (:active IS NULL OR c.isActive = :active)
+              AND (:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(c.slug) LIKE LOWER(CONCAT('%', :search, '%')))
+            """)
+    Page<Category> search(@Param("search") String search, @Param("active") Boolean active, Pageable pageable);
 
     Optional<Category> findBySlug(String slug);
 

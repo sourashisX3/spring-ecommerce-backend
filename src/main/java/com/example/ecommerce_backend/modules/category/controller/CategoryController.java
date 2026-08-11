@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.category.controller;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.category.dto.request.CategoryRequest;
 import com.example.ecommerce_backend.modules.category.dto.response.CategoryResponse;
 import com.example.ecommerce_backend.modules.category.service.CategoryService;
@@ -10,6 +11,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +29,31 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    @Operation(summary = "Get all categories", description = "Retrieves a list of all categories, optionally filtered by active status")
+    @Operation(summary = "Get all categories", description = "Retrieves categories with optional search, active filter, sorting and pagination")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getAll(
-            @RequestParam(required = false) Boolean active
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDir,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
+        Sort sort = Sort.by(Sort.Direction.ASC, "sortOrder");
+        if (sortBy != null) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(sortDir)
+                    ? Sort.Direction.DESC : Sort.Direction.ASC;
+            sort = Sort.by(direction, sortBy);
+        }
+
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<CategoryResponse> categories = categoryService.getAll(search, active, pageable);
+            return ApiResponse.paginated(
+                    categories.getContent(),
+                    "Categories retrieved successfully",
+                    Pagination.of(categories)
+            );
+        }
         List<CategoryResponse> categories = categoryService.getAll(active);
         return ApiResponse.success(categories, "Categories retrieved successfully");
     }

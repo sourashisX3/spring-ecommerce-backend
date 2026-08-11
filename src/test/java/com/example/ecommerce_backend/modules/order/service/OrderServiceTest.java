@@ -284,7 +284,7 @@ class OrderServiceTest {
 
         when(orderRepository.findByUuid("order-uuid-1")).thenReturn(Optional.of(savedOrder));
 
-        OrderResponse result = orderService.getOrderByUuid("order-uuid-1", 1L);
+        OrderResponse result = orderService.getOrderByUuid("order-uuid-1", 1L, false);
 
         assertThat(result.getUuid()).isEqualTo("order-uuid-1");
     }
@@ -293,7 +293,7 @@ class OrderServiceTest {
     void getOrderByUuid_whenNotOwner_shouldThrow() {
         when(orderRepository.findByUuid("order-uuid-1")).thenReturn(Optional.of(order));
 
-        assertThatThrownBy(() -> orderService.getOrderByUuid("order-uuid-1", 99L))
+        assertThatThrownBy(() -> orderService.getOrderByUuid("order-uuid-1", 99L, false))
                 .isInstanceOf(OrderNotFoundException.class);
     }
 
@@ -301,7 +301,7 @@ class OrderServiceTest {
     void getOrderByUuid_whenNotFound_shouldThrow() {
         when(orderRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> orderService.getOrderByUuid("nonexistent", 1L))
+        assertThatThrownBy(() -> orderService.getOrderByUuid("nonexistent", 1L, false))
                 .isInstanceOf(OrderNotFoundException.class);
     }
 
@@ -383,11 +383,11 @@ class OrderServiceTest {
     void cancelOrder_shouldCancelSuccessfully() {
         when(orderRepository.findByUuid("order-uuid-1")).thenReturn(Optional.of(order));
         when(orderStatusRepository.findByCode("CANCELLED")).thenReturn(Optional.of(cancelledStatus));
-        when(orderStatusService.isValidTransition("PENDING", "CANCELLED", "USER")).thenReturn(true);
+        when(orderStatusService.isValidTransition("PENDING", "CANCELLED", "ADMIN")).thenReturn(true);
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
-        OrderResponse result = orderService.cancelOrder("order-uuid-1", 1L);
+        OrderResponse result = orderService.cancelOrder("order-uuid-1", 1L, false);
 
         assertThat(result).isNotNull();
         verify(eventPublisher).publishEvent(any(OrderStatusChangedEvent.class));
@@ -408,7 +408,7 @@ class OrderServiceTest {
 
         when(orderRepository.findByUuid("order-uuid-2")).thenReturn(Optional.of(shippedOrder));
 
-        assertThatThrownBy(() -> orderService.cancelOrder("order-uuid-2", 1L))
+        assertThatThrownBy(() -> orderService.cancelOrder("order-uuid-2", 1L, false))
                 .isInstanceOf(InvalidOrderStateException.class)
                 .hasMessageContaining("Only PENDING orders can be cancelled");
     }
@@ -417,7 +417,7 @@ class OrderServiceTest {
     void cancelOrder_whenNotOwner_shouldThrow() {
         when(orderRepository.findByUuid("order-uuid-1")).thenReturn(Optional.of(order));
 
-        assertThatThrownBy(() -> orderService.cancelOrder("order-uuid-1", 99L))
+        assertThatThrownBy(() -> orderService.cancelOrder("order-uuid-1", 99L, false))
                 .isInstanceOf(OrderNotFoundException.class);
     }
 
@@ -425,7 +425,7 @@ class OrderServiceTest {
     void cancelOrder_whenNotFound_shouldThrow() {
         when(orderRepository.findByUuid("nonexistent")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> orderService.cancelOrder("nonexistent", 1L))
+        assertThatThrownBy(() -> orderService.cancelOrder("nonexistent", 1L, false))
                 .isInstanceOf(OrderNotFoundException.class);
     }
 }

@@ -16,8 +16,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +65,15 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserResponse>> updateProfile(@Valid @RequestBody UpdateProfileRequest request) {
         UserResponse user = userService.updateProfile(request);
         return ApiResponse.success(user, "Profile updated successfully");
+    }
+
+    @PostMapping(value = "/me/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Update profile picture", description = "Uploads a new profile picture for the currently authenticated user")
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfilePicture(
+            @RequestPart("file") MultipartFile file
+    ) {
+        UserResponse user = userService.updateProfilePicture(file);
+        return ApiResponse.success(user, "Profile picture updated successfully");
     }
 
     @PutMapping("/me/password")

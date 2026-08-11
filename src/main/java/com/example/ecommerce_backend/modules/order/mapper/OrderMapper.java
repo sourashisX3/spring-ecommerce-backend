@@ -1,5 +1,6 @@
 package com.example.ecommerce_backend.modules.order.mapper;
 
+import com.example.ecommerce_backend.modules.order.dto.response.OrderCustomerResponse;
 import com.example.ecommerce_backend.modules.order.dto.response.OrderItemResponse;
 import com.example.ecommerce_backend.modules.order.dto.response.OrderResponse;
 import com.example.ecommerce_backend.modules.order.dto.response.OrderStatusHistoryResponse;
@@ -8,6 +9,7 @@ import com.example.ecommerce_backend.modules.order.entity.Order;
 import com.example.ecommerce_backend.modules.order.entity.OrderItem;
 import com.example.ecommerce_backend.modules.order.entity.OrderStatus;
 import com.example.ecommerce_backend.modules.order.entity.OrderStatusHistory;
+import com.example.ecommerce_backend.modules.user.entity.User;
 
 import java.util.stream.Collectors;
 
@@ -22,6 +24,7 @@ public class OrderMapper {
                 .uuid(order.getUuid())
                 .orderNumber(order.getOrderNumber())
                 .status(toStatusResponse(order.getStatus()))
+                .customer(toCustomerResponse(order.getUser()))
                 .subtotal(order.getSubtotal())
                 .discount(order.getDiscount())
                 .shippingCost(order.getShippingCost())
@@ -81,6 +84,19 @@ public class OrderMapper {
                 .isActive(s.isActive())
                 .createdAt(s.getCreatedAt())
                 .updatedAt(s.getUpdatedAt())
+                .build();
+    }
+
+    private static OrderCustomerResponse toCustomerResponse(User user) {
+        if (user == null) return null;
+        return OrderCustomerResponse.builder()
+                .id(user.getId())
+                .uuid(user.getUuid())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .dialCode(user.getDialCode())
+                .phoneNumber(user.getPhoneNumber())
                 .build();
     }
 }

@@ -2,6 +2,7 @@ package com.example.ecommerce_backend.modules.brand.controller;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
+import com.example.ecommerce_backend.core.dto.Pagination;
 import com.example.ecommerce_backend.modules.brand.dto.request.BrandRequest;
 import com.example.ecommerce_backend.modules.brand.dto.response.BrandResponse;
 import com.example.ecommerce_backend.modules.brand.service.BrandService;
@@ -10,6 +11,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +29,31 @@ public class BrandController {
     private BrandService brandService;
 
     @GetMapping
-    @Operation(summary = "Get all brands", description = "Retrieves a list of all brands, optionally filtered by active status")
+    @Operation(summary = "Get all brands", description = "Retrieves brands with optional search, active filter, sorting and pagination")
     public ResponseEntity<ApiResponse<List<BrandResponse>>> getAll(
-            @RequestParam(required = false) Boolean active
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDir,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+        if (sortBy != null) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(sortDir)
+                    ? Sort.Direction.DESC : Sort.Direction.ASC;
+            sort = Sort.by(direction, sortBy);
+        }
+
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<BrandResponse> brands = brandService.getAll(search, active, pageable);
+            return ApiResponse.paginated(
+                    brands.getContent(),
+                    "Brands retrieved successfully",
+                    Pagination.of(brands)
+            );
+        }
         List<BrandResponse> brands = brandService.getAll(active);
         return ApiResponse.success(brands, "Brands retrieved successfully");
     }

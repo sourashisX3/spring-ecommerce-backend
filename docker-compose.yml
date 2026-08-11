@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: liquefied-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-sourashis}
+    ports:
+      - "3307:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-sourashis}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build: .
+    container_name: liquefied-backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/ecommerce_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-sourashis}
+      UPLOAD_DIR: /app/uploads
+      PORT: 8083
+    ports:
+      - "8083:8083"
+    volumes:
+      - uploads:/app/uploads
+
+volumes:
+  db-data:
+  uploads:

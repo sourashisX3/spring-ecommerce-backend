@@ -14,6 +14,8 @@ import com.example.ecommerce_backend.modules.product.repository.ProductRepositor
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +43,16 @@ public class CategoryService {
                     return resp;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CategoryResponse> getAll(String search, Boolean active, Pageable pageable) {
+        return categoryRepository.search(search, active, pageable)
+                .map(c -> {
+                    CategoryResponse resp = CategoryMapper.toResponse(c);
+                    resp.setProductCount(productRepository.countByCategoryId(c.getId()));
+                    return resp;
+                });
     }
 
     @Transactional(readOnly = true)

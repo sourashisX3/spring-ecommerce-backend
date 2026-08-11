@@ -9,6 +9,8 @@ import com.example.ecommerce_backend.modules.brand.mapper.BrandMapper;
 import com.example.ecommerce_backend.modules.brand.repository.BrandRepository;
 import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,16 @@ public class BrandService {
                     return resp;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<BrandResponse> getAll(String search, Boolean active, Pageable pageable) {
+        return brandRepository.search(search, active, pageable)
+                .map(b -> {
+                    BrandResponse resp = BrandMapper.toResponse(b);
+                    resp.setProductCount(productRepository.countByBrandId(b.getId()));
+                    return resp;
+                });
     }
 
     @Transactional(readOnly = true)

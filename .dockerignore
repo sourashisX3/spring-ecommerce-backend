@@ -1,0 +1,8 @@
+target/
+.git/
+.idea/
+.github/
+.opencode/
+*.md
+module-info.class
+META-INF/

@@ -36,4 +36,19 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     @Query("SELECT o.status.name, COUNT(o) FROM Order o GROUP BY o.status.name")
     List<Object[]> countByStatusName();
+
+    @Query("""
+            SELECT o FROM Order o
+            LEFT JOIN o.user u
+            WHERE (:search IS NULL OR LOWER(o.orderNumber) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
+                   OR LOWER(u.phoneNumber) LIKE LOWER(CONCAT('%', :search, '%')))
+              AND (:status IS NULL OR o.status.code = :status)
+              AND (:from IS NULL OR o.createdAt >= :from)
+              AND (:to IS NULL OR o.createdAt <= :to)
+            """)
+    Page<Order> search(@Param("search") String search, @Param("status") String status,
+                       @Param("from") Instant from, @Param("to") Instant to, Pageable pageable);
 }

@@ -131,7 +131,7 @@ class OrderControllerTest {
 
     @Test
     void getOrderByUuid_shouldReturnOrder() throws Exception {
-        when(orderService.getOrderByUuid("order-uuid-1", 1L)).thenReturn(orderResponse);
+        when(orderService.getOrderByUuid("order-uuid-1", 1L, false)).thenReturn(orderResponse);
 
         mockMvc.perform(get("/orders/order-uuid-1")
                         .with(user(testUser)))
@@ -142,7 +142,7 @@ class OrderControllerTest {
 
     @Test
     void cancelOrder_shouldReturnCancelledOrder() throws Exception {
-        when(orderService.cancelOrder("order-uuid-1", 1L)).thenReturn(orderResponse);
+        when(orderService.cancelOrder("order-uuid-1", 1L, false)).thenReturn(orderResponse);
 
         mockMvc.perform(patch("/orders/order-uuid-1/cancel")
                         .with(user(testUser)))

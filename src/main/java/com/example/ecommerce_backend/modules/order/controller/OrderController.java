@@ -15,16 +15,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
 @Tag(name = "Order", description = "Order API")
 public class OrderController {
+
+    private static final String ADMIN = "ADMIN";
+    private static final String SUPER_ADMIN = "SUPER_ADMIN";
 
     @Autowired
     private OrderService orderService;
@@ -40,18 +45,37 @@ public class OrderController {
     }
 
     @GetMapping
-    @Operation(summary = "Get user orders", description = "Retrieve orders for the authenticated user")
-    public ResponseEntity<ApiResponse<List<OrderResponse>>> getUserOrders(
+    @Operation(summary = "Get orders", description = "Retrieve orders with optional search, status/date filters, sorting and pagination. Admins see all orders, regular users only their own.")
+    public ResponseEntity<ApiResponse<List<OrderResponse>>> getOrders(
             @AuthenticationPrincipal User user,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Instant from,
+            @RequestParam(required = false) Instant to,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDir,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        if (sortBy != null) {
+            Sort.Direction direction = "desc".equalsIgnoreCase(sortDir)
+                    ? Sort.Direction.DESC : Sort.Direction.ASC;
+            sort = Sort.by(direction, sortBy);
+        }
+
+        boolean adminView = isAdmin(user);
+
         if (page != null && size != null) {
-            Pageable pageable = PageRequest.of(page, size);
-            Page<OrderResponse> orders = orderService.getUserOrders(user.getId(), pageable);
+            Pageable pageable = PageRequest.of(page, size, sort);
+            Page<OrderResponse> orders = adminView
+                    ? orderService.getAllOrders(search, status, from, to, pageable)
+                    : orderService.getUserOrders(user.getId(), pageable);
             return ApiResponse.paginated(orders.getContent(), "Orders retrieved successfully", Pagination.of(orders));
         }
-        List<OrderResponse> orders = orderService.getUserOrders(user.getId());
+        List<OrderResponse> orders = adminView
+                ? orderService.getAllOrders(search, status, from, to, sort)
+                : orderService.getUserOrders(user.getId());
         return ApiResponse.success(orders, "Orders retrieved successfully");
     }
 
@@ -61,7 +85,7 @@ public class OrderController {
             @PathVariable String uuid,
             @AuthenticationPrincipal User user
     ) {
-        OrderResponse order = orderService.getOrderByUuid(uuid, user.getId());
+        OrderResponse order = orderService.getOrderByUuid(uuid, user.getId(), isAdmin(user));
         return ApiResponse.success(order, "Order retrieved successfully");
     }
 
@@ -71,7 +95,7 @@ public class OrderController {
             @PathVariable String uuid,
             @AuthenticationPrincipal User user
     ) {
-        OrderResponse order = orderService.cancelOrder(uuid, user.getId());
+        OrderResponse order = orderService.cancelOrder(uuid, user.getId(), isAdmin(user));
         return ApiResponse.success(order, "Order cancelled successfully");
     }
 
@@ -84,5 +108,11 @@ public class OrderController {
     ) {
         OrderResponse order = orderService.updateOrderStatus(uuid, request.getStatus(), request.getReason());
         return ApiResponse.success(order, "Order status updated successfully");
+    }
+
+    private boolean isAdmin(User user) {
+        return user != null && user.getRole() != null
+                && (ADMIN.equals(user.getRole().getRoleName())
+                    || SUPER_ADMIN.equals(user.getRole().getRoleName()));
     }
 }

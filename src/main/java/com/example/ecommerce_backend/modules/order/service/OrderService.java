@@ -31,7 +31,9 @@ import com.example.ecommerce_backend.core.event.OrderStatusChangedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -177,10 +179,10 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
-    public OrderResponse getOrderByUuid(String uuid, Long userId) {
+    public OrderResponse getOrderByUuid(String uuid, Long userId, boolean adminView) {
         Order order = orderRepository.findByUuid(uuid)
                 .orElseThrow(() -> new OrderNotFoundException(uuid));
-        if (!order.getUser().getId().equals(userId)) {
+        if (!adminView && !order.getUser().getId().equals(userId)) {
             throw new OrderNotFoundException(uuid);
         }
         return OrderMapper.toResponse(order);
@@ -194,6 +196,19 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<OrderResponse> getUserOrders(Long userId, Pageable pageable) {
         return orderRepository.findByUserId(userId, pageable)
+                .map(OrderMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getAllOrders(String search, String status, Instant from, Instant to, Sort sort) {
+        return orderRepository.search(search, status, from, to, PageRequest.of(0, 1000, sort))
+                .map(OrderMapper::toResponse)
+                .getContent();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getAllOrders(String search, String status, Instant from, Instant to, Pageable pageable) {
+        return orderRepository.search(search, status, from, to, pageable)
                 .map(OrderMapper::toResponse);
     }
 
@@ -230,11 +245,11 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse cancelOrder(String uuid, Long userId) {
+    public OrderResponse cancelOrder(String uuid, Long userId, boolean adminView) {
         Order order = orderRepository.findByUuid(uuid)
                 .orElseThrow(() -> new OrderNotFoundException(uuid));
 
-        if (!order.getUser().getId().equals(userId)) {
+        if (!adminView && !order.getUser().getId().equals(userId)) {
             throw new OrderNotFoundException(uuid);
         }
 
@@ -246,7 +261,7 @@ public class OrderService {
         OrderStatus cancelledStatus = orderStatusRepository.findByCode("CANCELLED")
                 .orElseThrow(() -> new InvalidOrderStateException("CANCELLED status not configured"));
 
-        if (!orderStatusService.isValidTransition("PENDING", "CANCELLED", "USER")) {
+        if (!orderStatusService.isValidTransition("PENDING", "CANCELLED", "ADMIN")) {
             throw new InvalidOrderStateException("Invalid status transition from PENDING to CANCELLED");
         }
 
@@ -260,13 +275,13 @@ public class OrderService {
                 .order(order)
                 .fromStatus(currentStatus)
                 .toStatus(cancelledStatus)
-                .changedBy(user.getEmail())
-                .reason("Cancelled by user")
+                .changedBy(adminView ? "admin" : user.getEmail())
+                .reason(adminView ? "Cancelled by admin" : "Cancelled by user")
                 .build();
 
         order.getStatusHistory().add(history);
         order = orderRepository.save(order);
-        eventPublisher.publishEvent(new OrderStatusChangedEvent(this, userId, order.getUuid(), "CANCELLED"));
+        eventPublisher.publishEvent(new OrderStatusChangedEvent(this, order.getUser().getId(), order.getUuid(), "CANCELLED"));
         return OrderMapper.toResponse(order);
     }
 }

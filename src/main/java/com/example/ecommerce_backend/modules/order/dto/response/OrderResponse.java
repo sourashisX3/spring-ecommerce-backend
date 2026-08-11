@@ -25,6 +25,8 @@ public class OrderResponse {
     private String orderNumber;
     @Schema(description = "Order status details")
     private OrderStatusResponse status;
+    @Schema(description = "Customer summary")
+    private OrderCustomerResponse customer;
     @Schema(description = "Subtotal amount", example = "199.99")
     private BigDecimal subtotal;
     @Schema(description = "Discount amount", example = "20.00")
