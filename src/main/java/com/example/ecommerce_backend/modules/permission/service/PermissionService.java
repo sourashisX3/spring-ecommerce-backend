@@ -41,9 +41,31 @@ public class PermissionService {
         Set<String> permissions = new HashSet<>();
 
         if (user.getRole() != null) {
-            permissions.addAll(user.getRole().getPermissions().stream()
-                    .map(Permission::getPermissionName)
-                    .collect(Collectors.toSet()));
+            for (Permission p : user.getRole().getPermissions()) {
+                String permName = p.getPermissionName();
+                if (permName.equals("*:*")) {
+                    // Expand wildcard to all known permissions
+                    permissions.addAll(permissionsRepository.findAll().stream()
+                            .map(Permission::getPermissionName)
+                            .collect(Collectors.toSet()));
+                } else if (permName.endsWith(":*")) {
+                    // Expand resource:* wildcard
+                    String resource = permName.substring(0, permName.length() - 2);
+                    permissions.addAll(permissionsRepository.findAll().stream()
+                            .map(Permission::getPermissionName)
+                            .filter(pn -> pn.startsWith(resource + ":"))
+                            .collect(Collectors.toSet()));
+                } else if (permName.startsWith("*:") ) {
+                    // Expand *:action wildcard
+                    String action = permName.substring(2);
+                    permissions.addAll(permissionsRepository.findAll().stream()
+                            .map(Permission::getPermissionName)
+                            .filter(pn -> pn.endsWith(":" + action))
+                            .collect(Collectors.toSet()));
+                } else {
+                    permissions.add(permName);
+                }
+            }
         }
 
         List<UserPermission> userPermissions = userPermissionRepository.findByUserId(user.getId());
@@ -52,7 +74,26 @@ public class PermissionService {
             if (up.getEffect() == UserPermission.Effect.DENY) {
                 permissions.remove(permName);
             } else {
-                permissions.add(permName);
+                // Also expand wildcards for user-specific permissions
+                if (permName.equals("*:*")) {
+                    permissions.addAll(permissionsRepository.findAll().stream()
+                            .map(Permission::getPermissionName)
+                            .collect(Collectors.toSet()));
+                } else if (permName.endsWith(":*")) {
+                    String resource = permName.substring(0, permName.length() - 2);
+                    permissions.addAll(permissionsRepository.findAll().stream()
+                            .map(Permission::getPermissionName)
+                            .filter(pn -> pn.startsWith(resource + ":"))
+                            .collect(Collectors.toSet()));
+                } else if (permName.startsWith("*:") ) {
+                    String action = permName.substring(2);
+                    permissions.addAll(permissionsRepository.findAll().stream()
+                            .map(Permission::getPermissionName)
+                            .filter(pn -> pn.endsWith(":" + action))
+                            .collect(Collectors.toSet()));
+                } else {
+                    permissions.add(permName);
+                }
             }
         }
 
