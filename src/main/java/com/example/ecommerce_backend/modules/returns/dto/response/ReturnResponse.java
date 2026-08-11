@@ -16,6 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 @Schema(description = "Response object for return request data")
 public class ReturnResponse {
+    @Schema(description = "Return request ID", example = "1")
+    private Long id;
     @Schema(description = "Return request UUID", example = "a1b2c3d4-e5f6-7890-abcd-ef1234567890")
     private String uuid;
     @Schema(description = "User UUID", example = "u1s2e3r4-e5f6-7890-abcd-ef1234567890")

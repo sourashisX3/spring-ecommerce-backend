@@ -90,6 +90,14 @@ public class PaymentController {
         return ApiResponse.success(refunds, "Refunds retrieved successfully");
     }
 
+    @GetMapping("/refunds/by-return/{returnRequestId}")
+    @Operation(summary = "Get refunds by return request", description = "Retrieve refunds for a return request")
+    public ResponseEntity<ApiResponse<List<RefundResponse>>> getRefundsByReturn(
+            @PathVariable Long returnRequestId) {
+        List<RefundResponse> refunds = paymentService.getRefundsByReturnRequestId(returnRequestId);
+        return ApiResponse.success(refunds, "Refunds retrieved successfully");
+    }
+
     @PostMapping("/refund")
     @RequiresPermission("payment:write")
     @Operation(summary = "Process refund", description = "Process a refund for a payment")

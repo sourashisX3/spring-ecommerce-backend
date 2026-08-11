@@ -47,6 +47,16 @@ public class CouponService {
     @Autowired
     private DiscountTypeRepository discountTypeRepository;
 
+    private CouponResponse toResponseWithAssignments(Coupon coupon) {
+        CouponResponse response = CouponMapper.toResponse(coupon);
+        List<String> assignedUserUuids = couponAssignmentRepository.findByCouponId(coupon.getId())
+                .stream()
+                .map(assignment -> assignment.getUser().getUuid())
+                .collect(Collectors.toList());
+        response.setAssignedUserUuids(assignedUserUuids);
+        return response;
+    }
+
     @Transactional
     @RequiresPermission("coupon:write")
     public CouponResponse create(CouponRequest request) {
@@ -68,7 +78,7 @@ public class CouponService {
                 .build();
 
         coupon = couponRepository.save(coupon);
-        return CouponMapper.toResponse(coupon);
+        return toResponseWithAssignments(coupon);
     }
 
     @Transactional
@@ -105,14 +115,14 @@ public class CouponService {
             couponAssignmentRepository.save(assignment);
         }
 
-        return CouponMapper.toResponse(coupon);
+        return toResponseWithAssignments(coupon);
     }
 
     @Transactional(readOnly = true)
     public CouponResponse getByUuid(String uuid) {
         Coupon coupon = couponRepository.findByUuid(uuid)
                 .orElseThrow(() -> new CouponNotFoundException(uuid));
-        return CouponMapper.toResponse(coupon);
+        return toResponseWithAssignments(coupon);
     }
 
     @Transactional(readOnly = true)
@@ -139,7 +149,7 @@ public class CouponService {
         }
 
         return coupons.stream()
-                .map(CouponMapper::toResponse)
+                .map(this::toResponseWithAssignments)
                 .collect(Collectors.toList());
     }
 
@@ -167,7 +177,7 @@ public class CouponService {
         }
 
         coupon = couponRepository.save(coupon);
-        return CouponMapper.toResponse(coupon);
+        return toResponseWithAssignments(coupon);
     }
 
     @Transactional

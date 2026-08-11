@@ -26,4 +26,10 @@ public class CurrencyRequest {
     @Schema(description = "Whether the currency is active", example = "true")
     @NotNull(message = "isActive is required")
     private Boolean isActive;
+
+    @Schema(description = "Location (country) this currency is used for", example = "India")
+    private String location;
+
+    @Schema(description = "Whether this is the default currency", example = "false")
+    private Boolean isDefault;
 }

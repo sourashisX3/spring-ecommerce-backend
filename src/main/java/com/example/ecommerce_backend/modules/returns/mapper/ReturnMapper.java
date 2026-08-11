@@ -60,6 +60,7 @@ public class ReturnMapper {
     public static ReturnResponse toReturnResponse(ReturnRequest entity) {
         if (entity == null) return null;
         return ReturnResponse.builder()
+                .id(entity.getId())
                 .uuid(entity.getUuid())
                 .userUuid(entity.getUser() != null ? entity.getUser().getUuid() : null)
                 .orderUuid(entity.getOrder() != null ? entity.getOrder().getUuid() : null)

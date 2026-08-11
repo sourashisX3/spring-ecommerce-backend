@@ -29,6 +29,8 @@ public class RefundResponse {
     private String reason;
     @Schema(description = "Refund status", example = "COMPLETED")
     private String status;
+    @Schema(description = "Currency code of the refund", example = "USD")
+    private String currency;
     @Schema(description = "Gateway refund ID", example = "rfnd_123456")
     private String gatewayRefundId;
     @Schema(description = "Refund timestamp")

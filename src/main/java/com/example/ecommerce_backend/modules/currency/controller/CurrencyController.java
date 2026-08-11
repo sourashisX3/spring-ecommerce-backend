@@ -25,9 +25,20 @@ public class CurrencyController {
 
     @GetMapping
     @RequiresPermission("currency:read")
-    @Operation(summary = "Get all currencies", description = "Retrieves all currencies")
-    public ResponseEntity<ApiResponse<List<Currency>>> getAllCurrencies() {
-        return ApiResponse.success(currencyService.getAllCurrencies(), "Currencies retrieved successfully");
+    @Operation(summary = "Get all currencies", description = "Retrieves all currencies, optionally filtered")
+    public ResponseEntity<ApiResponse<List<Currency>>> getAllCurrencies(
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String location
+    ) {
+        return ApiResponse.success(currencyService.getAllCurrencies(active, location),
+                "Currencies retrieved successfully");
+    }
+
+    @GetMapping("/default")
+    @RequiresPermission("currency:read")
+    @Operation(summary = "Get default currency", description = "Retrieves the active default currency")
+    public ResponseEntity<ApiResponse<Currency>> getDefault() {
+        return ApiResponse.success(currencyService.getDefault(), "Default currency retrieved successfully");
     }
 
     @GetMapping("/{uuid}")
@@ -55,5 +66,13 @@ public class CurrencyController {
         boolean changed = currencyService.toggleStatus(uuid, request.isActive());
         String message = changed ? "Currency status updated successfully" : "Currency is already " + (request.isActive() ? "active" : "inactive");
         return ApiResponse.success(null, message);
+    }
+
+    @PatchMapping("/{uuid}/default")
+    @RequiresPermission("currency:write")
+    @Operation(summary = "Set default currency", description = "Makes the currency the store default")
+    public ResponseEntity<ApiResponse<Currency>> makeDefault(@PathVariable String uuid) {
+        return ApiResponse.success(currencyService.makeDefault(uuid),
+                "Default currency updated successfully");
     }
 }

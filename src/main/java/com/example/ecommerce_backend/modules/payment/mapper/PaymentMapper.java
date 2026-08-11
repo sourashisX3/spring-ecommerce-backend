@@ -52,6 +52,8 @@ public class PaymentMapper {
                 .amount(refund.getAmount())
                 .reason(refund.getReason())
                 .status(refund.getStatus() != null ? refund.getStatus().getCode() : null)
+                .currency(refund.getPayment().getCurrency() != null
+                        ? refund.getPayment().getCurrency().getCode() : null)
                 .gatewayRefundId(refund.getGatewayRefundId())
                 .refundedAt(refund.getRefundedAt())
                 .createdAt(refund.getCreatedAt())

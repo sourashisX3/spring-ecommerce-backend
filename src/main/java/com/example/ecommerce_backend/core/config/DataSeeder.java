@@ -409,6 +409,7 @@ public class DataSeeder implements ApplicationRunner {
         statuses.put("PENDING", "Pending");
         statuses.put("COMPLETED", "Completed");
         statuses.put("FAILED", "Failed");
+        statuses.put("PARTIALLY_REFUNDED", "Partially Refunded");
         statuses.put("REFUNDED", "Refunded");
 
         int idx = 0;

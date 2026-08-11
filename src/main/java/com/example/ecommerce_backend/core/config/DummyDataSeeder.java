@@ -182,6 +182,7 @@ public class DummyDataSeeder implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         ensureSeedUserPasswords();
+        refreshDemoRecency();
 
         if (userRepository.findByEmail("superadmin@example.com").isPresent()) {
             log.info("Dummy data already exists, refreshing catalog");
@@ -221,6 +222,36 @@ public class DummyDataSeeder implements ApplicationRunner {
                 userRepository.save(user);
             });
         }
+    }
+
+    private void refreshDemoRecency() {
+        Instant now = Instant.now();
+        List<User> seedUsers = new ArrayList<>();
+        for (String email : List.of("superadmin@example.com", "admin@example.com", "user@example.com")) {
+            userRepository.findByEmail(email).ifPresent(seedUsers::add);
+        }
+        if (seedUsers.isEmpty()) {
+            return;
+        }
+
+        List<Order> orders = new ArrayList<>();
+        for (User seedUser : seedUsers) {
+            orders.addAll(orderRepository.findByUserId(seedUser.getId()));
+        }
+        orders.sort(Comparator.comparing(Order::getId));
+        for (int i = 0; i < orders.size(); i++) {
+            int daysAgo = 6 - (i % 7);
+            orders.get(i).setCreatedAt(now.minusSeconds(daysAgo * 86400L));
+            orderRepository.save(orders.get(i));
+        }
+
+        for (int i = 0; i < seedUsers.size(); i++) {
+            int daysAgo = Math.max(6 - i * 2, 1);
+            User seedUser = seedUsers.get(i);
+            seedUser.setCreatedAt(now.minusSeconds(daysAgo * 86400L));
+            userRepository.save(seedUser);
+        }
+        log.info("Refreshed demo order/user timestamps to keep dashboard trends populated");
     }
 
     private Role getRole(String name) {

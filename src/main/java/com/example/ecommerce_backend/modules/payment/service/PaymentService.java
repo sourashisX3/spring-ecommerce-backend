@@ -20,6 +20,7 @@ import com.example.ecommerce_backend.modules.payment.exception.PaymentFailedExce
 import com.example.ecommerce_backend.modules.payment.exception.PaymentGatewayNotFoundException;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentNotFoundException;
 import com.example.ecommerce_backend.modules.payment.exception.PaymentStatusNotFoundException;
+import com.example.ecommerce_backend.modules.payment.exception.InvalidRefundException;
 import com.example.ecommerce_backend.modules.payment.exception.RefundStatusNotFoundException;
 import com.example.ecommerce_backend.modules.payment.mapper.PaymentMapper;
 import com.example.ecommerce_backend.modules.currency.entity.Currency;
@@ -42,6 +43,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -185,6 +187,21 @@ public class PaymentService {
         Payment payment = paymentRepository.findById(request.getPaymentId())
                 .orElseThrow(() -> new PaymentNotFoundException("id: " + request.getPaymentId()));
 
+        String currentStatus = payment.getStatus() != null ? payment.getStatus().getCode() : null;
+        if (!"COMPLETED".equals(currentStatus) && !"PARTIALLY_REFUNDED".equals(currentStatus)) {
+            throw new InvalidRefundException("Only completed payments can be refunded");
+        }
+
+        BigDecimal refundedSoFar = refundRepository.findByPaymentIdAndStatus_Code(payment.getId(), "COMPLETED")
+                .stream()
+                .map(Refund::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal remaining = payment.getAmount().subtract(refundedSoFar);
+        if (request.getAmount().compareTo(remaining) > 0) {
+            throw new InvalidRefundException(
+                    "Refund amount exceeds the remaining refundable amount of " + remaining);
+        }
+
         PaymentResult result = mockPaymentGateway.processRefund(
                 payment.getGatewayTransactionId(), request.getAmount(), request.getReason());
 
@@ -204,8 +221,11 @@ public class PaymentService {
         refund = refundRepository.save(refund);
 
         if (result.isSuccess()) {
-            payment.setStatus(paymentStatusRepository.findByCode("REFUNDED")
-                    .orElseThrow(() -> new PaymentStatusNotFoundException("REFUNDED")));
+            BigDecimal totalRefunded = refundedSoFar.add(request.getAmount());
+            boolean fullyRefunded = totalRefunded.compareTo(payment.getAmount()) >= 0;
+            payment.setStatus(paymentStatusRepository.findByCode(fullyRefunded ? "REFUNDED" : "PARTIALLY_REFUNDED")
+                    .orElseThrow(() -> new PaymentStatusNotFoundException(
+                            fullyRefunded ? "REFUNDED" : "PARTIALLY_REFUNDED")));
             paymentRepository.save(payment);
         }
 
@@ -217,5 +237,40 @@ public class PaymentService {
         return refundRepository.findByPaymentId(paymentId).stream()
                 .map(PaymentMapper::toRefundResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<RefundResponse> getRefundsByReturnRequestId(Long returnRequestId) {
+        return refundRepository.findByReturnRequestId(returnRequestId).stream()
+                .map(PaymentMapper::toRefundResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public boolean refundForReturn(Long orderId, Long returnRequestId, String returnUuid) {
+        return paymentRepository.findByOrderId(orderId)
+                .filter(payment -> {
+                    String code = payment.getStatus() != null ? payment.getStatus().getCode() : null;
+                    return "COMPLETED".equals(code) || "PARTIALLY_REFUNDED".equals(code);
+                })
+                .map(payment -> {
+                    BigDecimal refundedSoFar = refundRepository
+                            .findByPaymentIdAndStatus_Code(payment.getId(), "COMPLETED")
+                            .stream()
+                            .map(Refund::getAmount)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    BigDecimal remaining = payment.getAmount().subtract(refundedSoFar);
+                    if (remaining.signum() <= 0) {
+                        return false;
+                    }
+                    RefundRequest request = new RefundRequest();
+                    request.setPaymentId(payment.getId());
+                    request.setAmount(remaining);
+                    request.setReason("Auto refund for approved return request " + returnUuid);
+                    request.setReturnRequestId(returnRequestId);
+                    processRefund(request);
+                    return true;
+                })
+                .orElse(false);
     }
 }

@@ -46,7 +46,7 @@ class CurrencyServiceTest {
     void getAllCurrencies_shouldReturnAll() {
         when(currencyRepository.findAll()).thenReturn(List.of(usd, eur));
 
-        List<Currency> result = currencyService.getAllCurrencies();
+        List<Currency> result = currencyService.getAllCurrencies(null, null);
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(Currency::getCode).containsExactly("USD", "EUR");

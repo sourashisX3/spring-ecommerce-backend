@@ -4,6 +4,7 @@ import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.modules.order.entity.Order;
 import com.example.ecommerce_backend.modules.order.exception.OrderNotFoundException;
 import com.example.ecommerce_backend.modules.order.repository.OrderRepository;
+import com.example.ecommerce_backend.modules.payment.service.PaymentService;
 import com.example.ecommerce_backend.modules.returns.dto.request.ReturnRequestDto;
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnResponse;
 import com.example.ecommerce_backend.modules.returns.entity.ReturnCondition;
@@ -55,6 +56,9 @@ public class ReturnService {
 
     @Autowired
     private ReturnStatusRepository returnStatusRepository;
+
+    @Autowired
+    private PaymentService paymentService;
 
     @Transactional(readOnly = true)
     public List<ReturnResponse> getAll() {
@@ -159,6 +163,16 @@ public class ReturnService {
         }
 
         entity = returnRequestRepository.save(entity);
+
+        if ("APPROVED".equals(statusCode)) {
+            boolean refunded = paymentService.refundForReturn(
+                    entity.getOrder().getId(), entity.getId(), entity.getUuid());
+            if (refunded) {
+                entity.setRefundAmount(entity.getOrder().getTotal());
+                entity = returnRequestRepository.save(entity);
+            }
+        }
+
         return ReturnMapper.toReturnResponse(entity);
     }
 

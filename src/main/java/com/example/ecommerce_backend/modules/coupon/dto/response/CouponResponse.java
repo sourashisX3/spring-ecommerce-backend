@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -46,6 +47,8 @@ public class CouponResponse {
     private Instant validFrom;
     @Schema(description = "End date of coupon validity", example = "2024-12-31T23:59:59Z")
     private Instant validUntil;
+    @Schema(description = "UUIDs of users the coupon is assigned to (empty for global coupons)", example = "[\"user-uuid-1\"]")
+    private List<String> assignedUserUuids;
     @Schema(description = "Timestamp when the coupon was created", example = "2024-01-01T00:00:00Z")
     private Instant createdAt;
     @Schema(description = "Timestamp when the coupon was last updated", example = "2024-01-01T00:00:00Z")
