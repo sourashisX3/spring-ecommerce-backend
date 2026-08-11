@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ecommerce-backend
+    runtime: java
+    plan: free
+    buildCommand: ./mvnw -B --no-transfer-progress -DskipTests package
+    startCommand: java -jar target/ecommerce-backend-0.0.1-SNAPSHOT.jar
+    healthCheckPath: /api/v1/v3/api-docs
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev,render
+      - key: OTP_EXPOSE_IN_RESPONSE
+        value: "true"
