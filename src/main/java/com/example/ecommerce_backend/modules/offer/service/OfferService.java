@@ -43,6 +43,16 @@ public class OfferService {
     @Autowired
     private DiscountTypeRepository discountTypeRepository;
 
+    private OfferResponse toResponseWithAssignments(Offer offer) {
+        OfferResponse response = OfferMapper.toResponse(offer);
+        List<String> assignedUserUuids = offerAssignmentRepository.findByOfferId(offer.getId())
+                .stream()
+                .map(assignment -> assignment.getUser().getUuid())
+                .collect(Collectors.toList());
+        response.setAssignedUserUuids(assignedUserUuids);
+        return response;
+    }
+
     @Transactional
     @RequiresPermission("offer:write")
     public OfferResponse create(OfferRequest request) {
@@ -66,7 +76,7 @@ public class OfferService {
                 .build();
 
         offer = offerRepository.save(offer);
-        return OfferMapper.toResponse(offer);
+        return toResponseWithAssignments(offer);
     }
 
     @Transactional
@@ -114,7 +124,7 @@ public class OfferService {
     public OfferResponse getByUuid(String uuid) {
         Offer offer = offerRepository.findByUuid(uuid)
                 .orElseThrow(() -> new OfferNotFoundException(uuid));
-        return OfferMapper.toResponse(offer);
+        return toResponseWithAssignments(offer);
     }
 
     @Transactional(readOnly = true)
@@ -136,7 +146,7 @@ public class OfferService {
         }
 
         return offers.stream()
-                .map(OfferMapper::toResponse)
+                .map(this::toResponseWithAssignments)
                 .collect(Collectors.toList());
     }
 
@@ -166,7 +176,7 @@ public class OfferService {
         offer.setApplicableIds(request.getApplicableIds());
 
         offer = offerRepository.save(offer);
-        return OfferMapper.toResponse(offer);
+        return toResponseWithAssignments(offer);
     }
 
     @Transactional
