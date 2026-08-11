@@ -21,6 +21,12 @@ public class WalletResponse {
     private Long id;
     @Schema(description = "Wallet UUID", example = "550e8400-e29b-41d4-a716-446655440000")
     private String uuid;
+    @Schema(description = "Wallet owner user ID", example = "1")
+    private Long userId;
+    @Schema(description = "Wallet owner name", example = "Jane User")
+    private String userName;
+    @Schema(description = "Wallet owner email", example = "jane@example.com")
+    private String userEmail;
     @Schema(description = "Wallet balance", example = "500.00")
     private BigDecimal balance;
     @Schema(description = "Currency", example = "USD")

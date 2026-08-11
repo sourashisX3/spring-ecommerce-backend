@@ -11,6 +11,11 @@ public class WalletMapper {
         return WalletResponse.builder()
                 .id(wallet.getId())
                 .uuid(wallet.getUuid())
+                .userId(wallet.getUser() != null ? wallet.getUser().getId() : null)
+                .userName(wallet.getUser() != null
+                        ? (wallet.getUser().getFirstName() + " " + wallet.getUser().getLastName()).trim()
+                        : null)
+                .userEmail(wallet.getUser() != null ? wallet.getUser().getEmail() : null)
                 .balance(wallet.getBalance())
                 .currency(wallet.getCurrency() != null ? wallet.getCurrency().getCode() : null)
                 .isActive(wallet.isActive())

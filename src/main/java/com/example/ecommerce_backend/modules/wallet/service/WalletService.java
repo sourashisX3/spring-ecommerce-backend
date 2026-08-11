@@ -69,6 +69,42 @@ public class WalletService {
                 .map(WalletTransactionMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
+    public Page<WalletResponse> listAllWallets(String search, Pageable pageable) {
+        Page<Wallet> wallets;
+        if (search != null && !search.isBlank()) {
+            String q = search.trim();
+            wallets = walletRepository
+                    .findByUserFirstNameContainingIgnoreCaseOrUserLastNameContainingIgnoreCaseOrUserEmailContainingIgnoreCase(
+                            q, q, q, pageable);
+        } else {
+            wallets = walletRepository.findAll(pageable);
+        }
+        return wallets.map(WalletMapper::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<WalletTransactionResponse> getWalletTransactionsByWalletUuid(String uuid, Pageable pageable) {
+        Wallet wallet = walletRepository.findByUuid(uuid)
+                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for uuid: " + uuid));
+        return walletTransactionRepository.findByWalletIdOrderByCreatedAtDesc(wallet.getId(), pageable)
+                .map(WalletTransactionMapper::toResponse);
+    }
+
+    @Transactional
+    public WalletResponse creditWallet(String uuid, BigDecimal amount, String description) {
+        Wallet wallet = walletRepository.findByUuid(uuid)
+                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for uuid: " + uuid));
+        return credit(wallet.getUser().getId(), amount, "ADMIN_CREDIT", null, description);
+    }
+
+    @Transactional
+    public WalletResponse debitWallet(String uuid, BigDecimal amount, String description) {
+        Wallet wallet = walletRepository.findByUuid(uuid)
+                .orElseThrow(() -> new WalletNotFoundException("Wallet not found for uuid: " + uuid));
+        return debit(wallet.getUser().getId(), amount, "ADMIN_DEBIT", null, description);
+    }
+
     @Transactional
     public boolean toggleStatus(String uuid, boolean isActive) {
         Wallet wallet = walletRepository.findByUuid(uuid)
