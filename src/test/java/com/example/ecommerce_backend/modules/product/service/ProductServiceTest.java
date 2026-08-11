@@ -134,7 +134,7 @@ class ProductServiceTest {
                 .thenReturn(new PageImpl<>(List.of(activeProduct)));
 
         Page<ProductResponse> result = productService.getAllProducts(
-                "electronics", null, null, null, null, null, null, null, null, PageRequest.of(0, 20));
+                List.of("electronics"), null, null, null, null, null, null, null, null, PageRequest.of(0, 20));
 
         assertThat(result.getContent()).hasSize(1);
     }
@@ -145,7 +145,7 @@ class ProductServiceTest {
                 .thenReturn(new PageImpl<>(List.of(activeProduct)));
 
         Page<ProductResponse> result = productService.getAllProducts(
-                null, "test-brand", null, null, null, null, null, null, null, PageRequest.of(0, 20));
+                null, List.of("test-brand"), null, null, null, null, null, null, null, PageRequest.of(0, 20));
 
         assertThat(result.getContent()).hasSize(1);
     }

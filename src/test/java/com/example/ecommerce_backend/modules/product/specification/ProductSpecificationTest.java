@@ -115,7 +115,7 @@ class ProductSpecificationTest {
     @Test
     void withFilters_whenBrandSlugProvided_shouldFilterByBrand() {
         Specification<Product> spec = ProductSpecification.withFilters(
-                null, "test-brand", null, null, null, null, null, null);
+                null, List.of("test-brand"), null, null, null, null, null, null);
         List<Product> result = productRepository.findAll(spec);
         assertThat(result).hasSize(1);
     }
@@ -123,7 +123,7 @@ class ProductSpecificationTest {
     @Test
     void withFilters_whenBrandSlugDoesNotMatch_shouldReturnNoResults() {
         Specification<Product> spec = ProductSpecification.withFilters(
-                null, "non-existent-brand", null, null, null, null, null, null);
+                null, List.of("non-existent-brand"), null, null, null, null, null, null);
         List<Product> result = productRepository.findAll(spec);
         assertThat(result).isEmpty();
     }
@@ -187,7 +187,7 @@ class ProductSpecificationTest {
                 .isActive(true).build());
 
         Specification<Product> spec = ProductSpecification.withFilters(
-                null, null, "new", null, null, null, null, null);
+                null, null, List.of("new"), null, null, null, null, null);
         List<Product> result = productRepository.findAll(spec);
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getSku()).isEqualTo("SKU-TAGGED");
@@ -196,7 +196,7 @@ class ProductSpecificationTest {
     @Test
     void withFilters_whenAllFiltersCombined_shouldReturnCorrectResults() {
         Specification<Product> spec = ProductSpecification.withFilters(
-                Set.of(category.getId()), "test-brand", null, "active",
+                Set.of(category.getId()), List.of("test-brand"), null, "active",
                 null, null, null, true);
         List<Product> result = productRepository.findAll(spec);
         assertThat(result).hasSize(1);
