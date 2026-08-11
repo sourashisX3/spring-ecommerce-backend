@@ -193,6 +193,8 @@ public class OfferService {
     public void delete(String uuid) {
         Offer offer = offerRepository.findByUuid(uuid)
                 .orElseThrow(() -> new OfferNotFoundException(uuid));
+        offerAssignmentRepository.deleteByOfferId(offer.getId());
+        offerUsageRepository.deleteByOfferId(offer.getId());
         offerRepository.delete(offer);
     }
 

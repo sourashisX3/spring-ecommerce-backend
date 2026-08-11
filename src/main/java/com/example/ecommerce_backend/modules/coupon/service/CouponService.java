@@ -194,6 +194,8 @@ public class CouponService {
     public void delete(String uuid) {
         Coupon coupon = couponRepository.findByUuid(uuid)
                 .orElseThrow(() -> new CouponNotFoundException(uuid));
+        couponAssignmentRepository.deleteByCouponId(coupon.getId());
+        couponUsageRepository.deleteByCouponId(coupon.getId());
         couponRepository.delete(coupon);
     }
 
