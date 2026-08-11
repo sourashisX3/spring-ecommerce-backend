@@ -12,6 +12,7 @@ public interface DiscountAssignmentRepository extends JpaRepository<DiscountAssi
     Optional<DiscountAssignment> findByDiscountIdAndUserId(Long discountId, Long userId);
     List<DiscountAssignment> findByUserId(Long userId);
     void deleteByUserId(Long userId);
+    void deleteByDiscountId(Long discountId);
     List<DiscountAssignment> findByUserIdAndDiscountIsActiveTrueAndDiscountValidFromLessThanEqualAndDiscountValidUntilGreaterThanEqual(
             Long userId, Instant validFrom, Instant validUntil);
 }

@@ -40,6 +40,17 @@ public class DiscountService {
     @Autowired
     private UserRepository userRepository;
 
+    private List<String> getAssignedUserUuids(Discount discount) {
+        return discountAssignmentRepository.findByDiscountId(discount.getId())
+                .stream()
+                .map(assignment -> assignment.getUser().getUuid())
+                .collect(Collectors.toList());
+    }
+
+    private DiscountResponse toResponseWithAssignments(Discount discount) {
+        return DiscountMapper.toResponse(discount, getAssignedUserUuids(discount));
+    }
+
     @Transactional
     @RequiresPermission("discount:write")
     public DiscountResponse create(DiscountRequest request) {
@@ -58,7 +69,7 @@ public class DiscountService {
                 .build();
 
         discount = discountRepository.save(discount);
-        return DiscountMapper.toResponse(discount);
+        return toResponseWithAssignments(discount);
     }
 
     @Transactional
@@ -81,14 +92,14 @@ public class DiscountService {
             discountAssignmentRepository.save(assignment);
         }
 
-        return DiscountMapper.toResponse(discount);
+        return toResponseWithAssignments(discount);
     }
 
     @Transactional(readOnly = true)
     public DiscountResponse getByUuid(String uuid) {
         Discount discount = discountRepository.findByUuid(uuid)
                 .orElseThrow(() -> new DiscountNotFoundException(uuid));
-        return DiscountMapper.toResponse(discount);
+        return toResponseWithAssignments(discount);
     }
 
     @Transactional(readOnly = true)
@@ -110,7 +121,7 @@ public class DiscountService {
         }
 
         return discounts.stream()
-                .map(DiscountMapper::toResponse)
+                .map(this::toResponseWithAssignments)
                 .collect(Collectors.toList());
     }
 
@@ -135,7 +146,7 @@ public class DiscountService {
         discount.setDescription(request.getDescription());
 
         discount = discountRepository.save(discount);
-        return DiscountMapper.toResponse(discount);
+        return toResponseWithAssignments(discount);
     }
 
     @Transactional
@@ -152,6 +163,7 @@ public class DiscountService {
     public void delete(String uuid) {
         Discount discount = discountRepository.findByUuid(uuid)
                 .orElseThrow(() -> new DiscountNotFoundException(uuid));
+        discountAssignmentRepository.deleteByDiscountId(discount.getId());
         discountRepository.delete(discount);
     }
 

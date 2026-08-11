@@ -5,6 +5,8 @@ import com.example.ecommerce_backend.modules.discount.dto.response.DiscountTypeR
 import com.example.ecommerce_backend.modules.discount.entity.Discount;
 import com.example.ecommerce_backend.modules.discount.entity.DiscountType;
 
+import java.util.List;
+
 public class DiscountMapper {
     private DiscountMapper() {}
 
@@ -24,6 +26,10 @@ public class DiscountMapper {
     }
 
     public static DiscountResponse toResponse(Discount discount) {
+        return toResponse(discount, List.of());
+    }
+
+    public static DiscountResponse toResponse(Discount discount, List<String> assignedUserUuids) {
         return DiscountResponse.builder()
                 .id(discount.getId())
                 .uuid(discount.getUuid())
@@ -36,6 +42,7 @@ public class DiscountMapper {
                 .validFrom(discount.getValidFrom())
                 .validUntil(discount.getValidUntil())
                 .description(discount.getDescription())
+                .assignedUserUuids(assignedUserUuids)
                 .createdAt(discount.getCreatedAt())
                 .updatedAt(discount.getUpdatedAt())
                 .build();

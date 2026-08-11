@@ -24,12 +24,13 @@ public class OfferController {
     private OfferService offerService;
 
     @GetMapping
-    @Operation(summary = "Get all offers", description = "Retrieve all offers with optional filters")
+    @Operation(summary = "Get all offers", description = "Retrieve all offers with optional filters and search")
     public ResponseEntity<ApiResponse<List<OfferResponse>>> getAll(
             @RequestParam(required = false) Boolean active,
-            @RequestParam(required = false) Boolean global
+            @RequestParam(required = false) Boolean global,
+            @RequestParam(required = false) String search
     ) {
-        List<OfferResponse> offers = offerService.getAll(active, global);
+        List<OfferResponse> offers = offerService.getAll(active, global, search);
         return ApiResponse.success(offers, "Offers retrieved successfully");
     }
 

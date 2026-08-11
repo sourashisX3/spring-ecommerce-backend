@@ -129,6 +129,10 @@ public class OfferService {
 
     @Transactional(readOnly = true)
     public List<OfferResponse> getAll(Boolean active, Boolean global) {
+        return getAll(active, global, null);
+    }
+
+    public List<OfferResponse> getAll(Boolean active, Boolean global, String search) {
         List<Offer> offers;
 
         if (active != null && global != null) {
@@ -143,6 +147,14 @@ public class OfferService {
                     .collect(Collectors.toList());
         } else {
             offers = offerRepository.findAll();
+        }
+
+        if (search != null && !search.isBlank()) {
+            String q = search.trim().toLowerCase();
+            offers = offers.stream()
+                    .filter(o -> o.getTitle().toLowerCase().contains(q)
+                            || (o.getDescription() != null && o.getDescription().toLowerCase().contains(q)))
+                    .collect(Collectors.toList());
         }
 
         return offers.stream()

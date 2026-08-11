@@ -1,29 +1,41 @@
 package com.example.ecommerce_backend.modules.chat.service;
 
 import com.example.ecommerce_backend.core.annotation.RequiresPermission;
+import com.example.ecommerce_backend.modules.chat.dto.ChatRoomResponse;
 import com.example.ecommerce_backend.modules.chat.entity.ChatMessage;
 import com.example.ecommerce_backend.modules.chat.entity.ChatRoom;
 import com.example.ecommerce_backend.modules.chat.exception.ChatRoomNotFoundException;
 import com.example.ecommerce_backend.modules.chat.repository.ChatMessageRepository;
 import com.example.ecommerce_backend.modules.chat.repository.ChatRoomRepository;
+import com.example.ecommerce_backend.modules.user.entity.User;
+import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
 
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final UserRepository userRepository;
 
     public ChatService(ChatRoomRepository chatRoomRepository,
-                       ChatMessageRepository chatMessageRepository) {
+                       ChatMessageRepository chatMessageRepository,
+                       UserRepository userRepository) {
         this.chatRoomRepository = chatRoomRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -55,6 +67,26 @@ public class ChatService {
     @RequiresPermission("chatbot:write")
     public Page<ChatRoom> listAllRooms(Pageable pageable) {
         return chatRoomRepository.findAll(pageable);
+    }
+
+    @Transactional(readOnly = true)
+    @RequiresPermission("chatbot:write")
+    public Page<ChatRoomResponse> listAllRoomResponses(Pageable pageable) {
+        Pageable sorted = pageable.getSort().isSorted()
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+                        Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<ChatRoom> rooms = chatRoomRepository.findAll(sorted);
+        Map<Long, ChatMessage> lastMessages = chatMessageRepository.findLastMessageForEachRoom()
+                .stream()
+                .collect(Collectors.toMap(ChatMessage::getRoomId, Function.identity(), (a, b) -> a));
+        return rooms.map(room -> {
+            User customer = userRepository.findById(room.getUserId()).orElse(null);
+            User agent = room.getAgentId() != null
+                    ? userRepository.findById(room.getAgentId()).orElse(null)
+                    : null;
+            return ChatRoomResponse.from(room, customer, agent, lastMessages.get(room.getId()));
+        });
     }
 
     @Transactional(readOnly = true)

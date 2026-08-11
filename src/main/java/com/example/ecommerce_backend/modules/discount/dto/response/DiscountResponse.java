@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -38,6 +39,8 @@ public class DiscountResponse {
     private Instant validUntil;
     @Schema(description = "Description of the discount", example = "20% off on selected items")
     private String description;
+    @Schema(description = "UUIDs of users this discount is assigned to")
+    private List<String> assignedUserUuids;
     @Schema(description = "Timestamp when the discount was created", example = "2024-01-01T00:00:00Z")
     private Instant createdAt;
     @Schema(description = "Timestamp when the discount was last updated", example = "2024-01-01T00:00:00Z")

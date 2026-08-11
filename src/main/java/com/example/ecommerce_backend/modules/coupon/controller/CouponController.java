@@ -27,13 +27,14 @@ public class CouponController {
     @Autowired
     private CouponService couponService;
 
-    @Operation(summary = "Get all coupons", description = "Retrieves all coupons with optional filtering by active and global status")
+    @Operation(summary = "Get all coupons", description = "Retrieves all coupons with optional filtering by active, global status and search")
     @GetMapping
     public ResponseEntity<ApiResponse<List<CouponResponse>>> getAll(
             @RequestParam(required = false) Boolean active,
-            @RequestParam(required = false) Boolean global
+            @RequestParam(required = false) Boolean global,
+            @RequestParam(required = false) String search
     ) {
-        List<CouponResponse> coupons = couponService.getAll(active, global);
+        List<CouponResponse> coupons = couponService.getAll(active, global, search);
         return ApiResponse.success(coupons, "Coupons retrieved successfully");
     }
 

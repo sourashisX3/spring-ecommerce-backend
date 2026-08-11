@@ -127,6 +127,10 @@ public class CouponService {
 
     @Transactional(readOnly = true)
     public List<CouponResponse> getAll(Boolean active, Boolean global) {
+        return getAll(active, global, null);
+    }
+
+    public List<CouponResponse> getAll(Boolean active, Boolean global, String search) {
         List<Coupon> coupons;
 
         if (active != null) {
@@ -145,6 +149,14 @@ public class CouponService {
         if (global != null) {
             coupons = coupons.stream()
                     .filter(c -> c.isGlobal() == global)
+                    .collect(Collectors.toList());
+        }
+
+        if (search != null && !search.isBlank()) {
+            String q = search.trim().toLowerCase();
+            coupons = coupons.stream()
+                    .filter(c -> c.getCode().toLowerCase().contains(q)
+                            || (c.getDescription() != null && c.getDescription().toLowerCase().contains(q)))
                     .collect(Collectors.toList());
         }
 
