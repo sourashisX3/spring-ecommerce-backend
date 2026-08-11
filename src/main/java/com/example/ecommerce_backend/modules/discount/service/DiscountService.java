@@ -104,20 +104,34 @@ public class DiscountService {
 
     @Transactional(readOnly = true)
     public List<DiscountResponse> getAll(Boolean active, Boolean global) {
+        return getAll(active, global, null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DiscountResponse> getAll(Boolean active, Boolean global, String search) {
         List<Discount> discounts;
 
         if (active != null && global != null) {
             discounts = discountRepository.findByIsGlobalAndIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
                     global, active, Instant.now(), Instant.now());
         } else if (active != null) {
-            discounts = discountRepository.findByIsActiveTrueAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
-                    Instant.now(), Instant.now());
+            discounts = discountRepository.findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+                    active, Instant.now(), Instant.now());
         } else if (global != null) {
             discounts = discountRepository.findAll().stream()
                     .filter(d -> d.isGlobal() == global)
                     .collect(Collectors.toList());
         } else {
             discounts = discountRepository.findAll();
+        }
+
+        if (search != null && !search.isBlank()) {
+            String q = search.trim().toLowerCase();
+            discounts = discounts.stream()
+                    .filter(d -> (d.getDescription() != null && d.getDescription().toLowerCase().contains(q))
+                            || (d.getDiscountType() != null && d.getDiscountType().getName() != null
+                                    && d.getDiscountType().getName().toLowerCase().contains(q)))
+                    .collect(Collectors.toList());
         }
 
         return discounts.stream()

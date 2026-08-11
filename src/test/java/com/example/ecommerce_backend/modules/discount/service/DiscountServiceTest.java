@@ -186,11 +186,22 @@ class DiscountServiceTest {
 
     @Test
     void getAll_withActiveTrue_shouldReturnActive() {
-        when(discountRepository.findByIsActiveTrueAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
-                any(Instant.class), any(Instant.class)))
+        when(discountRepository.findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+                eq(true), any(Instant.class), any(Instant.class)))
                 .thenReturn(List.of(globalDiscount));
 
         List<DiscountResponse> result = discountService.getAll(true, null);
+
+        assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void getAll_withActiveFalse_shouldReturnInactive() {
+        when(discountRepository.findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+                eq(false), any(Instant.class), any(Instant.class)))
+                .thenReturn(List.of(globalDiscount));
+
+        List<DiscountResponse> result = discountService.getAll(false, null);
 
         assertThat(result).hasSize(1);
     }

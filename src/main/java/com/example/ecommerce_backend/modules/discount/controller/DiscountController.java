@@ -25,12 +25,13 @@ public class DiscountController {
     @Autowired
     private DiscountService discountService;
 
-    @Operation(summary = "Get all discounts", description = "Retrieves all discounts with optional filtering by active and global status")
+    @Operation(summary = "Get all discounts", description = "Retrieves all discounts with optional filtering by active and global status and search")
     @GetMapping
     public ResponseEntity<ApiResponse<List<DiscountResponse>>> getAll(
             @RequestParam(required = false) Boolean active,
-            @RequestParam(required = false) Boolean global) {
-        List<DiscountResponse> discounts = discountService.getAll(active, global);
+            @RequestParam(required = false) Boolean global,
+            @RequestParam(required = false) String search) {
+        List<DiscountResponse> discounts = discountService.getAll(active, global, search);
         return ApiResponse.success(discounts, "Discounts retrieved successfully");
     }
 

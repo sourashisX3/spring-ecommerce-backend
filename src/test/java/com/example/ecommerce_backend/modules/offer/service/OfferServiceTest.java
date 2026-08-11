@@ -211,14 +211,25 @@ class OfferServiceTest {
 
     @Test
     void getAll_withActiveTrue_shouldReturnActive() {
-        when(offerRepository.findByIsActiveTrueAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
-                any(Instant.class), any(Instant.class)))
+        when(offerRepository.findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+                eq(true), any(Instant.class), any(Instant.class)))
                 .thenReturn(List.of(globalOffer));
 
         List<OfferResponse> result = offerService.getAll(true, null);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getTitle()).isEqualTo("Summer Sale");
+    }
+
+    @Test
+    void getAll_withActiveFalse_shouldReturnInactive() {
+        when(offerRepository.findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+                eq(false), any(Instant.class), any(Instant.class)))
+                .thenReturn(List.of(globalOffer));
+
+        List<OfferResponse> result = offerService.getAll(false, null);
+
+        assertThat(result).hasSize(1);
     }
 
     @Test

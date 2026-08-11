@@ -5,11 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     Optional<ChatRoom> findByUuid(String uuid);
+
+    List<ChatRoom> findByUserId(Long userId);
 
     Page<ChatRoom> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 

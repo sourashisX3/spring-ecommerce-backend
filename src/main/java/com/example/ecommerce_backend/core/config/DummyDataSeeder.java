@@ -6,6 +6,10 @@ import com.example.ecommerce_backend.modules.cart.entity.CartItem;
 import com.example.ecommerce_backend.modules.cart.repository.CartRepository;
 import com.example.ecommerce_backend.modules.category.entity.Category;
 import com.example.ecommerce_backend.modules.category.repository.CategoryRepository;
+import com.example.ecommerce_backend.modules.chat.entity.ChatMessage;
+import com.example.ecommerce_backend.modules.chat.entity.ChatRoom;
+import com.example.ecommerce_backend.modules.chat.repository.ChatMessageRepository;
+import com.example.ecommerce_backend.modules.chat.repository.ChatRoomRepository;
 import com.example.ecommerce_backend.modules.coupon.entity.Coupon;
 import com.example.ecommerce_backend.modules.coupon.entity.CouponAssignment;
 import com.example.ecommerce_backend.modules.coupon.repository.CouponAssignmentRepository;
@@ -37,8 +41,22 @@ import com.example.ecommerce_backend.modules.payment.entity.PaymentStatus;
 import com.example.ecommerce_backend.modules.payment.repository.PaymentGatewayRepository;
 import com.example.ecommerce_backend.modules.payment.repository.PaymentRepository;
 import com.example.ecommerce_backend.modules.payment.repository.PaymentStatusRepository;
+import com.example.ecommerce_backend.modules.payment.repository.RefundRepository;
+import com.example.ecommerce_backend.modules.payment.repository.RefundStatusRepository;
+import com.example.ecommerce_backend.modules.payment.entity.Refund;
+import com.example.ecommerce_backend.modules.payment.entity.RefundStatus;
 import com.example.ecommerce_backend.modules.product.entity.Product;
 import com.example.ecommerce_backend.modules.product.repository.ProductRepository;
+import com.example.ecommerce_backend.modules.returns.entity.ReturnCondition;
+import com.example.ecommerce_backend.modules.returns.entity.ReturnItem;
+import com.example.ecommerce_backend.modules.returns.entity.ReturnRequest;
+import com.example.ecommerce_backend.modules.returns.entity.ReturnStatus;
+import com.example.ecommerce_backend.modules.returns.entity.ReturnType;
+import com.example.ecommerce_backend.modules.returns.repository.ReturnConditionRepository;
+import com.example.ecommerce_backend.modules.returns.repository.ReturnItemRepository;
+import com.example.ecommerce_backend.modules.returns.repository.ReturnRequestRepository;
+import com.example.ecommerce_backend.modules.returns.repository.ReturnStatusRepository;
+import com.example.ecommerce_backend.modules.returns.repository.ReturnTypeRepository;
 import com.example.ecommerce_backend.modules.review.entity.Review;
 import com.example.ecommerce_backend.modules.review.repository.ReviewRepository;
 import com.example.ecommerce_backend.modules.role.entity.Role;
@@ -115,6 +133,15 @@ public class DummyDataSeeder implements ApplicationRunner {
     private final CartRepository cartRepository;
     private final WishlistRepository wishlistRepository;
     private final NotificationRepository notificationRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final ReturnRequestRepository returnRequestRepository;
+    private final ReturnItemRepository returnItemRepository;
+    private final ReturnStatusRepository returnStatusRepository;
+    private final ReturnTypeRepository returnTypeRepository;
+    private final ReturnConditionRepository returnConditionRepository;
+    private final RefundRepository refundRepository;
+    private final RefundStatusRepository refundStatusRepository;
 
     public DummyDataSeeder(PasswordEncoder passwordEncoder,
                            UserRepository userRepository,
@@ -142,10 +169,19 @@ public class DummyDataSeeder implements ApplicationRunner {
                            PaymentRepository paymentRepository,
                            PaymentGatewayRepository paymentGatewayRepository,
                            PaymentStatusRepository paymentStatusRepository,
-                           ReviewRepository reviewRepository,
-                           CartRepository cartRepository,
-                           WishlistRepository wishlistRepository,
-                           NotificationRepository notificationRepository) {
+ReviewRepository reviewRepository,
+                            CartRepository cartRepository,
+                            WishlistRepository wishlistRepository,
+                            NotificationRepository notificationRepository,
+                            ChatRoomRepository chatRoomRepository,
+                            ChatMessageRepository chatMessageRepository,
+                            ReturnRequestRepository returnRequestRepository,
+                            ReturnItemRepository returnItemRepository,
+                            ReturnStatusRepository returnStatusRepository,
+                            ReturnTypeRepository returnTypeRepository,
+                            ReturnConditionRepository returnConditionRepository,
+                            RefundRepository refundRepository,
+                            RefundStatusRepository refundStatusRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.rolesRepository = rolesRepository;
@@ -176,6 +212,15 @@ public class DummyDataSeeder implements ApplicationRunner {
         this.cartRepository = cartRepository;
         this.wishlistRepository = wishlistRepository;
         this.notificationRepository = notificationRepository;
+        this.chatRoomRepository = chatRoomRepository;
+        this.chatMessageRepository = chatMessageRepository;
+        this.returnRequestRepository = returnRequestRepository;
+        this.returnItemRepository = returnItemRepository;
+        this.returnStatusRepository = returnStatusRepository;
+        this.returnTypeRepository = returnTypeRepository;
+        this.returnConditionRepository = returnConditionRepository;
+        this.refundRepository = refundRepository;
+        this.refundStatusRepository = refundStatusRepository;
     }
 
     @Override
@@ -188,6 +233,7 @@ public class DummyDataSeeder implements ApplicationRunner {
             log.info("Dummy data already exists, refreshing catalog");
             upgradeLegacyProductImages();
             seedBulkCatalog();
+            seedAssistantFlows();
             return;
         }
 
@@ -210,6 +256,7 @@ public class DummyDataSeeder implements ApplicationRunner {
         seedCartItems();
         seedWishlistItems();
         seedNotifications();
+        seedAssistantFlows();
     }
 
     private void ensureSeedUserPasswords() {
@@ -1573,5 +1620,372 @@ public class DummyDataSeeder implements ApplicationRunner {
                     .isRead(false)
                     .build());
         }
+    }
+
+    private void seedAssistantFlows() {
+        seedExtraCustomers();
+        seedExtraOrders();
+        seedReturns();
+        seedChatData();
+    }
+
+    private void seedExtraCustomers() {
+        if (userRepository.findByEmail("alice@example.com").isPresent()) {
+            return;
+        }
+        log.info("Seeding extra customers and wallets");
+        Role userRole = getRole("USER");
+        String encoded = passwordEncoder.encode(PASSWORD);
+
+        User alice = userRepository.save(User.builder()
+                .firstName("Alice")
+                .lastName("Johnson")
+                .email("alice@example.com")
+                .dialCode("+1")
+                .phoneNumber("+1-555-0201")
+                .password(encoded)
+                .role(userRole)
+                .isActive(true)
+                .isEmailVerified(true)
+                .isPhoneVerified(true)
+                .address(makeAddress("11 Maple St", "Portland", "OR", "US", 97205L))
+                .build());
+        User bob = userRepository.save(User.builder()
+                .firstName("Bob")
+                .lastName("Smith")
+                .email("bob@example.com")
+                .dialCode("+1")
+                .phoneNumber("+1-555-0202")
+                .password(encoded)
+                .role(userRole)
+                .isActive(true)
+                .isEmailVerified(true)
+                .isPhoneVerified(false)
+                .address(makeAddress("22 Oak Ave", "Denver", "CO", "US", 80202L))
+                .build());
+        User carol = userRepository.save(User.builder()
+                .firstName("Carol")
+                .lastName("Davis")
+                .email("carol@example.com")
+                .dialCode("+49")
+                .phoneNumber("+49-555-0203")
+                .password(encoded)
+                .role(userRole)
+                .isActive(true)
+                .isEmailVerified(true)
+                .isPhoneVerified(true)
+                .address(makeAddress("33 Birch Ln", "Berlin", "BE", "DE", 10115L))
+                .build());
+
+        ensureWallet(alice, BigDecimal.valueOf(500));
+        ensureWallet(bob, BigDecimal.valueOf(250));
+        ensureWallet(carol, BigDecimal.valueOf(1250));
+    }
+
+    private void ensureWallet(User user, BigDecimal balance) {
+        if (walletRepository.findByUserId(user.getId()).isPresent()) {
+            return;
+        }
+        BigDecimal scaled = balance.setScale(4, RoundingMode.HALF_UP);
+        Wallet wallet = walletRepository.save(Wallet.builder()
+                .user(user)
+                .balance(scaled)
+                .currency(getCurrency("USD"))
+                .isActive(true)
+                .build());
+        walletTransactionRepository.save(WalletTransaction.builder()
+                .wallet(wallet)
+                .type(getWalletTransactionType("CREDIT"))
+                .amount(scaled)
+                .balanceBefore(BigDecimal.ZERO.setScale(4, RoundingMode.HALF_UP))
+                .balanceAfter(scaled)
+                .referenceType("SIGNUP_BONUS")
+                .description("Welcome bonus for account registration")
+                .build());
+    }
+
+    private void seedExtraOrders() {
+        User alice = getUser("alice@example.com");
+        if (!orderRepository.findByUserId(alice.getId()).isEmpty()) {
+            return;
+        }
+        log.info("Seeding extra orders with payments");
+        Currency usd = getCurrency("USD");
+        OrderStatus pending = getOrderStatus("PENDING");
+        OrderStatus confirmed = getOrderStatus("CONFIRMED");
+        OrderStatus processing = getOrderStatus("PROCESSING");
+        OrderStatus shipped = getOrderStatus("SHIPPED");
+        OrderStatus delivered = getOrderStatus("DELIVERED");
+        OrderStatus cancelled = getOrderStatus("CANCELLED");
+        OrderStatus returnRequested = getOrderStatus("RETURN_REQUESTED");
+
+        User bob = getUser("bob@example.com");
+        User carol = getUser("carol@example.com");
+
+        ProductVariant airpodsStd = productVariantRepository.findBySku("APL-APP3-001-STD").get();
+        ProductVariant budsStd = productVariantRepository.findBySku("SAM-GB3P-001-STD").get();
+        ProductVariant sonyStd = productVariantRepository.findBySku("SONY-WF10-001-STD").get();
+
+        Order aliceOrder = buildOrder(alice, shipped, usd, null,
+                List.of(orderItem(airpodsStd, "Apple AirPods Pro 3", new BigDecimal("249.99"), 1)),
+                List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
+                        history(confirmed, processing, "ADMIN", "Payment confirmed"),
+                        history(processing, shipped, "ADMIN", "Shipped via FedEx")));
+        aliceOrder.setSubtotal(new BigDecimal("249.99"));
+        aliceOrder.setDiscount(BigDecimal.ZERO);
+        aliceOrder.setShippingCost(new BigDecimal("4.99"));
+        aliceOrder.setTax(new BigDecimal("19.99"));
+        aliceOrder.setTotal(new BigDecimal("274.97"));
+        orderRepository.save(aliceOrder);
+
+        Order bobOrder = buildOrder(bob, cancelled, usd, null,
+                List.of(orderItem(budsStd, "Samsung Galaxy Buds3 Pro", new BigDecimal("229.99"), 1)),
+                List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
+                        history(confirmed, processing, "ADMIN", "Payment confirmed"),
+                        history(processing, cancelled, "ADMIN", "Customer requested cancellation")));
+        bobOrder.setSubtotal(new BigDecimal("229.99"));
+        bobOrder.setDiscount(BigDecimal.ZERO);
+        bobOrder.setShippingCost(new BigDecimal("4.99"));
+        bobOrder.setTax(new BigDecimal("18.40"));
+        bobOrder.setTotal(new BigDecimal("253.38"));
+        bobOrder.setCanceledAt(Instant.now().minus(Duration.ofDays(2)));
+        orderRepository.save(bobOrder);
+
+        Order carolOrder = buildOrder(carol, returnRequested, usd, null,
+                List.of(orderItem(sonyStd, "Sony WF-1000XM7", new BigDecimal("299.99"), 1)),
+                List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
+                        history(confirmed, processing, "ADMIN", "Payment confirmed"),
+                        history(processing, shipped, "ADMIN", "Shipped via DHL"),
+                        history(shipped, delivered, "ADMIN", "Delivered successfully"),
+                        history(delivered, returnRequested, "USER", "Return requested by customer")));
+        carolOrder.setSubtotal(new BigDecimal("299.99"));
+        carolOrder.setDiscount(BigDecimal.ZERO);
+        carolOrder.setShippingCost(BigDecimal.ZERO);
+        carolOrder.setTax(new BigDecimal("24.00"));
+        carolOrder.setTotal(new BigDecimal("323.99"));
+        orderRepository.save(carolOrder);
+
+        seedPayment(aliceOrder, "COMPLETED");
+        seedPayment(bobOrder, "REFUNDED");
+        seedPayment(carolOrder, "COMPLETED");
+    }
+
+    private OrderItem orderItem(ProductVariant variant, String productName, BigDecimal unitPrice, int quantity) {
+        return OrderItem.builder()
+                .productId(variant.getProduct().getId())
+                .variantId(variant.getId())
+                .productName(productName)
+                .variantName(variant.getName())
+                .sku(variant.getSku())
+                .quantity(quantity)
+                .unitPrice(unitPrice)
+                .totalPrice(unitPrice.multiply(BigDecimal.valueOf(quantity)))
+                .build();
+    }
+
+    private OrderStatusHistory history(OrderStatus from, OrderStatus to, String changedBy, String reason) {
+        return OrderStatusHistory.builder()
+                .fromStatus(from)
+                .toStatus(to)
+                .changedBy(changedBy)
+                .reason(reason)
+                .build();
+    }
+
+    private void seedPayment(Order order, String statusCode) {
+        if (!paymentRepository.findByOrderId(order.getId()).isEmpty()) {
+            return;
+        }
+        PaymentStatus status = getPaymentStatus(statusCode);
+        Payment payment = Payment.builder()
+                .orderId(order.getId())
+                .user(order.getUser())
+                .gateway(getPaymentGateway("MOCK"))
+                .amount(order.getTotal())
+                .currency(getCurrency("USD"))
+                .status(status)
+                .method("CREDIT_CARD")
+                .gatewayTransactionId("TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .paidAt(Instant.now().minus(Duration.ofDays(3)))
+                .build();
+        paymentRepository.save(payment);
+    }
+
+    private void seedReturns() {
+        if (!returnRequestRepository.findByUserId(getUser("carol@example.com").getId()).isEmpty()) {
+            return;
+        }
+        log.info("Seeding return requests and refunds");
+
+        User carol = getUser("carol@example.com");
+        User alice = getUser("alice@example.com");
+        User user = getUser("user@example.com");
+
+        Order carolOrder = orderRepository.findByUserId(carol.getId()).get(0);
+        Order aliceOrder = orderRepository.findByUserId(alice.getId()).get(0);
+        Order userOrder = orderRepository.findByUserId(user.getId()).get(0);
+
+        Payment carolPayment = paymentRepository.findByOrderId(carolOrder.getId()).get();
+        Payment alicePayment = paymentRepository.findByOrderId(aliceOrder.getId()).get();
+
+        ReturnRequest pendingReturn = returnRequestRepository.save(returnRequest(
+                carol, carolOrder, "PENDING", "REFUND", "DEFECTIVE",
+                "Earbuds keep disconnecting from my phone",
+                null, null, null));
+
+        returnItemRepository.save(returnItem(pendingReturn, carolOrder.getItems().get(0), "DEFECTIVE", 1));
+
+        ReturnRequest approvedReturn = returnRequestRepository.save(returnRequest(
+                alice, aliceOrder, "APPROVED", "STORE_CREDIT", "DAMAGED",
+                "Left earbud arrived with a cracked casing",
+                "Approved after inspection - store credit issued",
+                new BigDecimal("249.99"), null));
+
+        returnItemRepository.save(returnItem(approvedReturn, aliceOrder.getItems().get(0), "DAMAGED", 1));
+
+        Refund refund = Refund.builder()
+                .payment(alicePayment)
+                .returnRequestId(approvedReturn.getId())
+                .amount(new BigDecimal("249.99"))
+                .reason("Approved return - store credit")
+                .status(getRefundStatus("COMPLETED"))
+                .gatewayRefundId("TXN-REF-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .refundedAt(Instant.now().minus(Duration.ofDays(1)))
+                .build();
+        refundRepository.save(refund);
+
+        ReturnRequest closedReturn = returnRequestRepository.save(returnRequest(
+                user, userOrder, "CLOSED", "EXCHANGE", "NOT_AS_DESCRIBED",
+                "Received the wrong color variant",
+                "Exchange unavailable - request closed without refund",
+                BigDecimal.ZERO, null));
+
+        returnItemRepository.save(returnItem(closedReturn, userOrder.getItems().get(0), "NOT_AS_DESCRIBED", 1));
+
+        if (paymentRepository.findByOrderId(carolOrder.getId()).isPresent()) {
+            Refund pendingRefund = Refund.builder()
+                    .payment(carolPayment)
+                    .returnRequestId(pendingReturn.getId())
+                    .amount(new BigDecimal("323.99"))
+                    .reason("Pending return review")
+                    .status(getRefundStatus("PENDING"))
+                    .build();
+            refundRepository.save(pendingRefund);
+        }
+    }
+
+    private ReturnRequest returnRequest(User user, Order order, String statusCode, String typeCode,
+                                        String conditionCode, String reason,
+                                        String resolutionNotes, BigDecimal refundAmount, Instant createdAt) {
+        ReturnRequest returnRequest = ReturnRequest.builder()
+                .user(user)
+                .order(order)
+                .returnType(getReturnType(typeCode))
+                .status(getReturnStatus(statusCode))
+                .reason(reason)
+                .resolutionNotes(resolutionNotes)
+                .refundAmount(refundAmount)
+                .isActive(true)
+                .build();
+        if (createdAt != null) {
+            returnRequest.setCreatedAt(createdAt);
+            returnRequest.setUpdatedAt(createdAt);
+        }
+        return returnRequest;
+    }
+
+    private ReturnItem returnItem(ReturnRequest returnRequest, OrderItem orderItem, String conditionCode, int quantity) {
+        return ReturnItem.builder()
+                .returnRequest(returnRequest)
+                .orderItemId(orderItem.getId())
+                .productId(orderItem.getProductId())
+                .productName(orderItem.getProductName())
+                .sku(orderItem.getSku())
+                .quantity(quantity)
+                .unitPrice(orderItem.getUnitPrice())
+                .condition(getReturnCondition(conditionCode))
+                .isActive(true)
+                .build();
+    }
+
+    private void seedChatData() {
+        if (!chatRoomRepository.findByUserId(getUser("alice@example.com").getId()).isEmpty()) {
+            return;
+        }
+        log.info("Seeding chat rooms and messages");
+        User alice = getUser("alice@example.com");
+        User bob = getUser("bob@example.com");
+        User carol = getUser("carol@example.com");
+        User admin = getUser("admin@example.com");
+
+        ChatRoom room1 = chatRoomRepository.save(ChatRoom.builder()
+                .userId(alice.getId())
+                .agentId(admin.getId())
+                .status("ACTIVE")
+                .topic("AirPods muffled - return help")
+                .createdAt(Instant.now().minus(Duration.ofDays(2)))
+                .assignedAt(Instant.now().minus(Duration.ofDays(2)))
+                .build());
+        saveMessage(room1, "USER", alice.getId(), "Hi! My AirPods Pro sound muffled on the left side.", true);
+        saveMessage(room1, "AGENT", admin.getId(), "Sorry to hear that! Could you check the speaker mesh for debris?", true);
+        saveMessage(room1, "AGENT", admin.getId(), "If that doesn't help we can arrange a return for you.", false);
+        saveMessage(room1, "USER", alice.getId(), "Tried that, still muffled. Can I return them?", false);
+
+        ChatRoom room2 = chatRoomRepository.save(ChatRoom.builder()
+                .userId(bob.getId())
+                .status("BOT_ACTIVE")
+                .topic("Shipping times")
+                .createdAt(Instant.now().minus(Duration.ofHours(5)))
+                .build());
+        saveMessage(room2, "USER", bob.getId(), "How long does standard shipping take?", true);
+        saveMessage(room2, "AGENT", null, "Most orders ship within 1-2 business days. You can track delivery from your order page.", false);
+
+        ChatRoom room3 = chatRoomRepository.save(ChatRoom.builder()
+                .userId(carol.getId())
+                .agentId(admin.getId())
+                .status("CLOSED")
+                .topic("Return request tracking")
+                .createdAt(Instant.now().minus(Duration.ofDays(6)))
+                .assignedAt(Instant.now().minus(Duration.ofDays(6)))
+                .closedAt(Instant.now().minus(Duration.ofDays(3)))
+                .build());
+        saveMessage(room3, "USER", carol.getId(), "I submitted a return yesterday. When will it be processed?", true);
+        saveMessage(room3, "AGENT", admin.getId(), "Our team will review it within 24-48 hours. You will get an email once approved.", true);
+        saveMessage(room3, "USER", carol.getId(), "Thank you!", true);
+        saveMessage(room3, "AGENT", admin.getId(), "You're welcome! The ticket is now closed.", true);
+    }
+
+    private void saveMessage(ChatRoom room, String senderType, Long senderId, String content, boolean read) {
+        ChatMessage message = ChatMessage.builder()
+                .roomId(room.getId())
+                .senderType(senderType)
+                .senderId(senderId)
+                .content(content)
+                .messageType("TEXT")
+                .build();
+        if (read) {
+            message.setReadAt(Instant.now());
+        }
+        chatMessageRepository.save(message);
+    }
+
+    private ReturnStatus getReturnStatus(String code) {
+        return returnStatusRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Return status " + code + " not found after seeding"));
+    }
+
+    private ReturnType getReturnType(String code) {
+        return returnTypeRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Return type " + code + " not found after seeding"));
+    }
+
+    private ReturnCondition getReturnCondition(String code) {
+        return returnConditionRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Return condition " + code + " not found after seeding"));
+    }
+
+    private RefundStatus getRefundStatus(String code) {
+        return refundStatusRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Refund status " + code + " not found after seeding"));
     }
 }

@@ -11,6 +11,6 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
     Optional<Discount> findByUuid(String uuid);
     List<Discount> findByIsGlobalAndIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
             boolean isGlobal, boolean isActive, Instant validFrom, Instant validUntil);
-    List<Discount> findByIsActiveTrueAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
-            Instant validFrom, Instant validUntil);
+    List<Discount> findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+            boolean isActive, Instant validFrom, Instant validUntil);
 }

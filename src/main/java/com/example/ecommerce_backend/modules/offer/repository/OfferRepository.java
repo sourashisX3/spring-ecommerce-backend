@@ -14,8 +14,8 @@ public interface OfferRepository extends JpaRepository<Offer, Long> {
     List<Offer> findByIsGlobalAndIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
             boolean isGlobal, boolean isActive, Instant validFrom, Instant validUntil);
 
-    List<Offer> findByIsActiveTrueAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
-            Instant validFrom, Instant validUntil);
+    List<Offer> findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+            boolean isActive, Instant validFrom, Instant validUntil);
 
     boolean existsByTitle(String title);
 }

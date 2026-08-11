@@ -139,8 +139,8 @@ public class OfferService {
             offers = offerRepository.findByIsGlobalAndIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
                     global, active, Instant.now(), Instant.now());
         } else if (active != null) {
-            offers = offerRepository.findByIsActiveTrueAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
-                    Instant.now(), Instant.now());
+            offers = offerRepository.findByIsActiveAndValidFromLessThanEqualAndValidUntilGreaterThanEqual(
+                    active, Instant.now(), Instant.now());
         } else if (global != null) {
             offers = offerRepository.findAll().stream()
                     .filter(o -> o.isGlobal() == global)
