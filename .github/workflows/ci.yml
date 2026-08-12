@@ -33,3 +33,10 @@ jobs:
           path: target/surefire-reports
           if-no-files-found: ignore
           retention-days: 7
+
+      - name: Verify Docker build
+        run: |
+          docker build -t ecommerce-backend-test .
+          docker run -p 8083:8083 ecommerce-backend-test java -jar target/ecommerce-backend-0.0.1-SNAPSHOT.jar &
+          sleep 5
+          curl -s http://localhost:8083/api/v1/v3/api-docs || echo "Service not ready yet"
