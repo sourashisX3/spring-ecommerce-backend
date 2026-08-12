@@ -97,7 +97,8 @@ class PaymentServiceTest {
     private PaymentStatus pendingStatus;
     private PaymentStatus completedStatus;
     private PaymentStatus failedStatus;
-    private PaymentStatus refundedStatus;
+private PaymentStatus refundedStatus;
+    private PaymentStatus partiallyRefundedStatus;
     private RefundStatus refundCompletedStatus;
     private RefundStatus refundFailedStatus;
     private OrderStatus confirmedStatus;
@@ -117,7 +118,8 @@ class PaymentServiceTest {
         pendingStatus = PaymentStatus.builder().id(1L).code("PENDING").name("Pending").build();
         completedStatus = PaymentStatus.builder().id(2L).code("COMPLETED").name("Completed").build();
         failedStatus = PaymentStatus.builder().id(3L).code("FAILED").name("Failed").build();
-        refundedStatus = PaymentStatus.builder().id(4L).code("REFUNDED").name("Refunded").build();
+refundedStatus = PaymentStatus.builder().id(4L).code("REFUNDED").name("Refunded").build();
+        partiallyRefundedStatus = PaymentStatus.builder().id(5L).code("PARTIALLY_REFUNDED").name("Partially Refunded").build();
 
         refundCompletedStatus = RefundStatus.builder().id(1L).code("COMPLETED").name("Completed").build();
         refundFailedStatus = RefundStatus.builder().id(2L).code("FAILED").name("Failed").build();
@@ -336,7 +338,7 @@ class PaymentServiceTest {
             r.setUpdatedAt(Instant.now());
             return r;
         });
-        when(paymentStatusRepository.findByCode("REFUNDED")).thenReturn(Optional.of(refundedStatus));
+        when(paymentStatusRepository.findByCode("PARTIALLY_REFUNDED")).thenReturn(Optional.of(partiallyRefundedStatus));
 
         RefundRequest request = new RefundRequest();
         request.setPaymentId(1L);
@@ -406,3 +408,4 @@ class PaymentServiceTest {
         assertThat(result.get(0).getUuid()).isEqualTo("refund-uuid-1");
     }
 }
+

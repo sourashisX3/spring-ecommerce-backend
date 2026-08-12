@@ -22,6 +22,8 @@ public class UserMapper {
                 .profilePictureUrl(user.getProfilePictureUrl())
                 .roleName(user.getRole() != null ? user.getRole().getRoleName() : null)
                 .streetAddress(address != null ? address.getStreetAddress() : null)
+                .addressLine1(address != null ? address.getAddressLine1() : null)
+                .addressLine2(address != null ? address.getAddressLine2() : null)
                 .city(address != null ? address.getCity() : null)
                 .state(address != null ? address.getState() : null)
                 .country(address != null ? address.getCountry() : null)

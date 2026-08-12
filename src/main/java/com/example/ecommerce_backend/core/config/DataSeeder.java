@@ -539,10 +539,17 @@ public class DataSeeder implements ApplicationRunner {
                                 .code(entry.getKey())
                                 .name((String) val[0])
                                 .symbol((String) val[1])
+                                .isDefault("INR".equals(entry.getKey()))
                                 .sortOrder(idx)
                                 .isActive(true)
                                 .build()
                 );
+            } else if ("INR".equals(entry.getKey())
+                    && currencyRepository.findByIsDefaultTrueAndIsActiveTrue().isEmpty()) {
+                Currency inr = currencyRepository.findByCode("INR").get();
+                inr.setDefault(true);
+                currencyRepository.save(inr);
+                log.info("Promoting INR as the store default currency");
             }
             idx++;
         }

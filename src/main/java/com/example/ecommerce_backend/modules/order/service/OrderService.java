@@ -90,8 +90,9 @@ public class OrderService {
             throw new InvalidOrderStateException("Cart is empty");
         }
 
-        Currency currency = currencyRepository.findByCode("USD")
-                .orElseThrow(() -> new CurrencyNotFoundException("USD"));
+        Currency currency = currencyRepository.findByIsDefaultTrueAndIsActiveTrue()
+                .orElseGet(() -> currencyRepository.findFirstByIsActiveTrueOrderBySortOrderAscIdAsc()
+                        .orElseThrow(() -> new CurrencyNotFoundException("No active default currency")));
 
         if (!currency.isActive()) {
             throw new InvalidOrderStateException("Selected currency is not active");

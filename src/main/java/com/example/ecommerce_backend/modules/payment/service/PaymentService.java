@@ -100,9 +100,15 @@ public class PaymentService {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new OrderNotFoundException("id: " + request.getOrderId()));
 
-        String currencyCode = request.getCurrency() != null ? request.getCurrency() : "USD";
-        Currency currency = currencyRepository.findByCode(currencyCode)
-                .orElseThrow(() -> new CurrencyNotFoundException(currencyCode));
+        Currency currency;
+        if (request.getCurrency() != null && !request.getCurrency().isBlank()) {
+            currency = currencyRepository.findByCode(request.getCurrency())
+                    .orElseThrow(() -> new CurrencyNotFoundException(request.getCurrency()));
+        } else {
+            currency = currencyRepository.findByIsDefaultTrueAndIsActiveTrue()
+                    .orElseGet(() -> currencyRepository.findFirstByIsActiveTrueOrderBySortOrderAscIdAsc()
+                            .orElseThrow(() -> new CurrencyNotFoundException("No active default currency")));
+        }
 
         if (!currency.isActive()) {
             throw new PaymentFailedException("Selected currency is not active");
@@ -125,7 +131,7 @@ public class PaymentService {
 
         PaymentResult result = mockPaymentGateway.processPayment(
                 request.getOrderId(), request.getAmount(),
-                currencyCode,
+                currency.getCode(),
                 new HashMap<>());
 
         if (!result.isSuccess()) {

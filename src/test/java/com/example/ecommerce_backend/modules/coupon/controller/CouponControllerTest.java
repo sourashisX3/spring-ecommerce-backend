@@ -91,7 +91,7 @@ class CouponControllerTest {
 
     @Test
     void getAll_shouldReturnCoupons() throws Exception {
-        when(couponService.getAll(null, null)).thenReturn(List.of(couponResponse));
+        when(couponService.getAll(isNull(), isNull(), isNull())).thenReturn(List.of(couponResponse));
 
         mockMvc.perform(get("/coupons"))
                 .andExpect(status().isOk())
@@ -100,7 +100,7 @@ class CouponControllerTest {
 
     @Test
     void getAll_withFilters_shouldPassParams() throws Exception {
-        when(couponService.getAll(eq(true), eq(false))).thenReturn(List.of(couponResponse));
+        when(couponService.getAll(eq(true), eq(false), isNull())).thenReturn(List.of(couponResponse));
 
         mockMvc.perform(get("/coupons?active=true&global=false"))
                 .andExpect(status().isOk());

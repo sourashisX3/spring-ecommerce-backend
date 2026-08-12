@@ -101,7 +101,7 @@ class DiscountControllerTest {
 
     @Test
     void getAll_shouldReturnDiscounts() throws Exception {
-        when(discountService.getAll(null, null)).thenReturn(List.of(discountResponse));
+        when(discountService.getAll(isNull(), isNull(), isNull())).thenReturn(List.of(discountResponse));
 
         mockMvc.perform(get("/discounts"))
                 .andExpect(status().isOk())
@@ -110,7 +110,7 @@ class DiscountControllerTest {
 
     @Test
     void getAll_withFilters_shouldPassParams() throws Exception {
-        when(discountService.getAll(eq(true), eq(false))).thenReturn(List.of(discountResponse));
+        when(discountService.getAll(eq(true), eq(false), isNull())).thenReturn(List.of(discountResponse));
 
         mockMvc.perform(get("/discounts?active=true&global=false"))
                 .andExpect(status().isOk());

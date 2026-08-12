@@ -36,6 +36,10 @@ public class UserResponse {
     private String roleName;
     @Schema(description = "Street address", example = "123 Main St")
     private String streetAddress;
+    @Schema(description = "Address line 1", example = "123 Main St")
+    private String addressLine1;
+    @Schema(description = "Address line 2", example = "Apt 4B")
+    private String addressLine2;
     @Schema(description = "City", example = "New York")
     private String city;
     @Schema(description = "State", example = "NY")

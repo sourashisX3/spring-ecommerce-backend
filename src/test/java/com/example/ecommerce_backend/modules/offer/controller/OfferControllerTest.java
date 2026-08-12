@@ -67,7 +67,7 @@ class OfferControllerTest {
 
     @Test
     void getAll_shouldReturnOffers() throws Exception {
-        when(offerService.getAll(null, null)).thenReturn(List.of(offerResponse));
+        when(offerService.getAll(isNull(), isNull(), isNull())).thenReturn(List.of(offerResponse));
 
         mockMvc.perform(get("/offers"))
                 .andExpect(status().isOk())
@@ -76,7 +76,7 @@ class OfferControllerTest {
 
     @Test
     void getAll_withFilters_shouldPassParams() throws Exception {
-        when(offerService.getAll(eq(true), eq(false))).thenReturn(List.of(offerResponse));
+        when(offerService.getAll(eq(true), eq(false), isNull())).thenReturn(List.of(offerResponse));
 
         mockMvc.perform(get("/offers?active=true&global=false"))
                 .andExpect(status().isOk());

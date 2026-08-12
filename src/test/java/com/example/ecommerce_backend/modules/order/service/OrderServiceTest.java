@@ -144,7 +144,7 @@ class OrderServiceTest {
     void createOrder_shouldCreateOrderSuccessfully() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(List.of(cartItem));
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(usdCurrency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(usdCurrency));
         when(productRepository.findById(1L)).thenReturn(Optional.of(activeProduct));
         when(variantRepository.getTotalStockByProductId(1L)).thenReturn(10);
         when(orderStatusRepository.findByCode("PENDING")).thenReturn(Optional.of(pendingStatus));
@@ -173,7 +173,7 @@ class OrderServiceTest {
     void createOrder_withCoupon_shouldApplyDiscount() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(List.of(cartItem));
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(usdCurrency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(usdCurrency));
         when(productRepository.findById(1L)).thenReturn(Optional.of(activeProduct));
         when(variantRepository.getTotalStockByProductId(1L)).thenReturn(10);
         when(couponService.validateAndApply("SAVE10", 1L, BigDecimal.valueOf(100).setScale(4, java.math.RoundingMode.HALF_UP), null))
@@ -226,7 +226,7 @@ class OrderServiceTest {
     void createOrder_whenProductNotFound_shouldThrow() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(List.of(cartItem));
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(usdCurrency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(usdCurrency));
         when(productRepository.findById(1L)).thenReturn(Optional.empty());
 
         OrderRequest request = new OrderRequest();
@@ -242,7 +242,7 @@ class OrderServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(List.of(inactiveCartItem));
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(usdCurrency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(usdCurrency));
         when(productRepository.findById(2L)).thenReturn(Optional.of(inactiveProduct));
 
         OrderRequest request = new OrderRequest();
@@ -257,7 +257,7 @@ class OrderServiceTest {
     void createOrder_whenInsufficientStock_shouldThrow() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(cartRepository.findByUserId(1L)).thenReturn(List.of(cartItem));
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(usdCurrency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(usdCurrency));
         when(productRepository.findById(1L)).thenReturn(Optional.of(activeProduct));
         when(variantRepository.getTotalStockByProductId(1L)).thenReturn(1);
 

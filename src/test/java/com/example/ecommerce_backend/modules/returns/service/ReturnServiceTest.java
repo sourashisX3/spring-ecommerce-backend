@@ -3,6 +3,7 @@ package com.example.ecommerce_backend.modules.returns.service;
 import com.example.ecommerce_backend.modules.order.entity.Order;
 import com.example.ecommerce_backend.modules.order.exception.OrderNotFoundException;
 import com.example.ecommerce_backend.modules.order.repository.OrderRepository;
+import com.example.ecommerce_backend.modules.payment.service.PaymentService;
 import com.example.ecommerce_backend.modules.returns.dto.request.ReturnRequestDto;
 import com.example.ecommerce_backend.modules.returns.dto.response.ReturnResponse;
 import com.example.ecommerce_backend.modules.returns.entity.*;
@@ -58,6 +59,9 @@ class ReturnServiceTest {
 
     @Mock
     private ReturnStatusRepository returnStatusRepository;
+
+    @Mock
+    private PaymentService paymentService;
 
     @InjectMocks
     private ReturnService returnService;
@@ -340,6 +344,8 @@ class ReturnServiceTest {
         when(returnRequestRepository.findByUuid("return-uuid")).thenReturn(Optional.of(returnRequest));
         when(returnStatusRepository.findByCode("APPROVED")).thenReturn(Optional.of(approvedStatus));
         when(returnRequestRepository.save(any(ReturnRequest.class))).thenReturn(returnRequest);
+        when(paymentService.refundForReturn(order.getId(), returnRequest.getId(), returnRequest.getUuid()))
+                .thenReturn(false);
 
         ReturnResponse result = returnService.updateStatus("return-uuid", "APPROVED", "Approved");
 

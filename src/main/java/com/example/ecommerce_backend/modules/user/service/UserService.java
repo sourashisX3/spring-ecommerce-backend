@@ -246,11 +246,14 @@ public class UserService {
         if (request.getDialCode() != null) user.setDialCode(request.getDialCode());
         if (request.getPhoneNumber() != null) user.setPhoneNumber(request.getPhoneNumber());
         if (request.getProfilePictureUrl() != null) user.setProfilePictureUrl(request.getProfilePictureUrl());
-        if (request.getStreetAddress() != null || request.getCity() != null ||
+        if (request.getAddressLine1() != null || request.getAddressLine2() != null ||
+            request.getStreetAddress() != null || request.getCity() != null ||
             request.getState() != null || request.getCountry() != null ||
             request.getZipCode() != null) {
             UserAddress address = user.getAddress();
             if (address == null) address = new UserAddress();
+            if (request.getAddressLine1() != null) address.setAddressLine1(request.getAddressLine1());
+            if (request.getAddressLine2() != null) address.setAddressLine2(request.getAddressLine2());
             if (request.getStreetAddress() != null) address.setStreetAddress(request.getStreetAddress());
             if (request.getCity() != null) address.setCity(request.getCity());
             if (request.getState() != null) address.setState(request.getState());

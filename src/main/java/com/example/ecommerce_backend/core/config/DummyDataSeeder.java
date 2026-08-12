@@ -311,6 +311,12 @@ ReviewRepository reviewRepository,
                 .orElseThrow(() -> new RuntimeException("Currency " + code + " not found"));
     }
 
+    private Currency getDefaultCurrency() {
+        return currencyRepository.findByIsDefaultTrueAndIsActiveTrue()
+                .orElseGet(() -> currencyRepository.findFirstByIsActiveTrueOrderBySortOrderAscIdAsc()
+                        .orElseThrow(() -> new RuntimeException("No active default currency")));
+    }
+
     private DiscountType getDiscountType(String code) {
         return discountTypeRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Discount type " + code + " not found"));
@@ -461,7 +467,7 @@ ReviewRepository reviewRepository,
     }
 
     private void seedWallets() {
-        Currency usd = getCurrency("USD");
+        Currency currency = getDefaultCurrency();
 
         for (String email : List.of("superadmin@example.com", "admin@example.com", "user@example.com")) {
             User user = getUser(email);
@@ -470,7 +476,7 @@ ReviewRepository reviewRepository,
                 walletRepository.save(Wallet.builder()
                         .user(user)
                         .balance(BigDecimal.valueOf(10000).setScale(4, RoundingMode.HALF_UP))
-                        .currency(usd)
+                        .currency(currency)
                         .isActive(true)
                         .build());
             }
@@ -1253,7 +1259,7 @@ ReviewRepository reviewRepository,
     }
 
     private void seedOrders() {
-        Currency usd = getCurrency("USD");
+        Currency currency = getDefaultCurrency();
         OrderStatus pending = getOrderStatus("PENDING");
         OrderStatus processing = getOrderStatus("PROCESSING");
         OrderStatus delivered = getOrderStatus("DELIVERED");
@@ -1273,7 +1279,7 @@ ReviewRepository reviewRepository,
 
             Coupon welcome10 = couponRepository.findByCode("WELCOME10").get();
 
-            Order order1 = buildOrder(user, pending, usd, welcome10,
+            Order order1 = buildOrder(user, pending, currency, welcome10,
                     List.of(OrderItem.builder()
                                     .productId(iphone.getId())
                                     .variantId(iphoneVariant.getId())
@@ -1305,7 +1311,7 @@ ReviewRepository reviewRepository,
             order1.setTotal(BigDecimal.valueOf(1623.98));
             orderRepository.save(order1);
 
-            Order order2 = buildOrder(admin, delivered, usd, null,
+            Order order2 = buildOrder(admin, delivered, currency, null,
                     List.of(OrderItem.builder()
                                     .productId(nikeShoes.getId())
                                     .variantId(nikeVariant.getId())
@@ -1341,7 +1347,7 @@ ReviewRepository reviewRepository,
             order2.setTotal(BigDecimal.valueOf(333.96));
             orderRepository.save(order2);
 
-            Order order3 = buildOrder(superAdmin, processing, usd, null,
+            Order order3 = buildOrder(superAdmin, processing, currency, null,
                     List.of(OrderItem.builder()
                                     .productId(nikeShoes.getId())
                                     .productName("Nike Air Max 270")
@@ -1395,7 +1401,7 @@ ReviewRepository reviewRepository,
     private void seedPayments() {
         PaymentGateway mock = getPaymentGateway("MOCK");
         PaymentStatus completed = getPaymentStatus("COMPLETED");
-        Currency usd = getCurrency("USD");
+        Currency currency = getDefaultCurrency();
 
         List<Order> orders = orderRepository.findAll();
         for (Order order : orders) {
@@ -1406,7 +1412,7 @@ ReviewRepository reviewRepository,
                         .user(order.getUser())
                         .gateway(mock)
                         .amount(order.getTotal())
-                        .currency(usd)
+                        .currency(currency)
                         .status(completed)
                         .method("CREDIT_CARD")
                         .gatewayTransactionId("TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
@@ -1690,7 +1696,7 @@ ReviewRepository reviewRepository,
         Wallet wallet = walletRepository.save(Wallet.builder()
                 .user(user)
                 .balance(scaled)
-                .currency(getCurrency("USD"))
+                .currency(getDefaultCurrency())
                 .isActive(true)
                 .build());
         walletTransactionRepository.save(WalletTransaction.builder()
@@ -1710,7 +1716,7 @@ ReviewRepository reviewRepository,
             return;
         }
         log.info("Seeding extra orders with payments");
-        Currency usd = getCurrency("USD");
+        Currency currency = getDefaultCurrency();
         OrderStatus pending = getOrderStatus("PENDING");
         OrderStatus confirmed = getOrderStatus("CONFIRMED");
         OrderStatus processing = getOrderStatus("PROCESSING");
@@ -1726,7 +1732,7 @@ ReviewRepository reviewRepository,
         ProductVariant budsStd = productVariantRepository.findBySku("SAM-GB3P-001-STD").get();
         ProductVariant sonyStd = productVariantRepository.findBySku("SONY-WF10-001-STD").get();
 
-        Order aliceOrder = buildOrder(alice, shipped, usd, null,
+        Order aliceOrder = buildOrder(alice, shipped, currency, null,
                 List.of(orderItem(airpodsStd, "Apple AirPods Pro 3", new BigDecimal("249.99"), 1)),
                 List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
                         history(confirmed, processing, "ADMIN", "Payment confirmed"),
@@ -1738,7 +1744,7 @@ ReviewRepository reviewRepository,
         aliceOrder.setTotal(new BigDecimal("274.97"));
         orderRepository.save(aliceOrder);
 
-        Order bobOrder = buildOrder(bob, cancelled, usd, null,
+        Order bobOrder = buildOrder(bob, cancelled, currency, null,
                 List.of(orderItem(budsStd, "Samsung Galaxy Buds3 Pro", new BigDecimal("229.99"), 1)),
                 List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
                         history(confirmed, processing, "ADMIN", "Payment confirmed"),
@@ -1751,7 +1757,7 @@ ReviewRepository reviewRepository,
         bobOrder.setCanceledAt(Instant.now().minus(Duration.ofDays(2)));
         orderRepository.save(bobOrder);
 
-        Order carolOrder = buildOrder(carol, returnRequested, usd, null,
+        Order carolOrder = buildOrder(carol, returnRequested, currency, null,
                 List.of(orderItem(sonyStd, "Sony WF-1000XM7", new BigDecimal("299.99"), 1)),
                 List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
                         history(confirmed, processing, "ADMIN", "Payment confirmed"),
@@ -1802,7 +1808,7 @@ ReviewRepository reviewRepository,
                 .user(order.getUser())
                 .gateway(getPaymentGateway("MOCK"))
                 .amount(order.getTotal())
-                .currency(getCurrency("USD"))
+                .currency(getDefaultCurrency())
                 .status(status)
                 .method("CREDIT_CARD")
                 .gatewayTransactionId("TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())

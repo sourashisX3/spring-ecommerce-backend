@@ -24,7 +24,11 @@ public class UpdateProfileRequest {
     private String phoneNumber;
     @Schema(description = "Profile picture URL", example = "https://example.com/profile.jpg")
     private String profilePictureUrl;
-    @Schema(description = "Street address", example = "123 Main St")
+    @Schema(description = "Address line 1", example = "123 Main St")
+    private String addressLine1;
+    @Schema(description = "Address line 2", example = "Apt 4B")
+    private String addressLine2;
+    @Schema(description = "Street address (deprecated)", example = "123 Main St")
     private String streetAddress;
     @Schema(description = "City", example = "New York")
     private String city;

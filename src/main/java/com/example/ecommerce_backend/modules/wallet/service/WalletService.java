@@ -194,8 +194,9 @@ public class WalletService {
     private Wallet createWallet(Long userId) {
         try {
             User user = userRepository.getReferenceById(userId);
-            Currency currency = currencyRepository.findByCode("USD")
-                    .orElseThrow(() -> new CurrencyNotFoundException("USD"));
+            Currency currency = currencyRepository.findByIsDefaultTrueAndIsActiveTrue()
+                    .orElseGet(() -> currencyRepository.findFirstByIsActiveTrueOrderBySortOrderAscIdAsc()
+                            .orElseThrow(() -> new CurrencyNotFoundException("No active default currency")));
             Wallet wallet = Wallet.builder()
                     .user(user)
                     .currency(currency)

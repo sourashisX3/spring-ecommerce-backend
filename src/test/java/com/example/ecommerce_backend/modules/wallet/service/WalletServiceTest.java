@@ -97,7 +97,7 @@ class WalletServiceTest {
     void getWallet_whenNotExists_shouldCreateWallet() {
         when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(1L)).thenReturn(user);
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(currency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(currency));
         when(walletRepository.save(any(Wallet.class))).thenReturn(wallet);
 
         WalletResponse result = walletService.getWallet(1L);
@@ -110,7 +110,7 @@ class WalletServiceTest {
     void getWallet_whenCreateFailsDueToConcurrency_shouldFindExisting() {
         when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(1L)).thenReturn(user);
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(currency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(currency));
         when(walletRepository.save(any(Wallet.class)))
                 .thenThrow(new DataIntegrityViolationException("duplicate"));
         when(walletRepository.findByUserIdWithLock(1L)).thenReturn(Optional.of(wallet));
@@ -124,7 +124,7 @@ class WalletServiceTest {
     void getWallet_whenCreateConcurrencyFails_shouldThrow() {
         when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(1L)).thenReturn(user);
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.of(currency));
+        when(currencyRepository.findByIsDefaultTrueAndIsActiveTrue()).thenReturn(Optional.of(currency));
         when(walletRepository.save(any(Wallet.class)))
                 .thenThrow(new DataIntegrityViolationException("duplicate"));
         when(walletRepository.findByUserIdWithLock(1L)).thenReturn(Optional.empty());
@@ -137,7 +137,6 @@ class WalletServiceTest {
     void getWallet_whenCurrencyNotFound_shouldThrow() {
         when(walletRepository.findByUserId(1L)).thenReturn(Optional.empty());
         when(userRepository.getReferenceById(1L)).thenReturn(user);
-        when(currencyRepository.findByCode("USD")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> walletService.getWallet(1L))
                 .isInstanceOf(CurrencyNotFoundException.class);

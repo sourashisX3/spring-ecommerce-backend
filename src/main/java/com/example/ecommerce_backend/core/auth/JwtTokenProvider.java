@@ -50,6 +50,7 @@ public class JwtTokenProvider {
         Map<String, Object> claims = new HashMap<>();
         return Jwts.builder()
                 .claims(claims)
+                .id(java.util.UUID.randomUUID().toString())
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
