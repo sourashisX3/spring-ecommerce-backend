@@ -48,7 +48,7 @@ public class Product {
     private BigDecimal basePrice;
 
     @Convert(converter = AttributeMapConverter.class)
-    @Column(columnDefinition = "JSON")
+    @Column(columnDefinition = "text", length = 4000)
     @Builder.Default
     private Map<String, String> attributes = new HashMap<>();
 

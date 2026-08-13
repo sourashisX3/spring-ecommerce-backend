@@ -32,8 +32,22 @@ public class AttributeMapConverter implements AttributeConverter<Map<String, Str
         }
         try {
             return MAPPER.readValue(dbData, new TypeReference<Map<String, String>>() {});
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to deserialize attributes", e);
+        } catch (Exception firstPass) {
+            // H2's JSON column type wraps the converter output into a JSON string
+            // (e.g. {"storage":"256GB"} -> "{\"storage\":\"256GB\"}"). Unwrap it once
+            // before falling back, so legacy/double-encoded rows never 500 the API.
+            try {
+                String inner = MAPPER.readValue(dbData, String.class);
+                if (inner == null || inner.isBlank()) {
+                    return new HashMap<>();
+                }
+                return MAPPER.readValue(inner, new TypeReference<Map<String, String>>() {});
+            } catch (Exception secondPass) {
+                String trimmed = dbData.trim();
+                Map<String, String> fallback = new HashMap<>();
+                fallback.put("value", trimmed);
+                return fallback;
+            }
         }
     }
 }

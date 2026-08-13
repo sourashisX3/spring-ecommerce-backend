@@ -38,7 +38,7 @@ public class ProductVariant {
     private int stock = 0;
 
     @Convert(converter = AttributeMapConverter.class)
-    @Column(columnDefinition = "JSON")
+    @Column(columnDefinition = "text", length = 4000)
     @Builder.Default
     private Map<String, String> attributes = new java.util.HashMap<>();
 
