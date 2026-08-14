@@ -24,6 +24,8 @@ public class DashboardResponse {
     private long cartCount;
     @Schema(description = "Current wallet balance", example = "250.00")
     private BigDecimal walletBalance;
+    @Schema(description = "ISO 4217 code of the currency the wallet balance is denominated in", example = "INR")
+    private String walletCurrency;
     @Schema(description = "Number of unread notifications", example = "5")
     private long unreadNotificationCount;
     @Schema(description = "List of recent orders")

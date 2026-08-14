@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 @Schema(description = "Request object for creating a currency")
 public class CurrencyRequest {
@@ -32,4 +34,7 @@ public class CurrencyRequest {
 
     @Schema(description = "Whether this is the default currency", example = "false")
     private Boolean isDefault;
+
+    @Schema(description = "Value of 1 unit of this currency in INR (defaults to 1.0)", example = "83.9")
+    private BigDecimal exchangeRate;
 }

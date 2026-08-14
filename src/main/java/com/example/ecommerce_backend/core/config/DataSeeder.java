@@ -38,6 +38,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -253,7 +254,7 @@ public class DataSeeder implements ApplicationRunner {
         Permission allPermission = perm("*:*");
         ensureRoleHasPermissions("SUPER_ADMIN", "Super admin with full access", Set.of(allPermission));
 
-        ensureRoleHasPermissions("USER", "Default user role", Set.of());
+        ensureRoleHasPermissions("USER", "Default user role", Set.of(perm("currency:read")));
 
         Set<Permission> adminPermissions = Set.of(
                 perm("product:read"), perm("product:write"),
@@ -524,10 +525,10 @@ public class DataSeeder implements ApplicationRunner {
 
     private void seedCurrencies() {
         Map<String, Object[]> currencies = new LinkedHashMap<>();
-        currencies.put("USD", new Object[]{"US Dollar", "$"});
-        currencies.put("EUR", new Object[]{"Euro", "€"});
-        currencies.put("GBP", new Object[]{"British Pound", "£"});
-        currencies.put("INR", new Object[]{"Indian Rupee", "₹"});
+        currencies.put("USD", new Object[]{"US Dollar", "$", new BigDecimal("85.000000")});
+        currencies.put("EUR", new Object[]{"Euro", "€", new BigDecimal("95.000000")});
+        currencies.put("GBP", new Object[]{"British Pound", "£", new BigDecimal("110.000000")});
+        currencies.put("INR", new Object[]{"Indian Rupee", "₹", BigDecimal.ONE});
 
         int idx = 0;
         for (Map.Entry<String, Object[]> entry : currencies.entrySet()) {
@@ -542,6 +543,7 @@ public class DataSeeder implements ApplicationRunner {
                                 .isDefault("INR".equals(entry.getKey()))
                                 .sortOrder(idx)
                                 .isActive(true)
+                                .exchangeRate((BigDecimal) val[2])
                                 .build()
                 );
             } else if ("INR".equals(entry.getKey())
@@ -550,6 +552,15 @@ public class DataSeeder implements ApplicationRunner {
                 inr.setDefault(true);
                 currencyRepository.save(inr);
                 log.info("Promoting INR as the store default currency");
+            } else {
+                // Backfill exchange rate for currencies created before the field existed.
+                Currency existing = currencyRepository.findByCode(entry.getKey()).get();
+                Object[] val = entry.getValue();
+                if (existing.getExchangeRate() == null || existing.getExchangeRate().compareTo(BigDecimal.ZERO) <= 0) {
+                    existing.setExchangeRate((BigDecimal) val[2]);
+                    currencyRepository.save(existing);
+                    log.info("Backfilling exchange rate for {} = {}", entry.getKey(), val[2]);
+                }
             }
             idx++;
         }

@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.currency.service;
 
 import com.example.ecommerce_backend.modules.currency.dto.request.CurrencyRequest;
+import com.example.ecommerce_backend.modules.currency.dto.request.CurrencyUpdateRequest;
 import com.example.ecommerce_backend.modules.currency.entity.Currency;
 import com.example.ecommerce_backend.modules.currency.exception.CurrencyAlreadyExistsException;
 import com.example.ecommerce_backend.modules.currency.exception.CurrencyDefaultException;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CurrencyService {
@@ -66,8 +69,53 @@ public class CurrencyService {
                 .isActive(request.getIsActive() == null || request.getIsActive())
                 .location(request.getLocation() != null ? request.getLocation().trim() : null)
                 .isDefault(makeDefault)
+                .exchangeRate(request.getExchangeRate() != null && request.getExchangeRate().compareTo(BigDecimal.ZERO) > 0
+                        ? request.getExchangeRate()
+                        : BigDecimal.ONE)
                 .build();
         return currencyRepository.save(currency);
+    }
+
+    @Transactional
+    public Currency updateCurrency(String uuid, CurrencyUpdateRequest request) {
+        Currency currency = currencyRepository.findByUuid(uuid)
+                .orElseThrow(() -> new CurrencyNotFoundException(uuid));
+        if (request.getName() != null && !request.getName().isBlank()) {
+            currency.setName(request.getName().trim());
+        }
+        if (request.getSymbol() != null) {
+            currency.setSymbol(request.getSymbol());
+        }
+        if (request.getLocation() != null) {
+            currency.setLocation(request.getLocation().trim());
+        }
+        if (request.getIsActive() != null) {
+            currency.setActive(request.getIsActive());
+        }
+        if (request.getSortOrder() != null) {
+            currency.setSortOrder(request.getSortOrder());
+        }
+        if (request.getExchangeRate() != null && request.getExchangeRate().compareTo(BigDecimal.ZERO) > 0) {
+            currency.setExchangeRate(request.getExchangeRate());
+        }
+        return currencyRepository.save(currency);
+    }
+
+    @Transactional
+    public int refreshRates(Map<String, BigDecimal> rates) {
+        if (rates == null || rates.isEmpty()) {
+            return 0;
+        }
+        int updated = 0;
+        for (Currency currency : currencyRepository.findByIsActiveTrue()) {
+            BigDecimal rate = rates.get(currency.getCode().toUpperCase());
+            if (rate != null && rate.compareTo(BigDecimal.ZERO) > 0) {
+                currency.setExchangeRate(rate);
+                updated++;
+            }
+        }
+        currencyRepository.flush();
+        return updated;
     }
 
     @Transactional
