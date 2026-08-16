@@ -26,6 +26,7 @@ import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -87,9 +88,13 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmailOrPhone(), request.getPassword())
-        );
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmailOrPhone(), request.getPassword())
+            );
+        } catch (DisabledException e) {
+            throw new AccountDeactivatedException();
+        }
 
         User user = findUserByIdentifier(request.getEmailOrPhone());
 

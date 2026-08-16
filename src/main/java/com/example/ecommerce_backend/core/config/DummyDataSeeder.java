@@ -233,7 +233,6 @@ RefundRepository refundRepository,
     public void run(ApplicationArguments args) {
         ensureSeedUserPasswords();
         refreshDemoRecency();
-        migrateCurrencyReferences();
 
         if (userRepository.findByEmail("superadmin@example.com").isPresent()) {
             log.info("Dummy data already exists, refreshing catalog");
@@ -344,52 +343,6 @@ RefundRepository refundRepository,
             userRepository.save(seedUser);
         }
         log.info("Refreshed demo order/user timestamps to keep dashboard trends populated");
-    }
-
-    /**
-     * Re-points records that reference the old INR default currency to USD.
-     *
-     * <p>Pricing in this app is USD-denominated, but older databases (and the
-     * old default seed) recorded orders/payments/wallets with the INR currency
-     * row. After {@link DataSeeder} promotes USD to the default, those records
-     * would be misinterpreted as INR amounts and converted ~85x on display.
-     * This migration rewrites them to USD so amounts render 1:1.
-     */
-    private void migrateCurrencyReferences() {
-        Optional<Currency> usd = currencyRepository.findByCode("USD");
-        Optional<Currency> inr = currencyRepository.findByCode("INR");
-        if (usd.isEmpty() || inr.isEmpty()) {
-            return;
-        }
-        Currency usdCurrency = usd.get();
-        Currency inrCurrency = inr.get();
-        int moved = 0;
-
-        for (Order order : orderRepository.findAll()) {
-            if (inrCurrency.getCode().equals(order.getCurrency().getCode())) {
-                order.setCurrency(usdCurrency);
-                orderRepository.save(order);
-                moved++;
-            }
-        }
-        for (Payment payment : paymentRepository.findAll()) {
-            if (inrCurrency.getCode().equals(payment.getCurrency().getCode())) {
-                payment.setCurrency(usdCurrency);
-                paymentRepository.save(payment);
-                moved++;
-            }
-        }
-        for (Wallet wallet : walletRepository.findAll()) {
-            if (inrCurrency.getCode().equals(wallet.getCurrency().getCode())) {
-                wallet.setCurrency(usdCurrency);
-                walletRepository.save(wallet);
-                moved++;
-            }
-        }
-
-        if (moved > 0) {
-            log.info("Re-pointed {} INR-denominated orders/payments/wallets to USD", moved);
-        }
     }
 
     private Role getRole(String name) {

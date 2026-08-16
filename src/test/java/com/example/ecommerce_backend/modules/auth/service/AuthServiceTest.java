@@ -247,7 +247,7 @@ class AuthServiceTest {
     }
 
     @Test
-    void login_whenUserDeactivated_shouldPropagateAuthenticationFailure() {
+    void login_whenUserDeactivated_shouldThrowAccountDeactivated() {
         LoginRequest request = new LoginRequest();
         request.setEmailOrPhone("jane@test.com");
         request.setPassword("password123");
@@ -257,7 +257,7 @@ class AuthServiceTest {
                 .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
         assertThatThrownBy(() -> authService.login(request))
-                .isInstanceOf(DisabledException.class);
+                .isInstanceOf(AccountDeactivatedException.class);
     }
 
     @Test

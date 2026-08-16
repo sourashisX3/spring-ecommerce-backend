@@ -39,7 +39,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -527,16 +526,12 @@ public class DataSeeder implements ApplicationRunner {
         }
     }
 
-    /** Canonical USD-anchored rates: value of 1 unit of the currency in USD. */
-    private static final Map<String, Object[]> CANONICAL_CURRENCIES = new LinkedHashMap<>() {{
-        put("USD", new Object[]{"US Dollar", "$", BigDecimal.ONE});
-        put("EUR", new Object[]{"Euro", "€", new BigDecimal("1.117647")});
-        put("GBP", new Object[]{"British Pound", "£", new BigDecimal("1.294118")});
-        put("INR", new Object[]{"Indian Rupee", "₹", new BigDecimal("85.000000")});
-    }};
-
     private void seedCurrencies() {
-        Map<String, Object[]> currencies = new LinkedHashMap<>(CANONICAL_CURRENCIES);
+        Map<String, Object[]> currencies = new LinkedHashMap<>();
+        currencies.put("USD", new Object[]{"US Dollar", "$", new BigDecimal("85.000000")});
+        currencies.put("EUR", new Object[]{"Euro", "€", new BigDecimal("95.000000")});
+        currencies.put("GBP", new Object[]{"British Pound", "£", new BigDecimal("110.000000")});
+        currencies.put("INR", new Object[]{"Indian Rupee", "₹", BigDecimal.ONE});
 
         int idx = 0;
         for (Map.Entry<String, Object[]> entry : currencies.entrySet()) {
@@ -548,18 +543,18 @@ public class DataSeeder implements ApplicationRunner {
                                 .code(entry.getKey())
                                 .name((String) val[0])
                                 .symbol((String) val[1])
-                                .isDefault("USD".equals(entry.getKey()))
+                                .isDefault("INR".equals(entry.getKey()))
                                 .sortOrder(idx)
                                 .isActive(true)
                                 .exchangeRate((BigDecimal) val[2])
                                 .build()
                 );
-            } else if ("USD".equals(entry.getKey())
+            } else if ("INR".equals(entry.getKey())
                     && currencyRepository.findByIsDefaultTrueAndIsActiveTrue().isEmpty()) {
-                Currency usd = currencyRepository.findByCode("USD").get();
-                usd.setDefault(true);
-                currencyRepository.save(usd);
-                log.info("Promoting USD as the store default currency");
+                Currency inr = currencyRepository.findByCode("INR").get();
+                inr.setDefault(true);
+                currencyRepository.save(inr);
+                log.info("Promoting INR as the store default currency");
             } else {
                 // Backfill exchange rate for currencies created before the field existed.
                 Currency existing = currencyRepository.findByCode(entry.getKey()).get();
@@ -572,29 +567,5 @@ public class DataSeeder implements ApplicationRunner {
             }
             idx++;
         }
-
-        promoteUsdDefault();
-    }
-
-    private void promoteUsdDefault() {
-        currencyRepository.findByIsDefaultTrueAndIsActiveTrue().ifPresent(currentDefault -> {
-            if ("USD".equals(currentDefault.getCode())) {
-                return;
-            }
-            Currency usd = currencyRepository.findByCode("USD")
-                    .orElseThrow(() -> new RuntimeException("USD currency missing after seeding"));
-            for (Currency currency : currencyRepository.findAll()) {
-                Object[] val = CANONICAL_CURRENCIES.get(currency.getCode());
-                if (val != null) {
-                    currency.setExchangeRate((BigDecimal) val[2]);
-                    currencyRepository.save(currency);
-                }
-            }
-            usd.setDefault(true);
-            currencyRepository.save(usd);
-            currentDefault.setDefault(false);
-            currencyRepository.save(currentDefault);
-            log.info("Promoted USD as the store default currency and applied canonical USD-anchored exchange rates");
-        });
     }
 }
