@@ -74,9 +74,9 @@ public class FrankfurterExchangeRateProvider implements ExchangeRateProvider {
             String code = entry.getKey().toUpperCase();
             if (code.matches("[A-Z]{3}") && entry.getValue().isNumber()) {
                 BigDecimal raw = entry.getValue().decimalValue();
-                // Frankfurter quotes with base=INR: value = how many units of this
-                // currency one INR buys (e.g. USD ~0.0119). We store the inverse:
-                // the price of one unit of the currency in INR (USD ~84.0).
+                // Frankfurter quotes with base=USD: value = how many units of this
+                // currency one USD buys (e.g. INR ~85.0). We store the inverse:
+                // the price of one unit of the currency in USD (INR ~0.0118).
                 if (raw.compareTo(BigDecimal.ZERO) > 0) {
                     result.put(code, BigDecimal.ONE.divide(raw, 6, RoundingMode.HALF_UP));
                 }
