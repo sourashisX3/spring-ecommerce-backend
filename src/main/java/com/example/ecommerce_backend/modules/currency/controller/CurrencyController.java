@@ -4,7 +4,9 @@ import com.example.ecommerce_backend.core.annotation.RequiresPermission;
 import com.example.ecommerce_backend.core.dto.ApiResponse;
 import com.example.ecommerce_backend.core.dto.StatusRequest;
 import com.example.ecommerce_backend.modules.currency.dto.request.CurrencyRequest;
+import com.example.ecommerce_backend.modules.currency.dto.request.CurrencyUpdateRequest;
 import com.example.ecommerce_backend.modules.currency.entity.Currency;
+import com.example.ecommerce_backend.modules.currency.exchange.ExchangeRateService;
 import com.example.ecommerce_backend.modules.currency.service.CurrencyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +24,9 @@ public class CurrencyController {
 
     @Autowired
     private CurrencyService currencyService;
+
+    @Autowired
+    private ExchangeRateService exchangeRateService;
 
     @GetMapping
     @RequiresPermission("currency:read")
@@ -74,5 +79,26 @@ public class CurrencyController {
     public ResponseEntity<ApiResponse<Currency>> makeDefault(@PathVariable String uuid) {
         return ApiResponse.success(currencyService.makeDefault(uuid),
                 "Default currency updated successfully");
+    }
+
+    @PatchMapping("/{uuid}")
+    @RequiresPermission("currency:write")
+    @Operation(summary = "Update currency", description = "Updates currency details (name, symbol, location, sort order, status, exchange rate)")
+    public ResponseEntity<ApiResponse<Currency>> update(
+            @PathVariable String uuid,
+            @RequestBody CurrencyUpdateRequest request) {
+        return ApiResponse.success(currencyService.updateCurrency(uuid, request),
+                "Currency updated successfully");
+    }
+
+    @PostMapping("/refresh-rates")
+    @RequiresPermission("currency:write")
+    @Operation(summary = "Refresh exchange rates", description = "Fetches the latest exchange rates from the configured provider and stores them")
+    public ResponseEntity<ApiResponse<Integer>> refreshRates() {
+        int updated = exchangeRateService.refreshRates();
+        if (updated < 0) {
+            return ApiResponse.success(updated, "Exchange rate refresh failed; using last known rates");
+        }
+        return ApiResponse.success(updated, "Exchange rates refreshed successfully");
     }
 }

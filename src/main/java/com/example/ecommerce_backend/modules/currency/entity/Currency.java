@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -25,6 +26,11 @@ public class Currency {
 
     @Column(unique = true, nullable = false, length = 3)
     private String code;
+
+    @Schema(description = "Value of 1 unit of this currency in INR (INR = 1.000000)", example = "83.900000")
+    @Column(nullable = false, precision = 19, scale = 6)
+    @Builder.Default
+    private BigDecimal exchangeRate = BigDecimal.ONE;
 
     @Column(nullable = false)
     private String name;

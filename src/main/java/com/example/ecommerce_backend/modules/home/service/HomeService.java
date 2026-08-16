@@ -27,6 +27,7 @@ import com.example.ecommerce_backend.modules.user.entity.User;
 import com.example.ecommerce_backend.modules.user.repository.UserRepository;
 import com.example.ecommerce_backend.modules.variant.entity.ProductVariant;
 import com.example.ecommerce_backend.modules.variant.repository.ProductVariantRepository;
+import com.example.ecommerce_backend.modules.wallet.dto.response.WalletResponse;
 import com.example.ecommerce_backend.modules.wallet.service.WalletService;
 import com.example.ecommerce_backend.modules.wishlist.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -162,6 +163,7 @@ public class HomeService {
         long wishlistCount;
         long cartCount;
         BigDecimal walletBalance;
+        String walletCurrency;
         long unreadCount;
         List<OrderResponse> recentOrders;
 
@@ -169,7 +171,9 @@ public class HomeService {
             orderCount = orderRepository.count();
             wishlistCount = wishlistService.getWishlist(user).size();
             cartCount = cartService.getCart(user).size();
-            walletBalance = walletService.getWallet(user.getId()).getBalance();
+            WalletResponse wallet = walletService.getWallet(user.getId());
+            walletBalance = wallet.getBalance();
+            walletCurrency = wallet.getCurrency();
             unreadCount = notificationService != null ? notificationService.getUnreadCount(user.getId()) : 0;
             recentOrders = orderRepository
                     .findAllByOrderByCreatedAtDesc(PageRequest.of(0, 5))
@@ -179,7 +183,9 @@ public class HomeService {
             orderCount = orderService.getUserOrders(user.getId()).size();
             wishlistCount = wishlistService.getWishlist(user).size();
             cartCount = cartService.getCart(user).size();
-            walletBalance = walletService.getWallet(user.getId()).getBalance();
+            WalletResponse wallet = walletService.getWallet(user.getId());
+            walletBalance = wallet.getBalance();
+            walletCurrency = wallet.getCurrency();
             unreadCount = notificationService != null ? notificationService.getUnreadCount(user.getId()) : 0;
             recentOrders = orderService.getUserOrders(
                     user.getId(),
@@ -192,6 +198,7 @@ public class HomeService {
                 .wishlistCount(wishlistCount)
                 .cartCount(cartCount)
                 .walletBalance(walletBalance)
+                .walletCurrency(walletCurrency)
                 .unreadNotificationCount(unreadCount)
                 .recentOrders(recentOrders)
                 .analytics(privileged ? buildAnalytics() : null)

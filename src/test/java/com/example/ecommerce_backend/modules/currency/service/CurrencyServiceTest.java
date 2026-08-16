@@ -1,5 +1,7 @@
 package com.example.ecommerce_backend.modules.currency.service;
 
+import com.example.ecommerce_backend.modules.currency.dto.request.CurrencyRequest;
+import com.example.ecommerce_backend.modules.currency.dto.request.CurrencyUpdateRequest;
 import com.example.ecommerce_backend.modules.currency.entity.Currency;
 import com.example.ecommerce_backend.modules.currency.exception.CurrencyNotFoundException;
 import com.example.ecommerce_backend.modules.currency.repository.CurrencyRepository;
@@ -10,11 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -84,5 +89,89 @@ class CurrencyServiceTest {
 
         assertThatThrownBy(() -> currencyService.getByCode("XYZ"))
                 .isInstanceOf(CurrencyNotFoundException.class);
+    }
+
+    @Test
+    void createCurrency_shouldPersistExchangeRate() {
+        when(currencyRepository.existsByCode("USD")).thenReturn(false);
+        when(currencyRepository.save(any(Currency.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CurrencyRequest request = new CurrencyRequest();
+        request.setCode("USD");
+        request.setName("US Dollar");
+        request.setIsActive(true);
+        request.setExchangeRate(new BigDecimal("85.000000"));
+
+        Currency result = currencyService.createCurrency(request);
+
+        assertThat(result.getExchangeRate()).isEqualByComparingTo("85.000000");
+    }
+
+    @Test
+    void createCurrency_shouldDefaultExchangeRateToOneWhenMissing() {
+        when(currencyRepository.existsByCode("USD")).thenReturn(false);
+        when(currencyRepository.save(any(Currency.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CurrencyRequest request = new CurrencyRequest();
+        request.setCode("USD");
+        request.setName("US Dollar");
+        request.setIsActive(true);
+
+        Currency result = currencyService.createCurrency(request);
+
+        assertThat(result.getExchangeRate()).isEqualByComparingTo(BigDecimal.ONE);
+    }
+
+    @Test
+    void updateCurrency_shouldUpdateExchangeRate() {
+        when(currencyRepository.findByUuid("uuid-usd")).thenReturn(Optional.of(usd));
+        when(currencyRepository.save(any(Currency.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CurrencyUpdateRequest request = new CurrencyUpdateRequest();
+        request.setName("US Dollar");
+        request.setExchangeRate(new BigDecimal("90.000000"));
+
+        Currency result = currencyService.updateCurrency("uuid-usd", request);
+
+        assertThat(result.getExchangeRate()).isEqualByComparingTo("90.000000");
+        assertThat(result.getCode()).isEqualTo("USD");
+    }
+
+    @Test
+    void updateCurrency_whenInvalidRate_shouldKeepExisting() {
+        when(currencyRepository.findByUuid("uuid-usd")).thenReturn(Optional.of(usd));
+        when(currencyRepository.save(any(Currency.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        CurrencyUpdateRequest request = new CurrencyUpdateRequest();
+        request.setName("US Dollar");
+        request.setExchangeRate(new BigDecimal("-5"));
+
+        Currency result = currencyService.updateCurrency("uuid-usd", request);
+
+        assertThat(result.getExchangeRate()).isEqualByComparingTo(BigDecimal.ONE);
+    }
+
+    @Test
+    void refreshRates_shouldUpdateActiveCurrencies() {
+        usd.setExchangeRate(BigDecimal.ONE);
+        when(currencyRepository.findByIsActiveTrue()).thenReturn(List.of(usd, eur));
+
+        Map<String, BigDecimal> rates = Map.of(
+                "USD", new BigDecimal("85.000000"),
+                "INR", BigDecimal.ONE);
+
+        int updated = currencyService.refreshRates(rates);
+
+        assertThat(updated).isEqualTo(1);
+        assertThat(usd.getExchangeRate()).isEqualByComparingTo("85.000000");
+        // No matching rate for EUR -> unchanged
+        assertThat(eur.getExchangeRate()).isEqualByComparingTo(BigDecimal.ONE);
+    }
+
+    @Test
+    void refreshRates_withEmptyMap_shouldUpdateNothing() {
+        int updated = currencyService.refreshRates(Map.of());
+
+        assertThat(updated).isZero();
     }
 }
