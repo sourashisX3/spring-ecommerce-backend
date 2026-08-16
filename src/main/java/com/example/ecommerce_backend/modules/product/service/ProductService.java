@@ -176,6 +176,36 @@ public class ProductService {
         return response;
     }
 
+    @Transactional(readOnly = true)
+    public void populateReviewStats(List<ProductResponse> responses) {
+        if (responses == null || responses.isEmpty()) {
+            return;
+        }
+        List<String> uuids = responses.stream()
+                .map(ProductResponse::getUuid)
+                .filter(Objects::nonNull)
+                .toList();
+        if (uuids.isEmpty()) {
+            return;
+        }
+        Map<String, Object[]> statsByUuid = reviewRepository.getReviewStatsByProductUuids(uuids).stream()
+                .collect(Collectors.toMap(row -> (String) row[0], row -> row));
+        for (ProductResponse response : responses) {
+            Object[] row = statsByUuid.get(response.getUuid());
+            if (row == null) {
+                continue;
+            }
+            double avg = ((Number) row[1]).doubleValue();
+            long count = ((Number) row[2]).longValue();
+            response.setReviewStats(ProductResponse.ReviewStats.builder()
+                    .averageRating(BigDecimal.valueOf(avg)
+                            .setScale(2, java.math.RoundingMode.HALF_UP)
+                            .doubleValue())
+                    .totalCount((int) count)
+                    .build());
+        }
+    }
+
     private void populateReviews(ProductResponse response, Long productId) {
         double avgRating = reviewRepository.getAverageRatingByProductId(productId);
         long totalCount = reviewRepository.getReviewCountByProductId(productId);

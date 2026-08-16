@@ -66,7 +66,7 @@ class HomeControllerTest {
                 .featuredProducts(List.of())
                 .build();
 
-        when(homeService.getHomeData()).thenReturn(homeResponse);
+        when(homeService.getHomeData(any())).thenReturn(homeResponse);
 
         mockMvc.perform(get("/home"))
                 .andExpect(status().isOk())

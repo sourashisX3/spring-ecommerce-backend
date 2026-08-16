@@ -22,10 +22,11 @@ public class HomeController {
     @Autowired
     private HomeService homeService;
 
-    @Operation(summary = "Get home page data", description = "Retrieves home page data including categories, brands, and products")
+    @Operation(summary = "Get home page data", description = "Retrieves home page data including banners, categories, brands, offers and product rails")
     @GetMapping
-    public ResponseEntity<ApiResponse<HomeResponse>> getHome() {
-        HomeResponse home = homeService.getHomeData();
+    public ResponseEntity<ApiResponse<HomeResponse>> getHome(
+            @AuthenticationPrincipal User user) {
+        HomeResponse home = homeService.getHomeData(user);
         return ApiResponse.success(home, "Home data retrieved successfully");
     }
 

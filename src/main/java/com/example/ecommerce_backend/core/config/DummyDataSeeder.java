@@ -2,6 +2,8 @@ package com.example.ecommerce_backend.core.config;
 
 import com.example.ecommerce_backend.modules.brand.entity.Brand;
 import com.example.ecommerce_backend.modules.brand.repository.BrandRepository;
+import com.example.ecommerce_backend.modules.banner.entity.Banner;
+import com.example.ecommerce_backend.modules.banner.repository.BannerRepository;
 import com.example.ecommerce_backend.modules.cart.entity.CartItem;
 import com.example.ecommerce_backend.modules.cart.repository.CartRepository;
 import com.example.ecommerce_backend.modules.category.entity.Category;
@@ -142,6 +144,7 @@ public class DummyDataSeeder implements ApplicationRunner {
     private final ReturnConditionRepository returnConditionRepository;
     private final RefundRepository refundRepository;
     private final RefundStatusRepository refundStatusRepository;
+    private final BannerRepository bannerRepository;
 
     public DummyDataSeeder(PasswordEncoder passwordEncoder,
                            UserRepository userRepository,
@@ -180,8 +183,9 @@ ReviewRepository reviewRepository,
                             ReturnStatusRepository returnStatusRepository,
                             ReturnTypeRepository returnTypeRepository,
                             ReturnConditionRepository returnConditionRepository,
-                            RefundRepository refundRepository,
-                            RefundStatusRepository refundStatusRepository) {
+RefundRepository refundRepository,
+                             RefundStatusRepository refundStatusRepository,
+                             BannerRepository bannerRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.rolesRepository = rolesRepository;
@@ -221,6 +225,7 @@ ReviewRepository reviewRepository,
         this.returnConditionRepository = returnConditionRepository;
         this.refundRepository = refundRepository;
         this.refundStatusRepository = refundStatusRepository;
+        this.bannerRepository = bannerRepository;
     }
 
     @Override
@@ -234,6 +239,7 @@ ReviewRepository reviewRepository,
             upgradeLegacyProductImages();
             seedBulkCatalog();
             seedAssistantFlows();
+            seedBanners();
             return;
         }
 
@@ -257,6 +263,42 @@ ReviewRepository reviewRepository,
         seedWishlistItems();
         seedNotifications();
         seedAssistantFlows();
+        seedBanners();
+    }
+
+    private void seedBanners() {
+        if (bannerRepository.count() > 0) {
+            return;
+        }
+        Instant now = Instant.now();
+        log.info("Seeding demo banners");
+        bannerRepository.save(Banner.builder()
+                .title("Summer Spirits Sale")
+                .subtitle("Up to 40% off selected whisky, rum and gin")
+                .imageUrl("https://placehold.co/1200x600/DB4460/FFFFFF?text=Summer+Spirits+Sale")
+                .linkType("URL").linkValue("#deals")
+                .sortOrder(1).isActive(true)
+                .validFrom(now.minus(1, java.time.temporal.ChronoUnit.DAYS))
+                .validUntil(now.plus(30, java.time.temporal.ChronoUnit.DAYS))
+                .build());
+        bannerRepository.save(Banner.builder()
+                .title("New Season Arrivals")
+                .subtitle("Fresh drops from the world's finest distilleries")
+                .imageUrl("https://placehold.co/1200x600/3B3A5A/FFFFFF?text=New+Arrivals")
+                .linkType("CATEGORY").linkValue("whisky")
+                .sortOrder(2).isActive(true)
+                .validFrom(now.minus(1, java.time.temporal.ChronoUnit.DAYS))
+                .validUntil(now.plus(30, java.time.temporal.ChronoUnit.DAYS))
+                .build());
+        bannerRepository.save(Banner.builder()
+                .title("Gift Packs & Sets")
+                .subtitle("Curated collections for every occasion")
+                .imageUrl("https://placehold.co/1200x600/1C1B1F/FFFFFF?text=Gift+Packs")
+                .linkType("URL").linkValue("#gifts")
+                .sortOrder(3).isActive(true)
+                .validFrom(now.minus(1, java.time.temporal.ChronoUnit.DAYS))
+                .validUntil(now.plus(30, java.time.temporal.ChronoUnit.DAYS))
+                .build());
     }
 
     private void ensureSeedUserPasswords() {

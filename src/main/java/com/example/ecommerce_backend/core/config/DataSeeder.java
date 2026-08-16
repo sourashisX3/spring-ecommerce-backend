@@ -158,6 +158,8 @@ public class DataSeeder implements ApplicationRunner {
         permissions.put("currency:write", "Manage currencies");
         permissions.put("chatbot:read", "View chat bot questions");
         permissions.put("chatbot:write", "Manage chat bot questions");
+        permissions.put("banner:read", "View banners");
+        permissions.put("banner:write", "Create, update or delete banners");
 
         for (Map.Entry<String, String> entry : permissions.entrySet()) {
             permissionsRepository.findByPermissionName(entry.getKey())
@@ -272,6 +274,7 @@ public class DataSeeder implements ApplicationRunner {
                 perm("coupon:read"), perm("coupon:write"),
                 perm("discount:read"), perm("discount:write"),
                 perm("offer:read"), perm("offer:write"),
+                perm("banner:read"), perm("banner:write"),
                 perm("role:read"), perm("permission:read"), perm("user_permission:read")
         );
         ensureRoleHasPermissions("ADMIN", "Administrator with moderate access", adminPermissions);

@@ -1,5 +1,7 @@
 package com.example.ecommerce_backend.modules.home.service;
 
+import com.example.ecommerce_backend.modules.banner.dto.response.BannerResponse;
+import com.example.ecommerce_backend.modules.banner.service.BannerService;
 import com.example.ecommerce_backend.modules.brand.dto.response.BrandResponse;
 import com.example.ecommerce_backend.modules.brand.service.BrandService;
 import com.example.ecommerce_backend.modules.cart.service.CartService;
@@ -9,6 +11,8 @@ import com.example.ecommerce_backend.modules.home.dto.DashboardAnalytics;
 import com.example.ecommerce_backend.modules.home.dto.DashboardResponse;
 import com.example.ecommerce_backend.modules.home.dto.HomeResponse;
 import com.example.ecommerce_backend.modules.notification.service.NotificationService;
+import com.example.ecommerce_backend.modules.offer.dto.response.OfferResponse;
+import com.example.ecommerce_backend.modules.offer.service.OfferService;
 import com.example.ecommerce_backend.modules.order.dto.response.OrderResponse;
 import com.example.ecommerce_backend.modules.order.entity.Order;
 import com.example.ecommerce_backend.modules.order.entity.OrderStatus;
@@ -27,6 +31,7 @@ import com.example.ecommerce_backend.modules.wallet.service.WalletService;
 import com.example.ecommerce_backend.modules.wishlist.service.WishlistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +50,7 @@ public class HomeService {
 
     private static final int TREND_DAYS = 7;
     private static final int LOW_STOCK_THRESHOLD = 5;
+    private static final int RAIL_LIMIT = 10;
     private static final String SUPER_ADMIN = "SUPER_ADMIN";
     private static final String ADMIN = "ADMIN";
 
@@ -69,6 +75,12 @@ public class HomeService {
     @Autowired
     private WalletService walletService;
 
+    @Autowired
+    private BannerService bannerService;
+
+    @Autowired
+    private OfferService offerService;
+
     @Autowired(required = false)
     private NotificationService notificationService;
 
@@ -87,25 +99,60 @@ public class HomeService {
     @Autowired
     private ProductVariantRepository productVariantRepository;
 
-    public HomeResponse getHomeData() {
-        List<CategoryResponse> categories = categoryService.getTree(null);
-        List<BrandResponse> brands = brandService.getAll(null);
+    public HomeResponse getHomeData(User user) {
+        List<CategoryResponse> categories = categoryService.getTree(true);
+        List<BrandResponse> brands = brandService.getAll(true);
+
+        Pageable railPage = PageRequest.of(0, RAIL_LIMIT, Sort.by(Sort.Direction.DESC, "createdAt"));
         List<ProductResponse> newArrivals = productService.getAllProducts(
-                null, null, null, null, null, null, null, true, null,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
+                null, null, null, null, null, null, null, true, null, railPage).getContent();
         List<ProductResponse> featured = productService.getAllProducts(
-                null, null, null, null, null, null, true, true, null,
-                Sort.by(Sort.Direction.DESC, "createdAt")
-        );
-        int newArrivalsLimit = Math.min(newArrivals.size(), 10);
-        int featuredLimit = Math.min(featured.size(), 10);
+                null, null, null, null, null, null, true, true, null, railPage).getContent();
+        List<ProductResponse> bestSellers = productService.getAllProducts(
+                null, null, List.of("best-seller"), null, null, null, null, true, null, railPage).getContent();
+        List<ProductResponse> trending = productService.getAllProducts(
+                null, null, List.of("trending"), null, null, null, null, true, null, railPage).getContent();
+        List<ProductResponse> deals = productService.getAllProducts(
+                null, null, List.of("sale"), null, null, null, null, true, null, railPage).getContent();
+
+        List<BannerResponse> banners = bannerService.getActiveBanners();
+        List<OfferResponse> offers = user != null
+                ? offerService.getEligibleOffers(user.getId())
+                : offerService.getAll(true, true);
+
+        List<ProductResponse> railProducts = new ArrayList<>();
+        railProducts.addAll(newArrivals);
+        railProducts.addAll(featured);
+        railProducts.addAll(bestSellers);
+        railProducts.addAll(trending);
+        railProducts.addAll(deals);
+        productService.populateReviewStats(railProducts);
+
+        BigDecimal walletBalance = null;
+        long cartCount = 0;
+        long wishlistCount = 0;
+        long unreadCount = 0;
+        if (user != null) {
+            walletBalance = walletService.getWallet(user.getId()).getBalance();
+            cartCount = cartService.getCart(user).size();
+            wishlistCount = wishlistService.getWishlist(user).size();
+            unreadCount = notificationService != null ? notificationService.getUnreadCount(user.getId()) : 0;
+        }
 
         return HomeResponse.builder()
                 .categories(categories)
                 .brands(brands)
-                .newArrivals(newArrivals.subList(0, newArrivalsLimit))
-                .featuredProducts(featured.subList(0, featuredLimit))
+                .banners(banners)
+                .offers(offers)
+                .newArrivals(newArrivals)
+                .featuredProducts(featured)
+                .bestSellers(bestSellers)
+                .trending(trending)
+                .deals(deals)
+                .walletBalance(walletBalance)
+                .cartCount(cartCount)
+                .wishlistCount(wishlistCount)
+                .unreadNotificationCount(unreadCount)
                 .build();
     }
 
