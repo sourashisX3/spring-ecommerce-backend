@@ -236,7 +236,10 @@ RefundRepository refundRepository,
 
         if (userRepository.findByEmail("superadmin@example.com").isPresent()) {
             log.info("Dummy data already exists, refreshing catalog");
-            upgradeLegacyProductImages();
+            seedCategories();
+            seedBrands();
+            deactivateLegacyCatalog();
+            seedProducts();
             seedBulkCatalog();
             seedAssistantFlows();
             seedBanners();
@@ -251,7 +254,6 @@ RefundRepository refundRepository,
         seedBrands();
         seedTags();
         seedProducts();
-        upgradeLegacyProductImages();
         seedBulkCatalog();
         seedCoupons();
         seedDiscounts();
@@ -550,78 +552,41 @@ RefundRepository refundRepository,
     }
 
     private void seedCategories() {
-        if (categoryRepository.findBySlug("electronics").isEmpty()) {
-            log.info("Seeding categories");
-
-            Category electronics = categoryRepository.save(Category.builder()
-                    .name("Electronics")
-                    .slug("electronics")
-                    .description("Electronic devices and accessories")
-                    .sortOrder(1)
-                    .isActive(true)
-                    .build());
-
-            Category clothing = categoryRepository.save(Category.builder()
-                    .name("Clothing")
-                    .slug("clothing")
-                    .description("Apparel and fashion accessories")
-                    .sortOrder(2)
-                    .isActive(true)
-                    .build());
-
-            Category homeKitchen = categoryRepository.save(Category.builder()
-                    .name("Home & Kitchen")
-                    .slug("home-kitchen")
-                    .description("Home appliances and kitchen essentials")
-                    .sortOrder(3)
-                    .isActive(true)
-                    .build());
-
-            categoryRepository.save(Category.builder()
-                    .name("Mobile Phones")
-                    .slug("mobile-phones")
-                    .description("Smartphones and accessories")
-                    .parent(electronics)
-                    .sortOrder(1)
-                    .isActive(true)
-                    .build());
-
-            categoryRepository.save(Category.builder()
-                    .name("Laptops")
-                    .slug("laptops")
-                    .description("Notebooks and ultrabooks")
-                    .parent(electronics)
-                    .sortOrder(2)
-                    .isActive(true)
-                    .build());
-
-            categoryRepository.save(Category.builder()
-                    .name("Headphones")
-                    .slug("headphones")
-                    .description("Headphones and earphones")
-                    .parent(electronics)
-                    .sortOrder(3)
-                    .isActive(true)
-                    .build());
-
-            categoryRepository.save(Category.builder()
-                    .name("Men's Clothing")
-                    .slug("mens-clothing")
-                    .description("Men's fashion and apparel")
-                    .parent(clothing)
-                    .sortOrder(1)
-                    .isActive(true)
-                    .build());
-
-            categoryRepository.save(Category.builder()
-                    .name("Women's Clothing")
-                    .slug("womens-clothing")
-                    .description("Women's fashion and apparel")
-                    .parent(clothing)
-                    .sortOrder(2)
-                    .isActive(true)
-                    .build());
+        if (categoryRepository.findBySlug("whisky").isPresent()) {
+            return;
         }
+        log.info("Seeding liquor categories");
+
+        Category spirits = categoryRepository.save(Category.builder()
+                .name("Spirits")
+                .slug("spirits")
+                .description("Whisky, vodka, rum, gin, tequila and more")
+                .imageUrl(IMG_HOST + "/400x400/3B3A5A/FFFFFF?text=Spirits")
+                .sortOrder(1)
+                .isActive(true)
+                .build());
+
+        saveCategory("Whisky", "whisky", "Scotch, bourbon, rye and single malts", "B87333", 1, spirits);
+        saveCategory("Vodka", "vodka", "Smooth, versatile vodkas from around the world", "5B7B9A", 2, spirits);
+        saveCategory("Rum", "rum", "White, golden, spiced and aged rums", "8B5A2B", 3, spirits);
+        saveCategory("Gin", "gin", "London dry, old tom and contemporary gins", "3B7A57", 4, spirits);
+        saveCategory("Tequila", "tequila", "Blanco, reposado and añejo tequilas", "C08A2E", 5, spirits);
+        saveCategory("Brandy & Cognac", "brandy-cognac", "Fine brandies and cognacs", "A0522D", 6, spirits);
+        saveCategory("Liqueurs", "liqueurs", "Sweet spirits and cream liqueurs", "6B3FA0", 7, spirits);
+        saveCategory("Wine", "wine", "Red, white and rosé wines", "722F37", 8, null);
+        saveCategory("Champagne", "champagne", "Sparkling wines and champagnes", "B08D57", 9, null);
+    }
+
+    private void saveCategory(String name, String slug, String description, String color, int sortOrder, Category parent) {
+        categoryRepository.save(Category.builder()
+                .name(name)
+                .slug(slug)
+                .description(description)
+                .imageUrl(IMG_HOST + "/400x400/" + color + "/FFFFFF?text=" + name.replace(" ", "+"))
+                .parent(parent)
+                .sortOrder(sortOrder)
+                .isActive(true)
+                .build());
     }
 
     private Category getCategory(String slug) {
@@ -631,13 +596,30 @@ RefundRepository refundRepository,
 
     private void seedBrands() {
         Map<String, String[]> brands = new LinkedHashMap<>();
-        brands.put("apple", new String[]{"Apple", "Premium consumer electronics", "https://www.apple.com"});
-        brands.put("samsung", new String[]{"Samsung", "Consumer electronics and appliances", "https://www.samsung.com"});
-        brands.put("sony", new String[]{"Sony", "Electronics, gaming and entertainment", "https://www.sony.com"});
-        brands.put("nike", new String[]{"Nike", "Athletic footwear and apparel", "https://www.nike.com"});
-        brands.put("adidas", new String[]{"Adidas", "Sportswear and accessories", "https://www.adidas.com"});
-        brands.put("dell", new String[]{"Dell", "Computer technology products", "https://www.dell.com"});
-        brands.put("lg", new String[]{"LG", "Home appliances and electronics", "https://www.lg.com"});
+        brands.put("jack-daniels", new String[]{"Jack Daniel's", "Tennessee whiskey", "https://www.jackdaniels.com"});
+        brands.put("johnnie-walker", new String[]{"Johnnie Walker", "Blended Scotch whisky", "https://www.johnniewalker.com"});
+        brands.put("macallan", new String[]{"The Macallan", "Single malt Scotch whisky", "https://www.themacallan.com"});
+        brands.put("glenfiddich", new String[]{"Glenfiddich", "Single malt Scotch whisky", "https://www.glenfiddich.com"});
+        brands.put("jameson", new String[]{"Jameson", "Irish whiskey", "https://www.jamesonwhiskey.com"});
+        brands.put("jim-beam", new String[]{"Jim Beam", "Kentucky straight bourbon", "https://www.jimbeam.com"});
+        brands.put("absolut", new String[]{"Absolut", "Swedish vodka", "https://www.absolut.com"});
+        brands.put("grey-goose", new String[]{"Grey Goose", "French vodka", "https://www.greygoose.com"});
+        brands.put("belvedere", new String[]{"Belvedere", "Polish rye vodka", "https://www.belvederevodka.com"});
+        brands.put("smirnoff", new String[]{"Smirnoff", "Premium vodka", "https://www.smirnoff.com"});
+        brands.put("bacardi", new String[]{"Bacardi", "White and aged rums", "https://www.bacardi.com"});
+        brands.put("captain-morgan", new String[]{"Captain Morgan", "Spiced rum", "https://www.captainmorgan.com"});
+        brands.put("hendricks", new String[]{"Hendrick's", "Small-batch gin", "https://www.hendricksgin.com"});
+        brands.put("bombay-sapphire", new String[]{"Bombay Sapphire", "London dry gin", "https://www.bombaysapphire.com"});
+        brands.put("tanqueray", new String[]{"Tanqueray", "London dry gin", "https://www.tanqueray.com"});
+        brands.put("don-julio", new String[]{"Don Julio", "Premium tequila", "https://www.donjulio.com"});
+        brands.put("jose-cuervo", new String[]{"José Cuervo", "Tequila", "https://www.cuervo.com"});
+        brands.put("patron", new String[]{"Patrón", "Ultra-premium tequila", "https://www.patrontequila.com"});
+        brands.put("remy-martin", new String[]{"Rémy Martin", "Fine cognac", "https://www.remymartin.com"});
+        brands.put("baileys", new String[]{"Baileys", "Irish cream liqueur", "https://www.baileys.com"});
+        brands.put("moet-chandon", new String[]{"Moët & Chandon", "Champagne", "https://www.moet.com"});
+        brands.put("veuve-clicquot", new String[]{"Veuve Clicquot", "Champagne", "https://www.veuveclicquot.com"});
+        brands.put("jacobs-creek", new String[]{"Jacob's Creek", "Australian wine", "https://www.jacobscreek.com"});
+        brands.put("yellow-tail", new String[]{"Yellow Tail", "Australian wine", "https://www.yellowtailwine.com"});
 
         for (Map.Entry<String, String[]> entry : brands.entrySet()) {
             if (brandRepository.findBySlug(entry.getKey()).isEmpty()) {
@@ -685,34 +667,58 @@ RefundRepository refundRepository,
                 .orElseThrow(() -> new RuntimeException("Tag " + slug + " not found"));
     }
 
-    private void upgradeLegacyProductImages() {
-        String[] slugs = {
-                "iphone-16-pro-max",
-                "samsung-galaxy-s25-ultra",
-                "macbook-air-m4",
-                "dell-xps-16",
-                "sony-wh-1000xm6",
-                "nike-air-max-270",
-                "adidas-ultraboost-25",
-                "lg-oled-evo-c5-65",
-        };
-        for (String slug : slugs) {
-            productRepository.findBySlug(slug).ifPresent(product -> {
-                List<ProductImage> images = productImageRepository.findByProductId(product.getId());
-                images.sort(Comparator.comparingInt(ProductImage::getSortOrder));
-                for (int i = 0; i < images.size(); i++) {
-                    if (images.get(i).getImageUrl().contains("placehold.co")) {
-                        images.get(i).setImageUrl(
-                                "http://localhost:8083/api/v1/images/products/" + slug + "-" + (i + 1) + ".svg");
-                        productImageRepository.save(images.get(i));
-                    }
-                }
+    private static final String IMG_HOST = "https://placehold.co";
+
+    private static final Map<String, String> CATEGORY_COLORS = Map.of(
+            "whisky", "B87333",
+            "vodka", "5B7B9A",
+            "rum", "8B5A2B",
+            "gin", "3B7A57",
+            "tequila", "C08A2E",
+            "brandy-cognac", "A0522D",
+            "liqueurs", "6B3FA0",
+            "wine", "722F37",
+            "champagne", "B08D57");
+
+    private static String img(String text, String color) {
+        return IMG_HOST + "/800x800/" + color + "/FFFFFF?text=" + text.replace(" ", "+");
+    }
+
+    private void deactivateLegacyCatalog() {
+        List<String> legacyCategorySlugs = List.of(
+                "electronics", "clothing", "home-kitchen", "mobile-phones",
+                "laptops", "headphones", "mens-clothing", "womens-clothing");
+        List<String> legacyBrandSlugs = List.of(
+                "apple", "samsung", "sony", "nike", "adidas", "dell", "lg");
+
+        for (String slug : legacyCategorySlugs) {
+            categoryRepository.findBySlug(slug).ifPresent(c -> {
+                c.setActive(false);
+                categoryRepository.save(c);
             });
+        }
+        for (String slug : legacyBrandSlugs) {
+            brandRepository.findBySlug(slug).ifPresent(b -> {
+                b.setActive(false);
+                brandRepository.save(b);
+            });
+        }
+
+        int deactivated = 0;
+        for (Product product : productRepository.findAll()) {
+            if (product.getCategory() != null && legacyCategorySlugs.contains(product.getCategory().getSlug())) {
+                product.setActive(false);
+                productRepository.save(product);
+                deactivated++;
+            }
+        }
+        if (deactivated > 0) {
+            log.info("Deactivated {} legacy non-liquor products", deactivated);
         }
     }
 
     private void seedBulkCatalog() {
-        if (productRepository.findBySlug("apple-airpods-pro-3").isPresent()) {
+        if (productRepository.findBySlug("johnnie-walker-black-label").isPresent()) {
             return;
         }
         log.info("Seeding bulk catalog ({} products)", BULK_PRODUCTS.size());
@@ -724,11 +730,12 @@ RefundRepository refundRepository,
 
         for (int i = 0; i < BULK_PRODUCTS.size(); i++) {
             BulkProduct b = BULK_PRODUCTS.get(i);
+            String color = CATEGORY_COLORS.getOrDefault(b.category(), "3B3A5A");
             Product product = productRepository.save(Product.builder()
                     .sku(b.sku())
                     .name(b.name())
                     .slug(b.slug())
-                    .description("Premium " + b.name() + " crafted for everyday use. Durable build, tested quality, ready to ship.")
+                    .description(b.name() + " - a premium pour for every occasion, selected by our spirits experts.")
                     .shortDescription("Popular " + b.name() + " selection")
                     .basePrice(BigDecimal.valueOf(b.price()))
                     .category(getCategory(b.category()))
@@ -736,88 +743,72 @@ RefundRepository refundRepository,
                     .tags(i % 3 == 0 ? Set.of(bestSeller, trending) : i % 4 == 0 ? Set.of(featured, sale) : Set.of(sale))
                     .isActive(b.active())
                     .isFeatured(i % 5 == 0)
-                    .attributes(Map.of("color", b.color(), "model", b.name()))
+                    .attributes(Map.of("size", b.size(), "distillery", b.brand()))
                     .build());
 
             productVariantRepository.save(ProductVariant.builder()
                     .sku(b.sku() + "-STD")
-                    .name(b.name() + " (Standard)")
+                    .name(b.name() + " (750ml)")
                     .price(BigDecimal.valueOf(b.price()))
                     .stock(b.stock())
                     .product(product)
                     .isActive(b.active())
                     .isDefault(true)
                     .sortOrder(0)
-                    .attributes(Map.of("configuration", "Standard"))
+                    .attributes(Map.of("configuration", "750ml"))
                     .build());
 
-            seedProductImages(product, b.slug(), List.of(
-                    "http://localhost:8083/api/v1/images/products/" + b.slug() + "-1.svg",
-                    "http://localhost:8083/api/v1/images/products/" + b.slug() + "-2.svg"));
+            seedProductImages(product, b.name(), List.of(
+                    img(b.name(), color),
+                    img(b.name() + " Bottle", color)));
         }
     }
 
     private record BulkProduct(String slug, String name, String sku, double price,
-                               String category, String brand, String color, int stock, boolean active) {
+                               String category, String brand, String size, int stock, boolean active) {
     }
 
     private static final List<BulkProduct> BULK_PRODUCTS = List.of(
-            new BulkProduct("apple-airpods-pro-3", "Apple AirPods Pro 3", "APL-APP3-001", 249.99, "headphones", "apple", "White", 32, true),
-            new BulkProduct("samsung-galaxy-buds3-pro", "Samsung Galaxy Buds3 Pro", "SAM-GB3P-001", 229.99, "headphones", "samsung", "Silver", 28, true),
-            new BulkProduct("sony-wf-1000xm7", "Sony WF-1000XM7", "SONY-WF10-001", 299.99, "headphones", "sony", "Black", 22, true),
-            new BulkProduct("sony-wh-ch720n", "Sony WH-CH720N", "SONY-CH720-001", 149.99, "headphones", "sony", "Black", 18, true),
-            new BulkProduct("sony-ult-earbuds", "Sony ULT Earbuds", "SONY-ULT-001", 199.99, "headphones", "sony", "Blue", 15, false),
-            new BulkProduct("apple-iphone-16", "Apple iPhone 16", "APL-IP16-001", 799.99, "mobile-phones", "apple", "Black", 26, true),
-            new BulkProduct("apple-iphone-16-pro", "Apple iPhone 16 Pro", "APL-IP16P-001", 999.99, "mobile-phones", "apple", "Desert Titanium", 20, true),
-            new BulkProduct("samsung-galaxy-s25", "Samsung Galaxy S25", "SAM-GS25-001", 799.99, "mobile-phones", "samsung", "Icy Blue", 24, true),
-            new BulkProduct("samsung-galaxy-z-flip-7", "Samsung Galaxy Z Flip 7", "SAM-ZFL7-001", 1099.99, "mobile-phones", "samsung", "Silver Shadow", 12, false),
-            new BulkProduct("apple-macbook-pro-16-m4", "Apple MacBook Pro 16\" M4", "APL-MBP16-001", 2499.99, "laptops", "apple", "Space Black", 9, true),
-            new BulkProduct("apple-macbook-air-15-m4", "Apple MacBook Air 15\" M4", "APL-MBA15-001", 1299.99, "laptops", "apple", "Starlight", 14, true),
-            new BulkProduct("dell-xps-13", "Dell XPS 13", "DELL-XPS13-001", 1099.99, "laptops", "dell", "Platinum", 16, true),
-            new BulkProduct("dell-inspiron-15", "Dell Inspiron 15", "DELL-INSP15-001", 699.99, "laptops", "dell", "Silver", 21, true),
-            new BulkProduct("dell-alienware-m16", "Dell Alienware M16", "DELL-AW16-001", 1999.99, "laptops", "dell", "Legendary White", 8, false),
-            new BulkProduct("lg-gram-17", "LG Gram 17", "LG-GRAM17-001", 1499.99, "laptops", "lg", "Black", 10, true),
-            new BulkProduct("lg-55-oled-evo-c5", "LG 55\" OLED evo C5", "LG-OLED55-001", 1399.99, "electronics", "lg", "Black", 12, true),
-            new BulkProduct("lg-cinebeam-q", "LG CineBeam Q Projector", "LG-CBQ-001", 799.99, "electronics", "lg", "White", 6, true),
-            new BulkProduct("samsung-75-neo-qled", "Samsung 75\" Neo QLED", "SAM-75NQL-001", 1999.99, "electronics", "samsung", "Black", 7, true),
-            new BulkProduct("samsung-32-m8-monitor", "Samsung Smart Monitor M8", "SAM-M8-001", 599.99, "electronics", "samsung", "Spring Green", 13, false),
-            new BulkProduct("lg-soundbar-s90tr", "LG Soundbar S90TR", "LG-SB90-001", 499.99, "electronics", "lg", "Black", 11, true),
-            new BulkProduct("lg-ultragear-27", "LG UltraGear 27\" 360Hz", "LG-UG27-001", 699.99, "electronics", "lg", "Black/Red", 9, true),
-            new BulkProduct("nike-dri-fit-tee", "Nike Dri-FIT Running Tee", "NKE-DFT-001", 34.99, "mens-clothing", "nike", "Black", 45, true),
-            new BulkProduct("nike-air-force-1", "Nike Air Force 1", "NKE-AF1-001", 109.99, "mens-clothing", "nike", "White", 30, true),
-            new BulkProduct("nike-dunk-low", "Nike Dunk Low", "NKE-DL-001", 109.99, "mens-clothing", "nike", "University Red", 27, true),
-            new BulkProduct("nike-pegasus-41", "Nike Pegasus 41", "NKE-PG41-001", 129.99, "mens-clothing", "nike", "Black/White", 25, true),
-            new BulkProduct("nike-react-infinity", "Nike React Infinity Run", "NKE-RIR-001", 159.99, "mens-clothing", "nike", "Multi", 19, false),
-            new BulkProduct("adidas-stan-smith", "Adidas Stan Smith", "ADI-SS-001", 99.99, "mens-clothing", "adidas", "White/Green", 34, true),
-            new BulkProduct("adidas-samba-og", "Adidas Samba OG", "ADI-SAM-001", 99.99, "mens-clothing", "adidas", "Black/White", 31, true),
-            new BulkProduct("adidas-nmd-r1", "Adidas NMD R1", "ADI-NMD-001", 139.99, "mens-clothing", "adidas", "Grey", 23, true),
-            new BulkProduct("adidas-tiro-24-jacket", "Adidas Tiro 24 Track Jacket", "ADI-T24-001", 64.99, "mens-clothing", "adidas", "Navy", 38, true),
-            new BulkProduct("nike-waffle-one", "Nike Waffle One", "NKE-WO-001", 99.99, "womens-clothing", "nike", "Sesame", 29, true),
-            new BulkProduct("nike-pro-sports-bra", "Nike Pro Sports Bra", "NKE-PSB-001", 49.99, "womens-clothing", "nike", "White", 42, true),
-            new BulkProduct("nike-windrunner-jacket", "Nike Windrunner Jacket", "NKE-WRJ-001", 89.99, "womens-clothing", "nike", "Black", 24, true),
-            new BulkProduct("adidas-superstar", "Adidas Superstar", "ADI-SS-002", 99.99, "womens-clothing", "adidas", "White/Black", 33, true),
-            new BulkProduct("adidas-essentials-tee", "Adidas Essentials 3-Stripes Tee", "ADI-EST-001", 29.99, "womens-clothing", "adidas", "Pink", 48, true),
-            new BulkProduct("adidas-forum-low", "Adidas Forum Low", "ADI-FL-001", 109.99, "womens-clothing", "adidas", "Cloud White", 26, true),
-            new BulkProduct("adidas-ultraboost-light", "Adidas Ultraboost Light", "ADI-UBL-001", 169.99, "womens-clothing", "adidas", "Core Black", 21, false),
-            new BulkProduct("lg-air-fryer-42", "LG Air Fryer 4.2L", "LG-AF42-001", 129.99, "home-kitchen", "lg", "Graphite", 17, true),
-            new BulkProduct("lg-cordzero-vacuum", "LG CordZero Stick Vacuum", "LG-CZV-001", 399.99, "home-kitchen", "lg", "Silver", 12, true),
-            new BulkProduct("lg-puricare-purifier", "LG PuriCare Air Purifier", "LG-PC-001", 249.99, "home-kitchen", "lg", "White", 14, true));
+            new BulkProduct("johnnie-walker-black-label", "Johnnie Walker Black Label", "JW-BL-001", 34.99, "whisky", "johnnie-walker", "750ml", 42, true),
+            new BulkProduct("johnnie-walker-blue-label", "Johnnie Walker Blue Label", "JW-BLU-001", 189.99, "whisky", "johnnie-walker", "750ml", 18, true),
+            new BulkProduct("macallan-18-year", "The Macallan 18 Year Old", "MC-18-001", 329.99, "whisky", "macallan", "750ml", 8, true),
+            new BulkProduct("glenfiddich-12-year", "Glenfiddich 12 Year Old", "GF-12-001", 49.99, "whisky", "glenfiddich", "750ml", 30, true),
+            new BulkProduct("jameson-irish-whiskey", "Jameson Irish Whiskey", "JM-001-001", 28.99, "whisky", "jameson", "750ml", 46, true),
+            new BulkProduct("jim-beam-bourbon", "Jim Beam Kentucky Straight Bourbon", "JB-001-001", 21.99, "whisky", "jim-beam", "750ml", 52, true),
+            new BulkProduct("jack-daniels-tennessee-honey", "Jack Daniel's Tennessee Honey", "JD-TH-001", 27.99, "whisky", "jack-daniels", "750ml", 38, true),
+            new BulkProduct("absolut-citron", "Absolut Citron", "ABS-CIT-001", 22.99, "vodka", "absolut", "750ml", 44, true),
+            new BulkProduct("grey-goose-vodka", "Grey Goose Vodka", "GG-001-001", 39.99, "vodka", "grey-goose", "750ml", 26, true),
+            new BulkProduct("belvedere-vodka", "Belvedere Vodka", "BEL-001-001", 44.99, "vodka", "belvedere", "750ml", 22, true),
+            new BulkProduct("smirnoff-no-21", "Smirnoff No. 21 Vodka", "SM-21-001", 19.99, "vodka", "smirnoff", "750ml", 55, true),
+            new BulkProduct("bacardi-gold", "Bacardi Gold", "BAC-GOLD-001", 21.99, "rum", "bacardi", "750ml", 48, true),
+            new BulkProduct("captain-morgan-spiced", "Captain Morgan Spiced Rum", "CM-SP-001", 22.99, "rum", "captain-morgan", "750ml", 45, true),
+            new BulkProduct("captain-morgan-private-stock", "Captain Morgan Private Stock", "CM-PS-001", 27.99, "rum", "captain-morgan", "750ml", 28, true),
+            new BulkProduct("hendricks-orbium", "Hendrick's Orbium", "HEN-ORB-001", 42.99, "gin", "hendricks", "750ml", 20, true),
+            new BulkProduct("bombay-sapphire-gin", "Bombay Sapphire Gin", "BOM-SAP-001", 29.99, "gin", "bombay-sapphire", "750ml", 36, true),
+            new BulkProduct("tanqueray-london-dry", "Tanqueray London Dry Gin", "TAN-LD-001", 28.99, "gin", "tanqueray", "750ml", 39, true),
+            new BulkProduct("don-julio-blanco", "Don Julio Blanco", "DJ-BL-001", 49.99, "tequila", "don-julio", "750ml", 24, true),
+            new BulkProduct("don-julio-anejo", "Don Julio Añejo", "DJ-AN-001", 89.99, "tequila", "don-julio", "750ml", 15, true),
+            new BulkProduct("jose-cuervo-especial", "José Cuervo Especial Gold", "JC-ES-001", 24.99, "tequila", "jose-cuervo", "750ml", 41, true),
+            new BulkProduct("patron-silver", "Patrón Silver", "PAT-SIL-001", 49.99, "tequila", "patron", "750ml", 23, true),
+            new BulkProduct("remy-martin-vsop", "Rémy Martin VSOP", "RM-VSOP-001", 54.99, "brandy-cognac", "remy-martin", "750ml", 17, true),
+            new BulkProduct("baileys-irish-cream", "Baileys Irish Cream", "BAI-001-001", 27.99, "liqueurs", "baileys", "750ml", 40, true),
+            new BulkProduct("jacobs-creek-shiraz", "Jacob's Creek Shiraz", "JCW-SH-001", 12.99, "wine", "jacobs-creek", "750ml", 60, true),
+            new BulkProduct("yellow-tail-cabernet", "Yellow Tail Cabernet Sauvignon", "YT-CAB-001", 11.99, "wine", "yellow-tail", "750ml", 62, true),
+            new BulkProduct("veuve-clicquot-yellow-label", "Veuve Clicquot Yellow Label", "VC-YL-001", 69.99, "champagne", "veuve-clicquot", "750ml", 16, true));
 
     private void seedProducts() {
-        Category mobilePhones = getCategory("mobile-phones");
-        Category laptops = getCategory("laptops");
-        Category headphones = getCategory("headphones");
-        Category mensClothing = getCategory("mens-clothing");
-        Category womensClothing = getCategory("womens-clothing");
-        Category electronics = getCategory("electronics");
+        Category whisky = getCategory("whisky");
+        Category vodka = getCategory("vodka");
+        Category rum = getCategory("rum");
+        Category gin = getCategory("gin");
+        Category champagne = getCategory("champagne");
 
-        Brand apple = getBrand("apple");
-        Brand samsung = getBrand("samsung");
-        Brand sony = getBrand("sony");
-        Brand nike = getBrand("nike");
-        Brand adidas = getBrand("adidas");
-        Brand dell = getBrand("dell");
-        Brand lg = getBrand("lg");
+        Brand jackDaniels = getBrand("jack-daniels");
+        Brand macallan = getBrand("macallan");
+        Brand absolut = getBrand("absolut");
+        Brand bacardi = getBrand("bacardi");
+        Brand hendricks = getBrand("hendricks");
+        Brand moetChandon = getBrand("moet-chandon");
 
         Tag newArrival = getTag("new-arrival");
         Tag bestSeller = getTag("best-seller");
@@ -826,280 +817,160 @@ RefundRepository refundRepository,
         Tag trending = getTag("trending");
         Tag limitedEdition = getTag("limited-edition");
 
-        if (productRepository.findBySlug("iphone-16-pro-max").isEmpty()) {
-            log.info("Seeding products");
+        if (productRepository.findBySlug("jack-daniels-old-no-7").isEmpty()) {
+            log.info("Seeding flagship products");
 
-            Product iphone = productRepository.save(Product.builder()
-                    .sku("APL-IP16PM-001")
-                    .name("iPhone 16 Pro Max")
-                    .slug("iphone-16-pro-max")
-                    .description("The most powerful iPhone ever. A18 Pro chip, 48MP camera system, titanium design.")
-                    .shortDescription("Apple's flagship smartphone with A18 Pro chip")
-                    .basePrice(BigDecimal.valueOf(1199.99))
-                    .category(mobilePhones)
-                    .brand(apple)
+            Product jackDanielsOldNo7 = productRepository.save(Product.builder()
+                    .sku("JD-ON7-001")
+                    .name("Jack Daniel's Old No. 7")
+                    .slug("jack-daniels-old-no-7")
+                    .description("America's favorite Tennessee whiskey. Charcoal-mellowed drop by drop, with notes of caramel, vanilla and toasted oak.")
+                    .shortDescription("Iconic Tennessee whiskey, charcoal-mellowed")
+                    .basePrice(BigDecimal.valueOf(32.99))
+                    .category(whisky)
+                    .brand(jackDaniels)
+                    .tags(Set.of(bestSeller, featured, trending))
+                    .isActive(true)
+                    .isFeatured(true)
+                    .attributes(Map.of("size", "750ml", "type", "Tennessee Whiskey"))
+                    .build());
+
+            Product macallan12 = productRepository.save(Product.builder()
+                    .sku("MC-12-001")
+                    .name("The Macallan 12 Year Old")
+                    .slug("macallan-12-year")
+                    .description("A single malt aged in sherry-seasoned oak casks from Jerez, delivering rich dried fruit, wood spice and warm oak.")
+                    .shortDescription("Sherry oak single malt Scotch whisky")
+                    .basePrice(BigDecimal.valueOf(89.99))
+                    .category(whisky)
+                    .brand(macallan)
+                    .tags(Set.of(newArrival, featured, limitedEdition))
+                    .isActive(true)
+                    .isFeatured(true)
+                    .attributes(Map.of("size", "750ml", "type", "Single Malt Scotch"))
+                    .build());
+
+            Product absolutVodka = productRepository.save(Product.builder()
+                    .sku("ABS-001-001")
+                    .name("Absolut Vodka")
+                    .slug("absolut-vodka")
+                    .description("Crafted from Swedish winter wheat and water from the village of Åhus. Clean, smooth and distinctively rich.")
+                    .shortDescription("Smooth Swedish vodka made from winter wheat")
+                    .basePrice(BigDecimal.valueOf(24.99))
+                    .category(vodka)
+                    .brand(absolut)
+                    .tags(Set.of(bestSeller, sale))
+                    .isActive(true)
+                    .isFeatured(true)
+                    .attributes(Map.of("size", "750ml", "type", "Vodka"))
+                    .build());
+
+            Product bacardiSuperior = productRepository.save(Product.builder()
+                    .sku("BAC-SUP-001")
+                    .name("Bacardi Superior")
+                    .slug("bacardi-superior")
+                    .description("Light, clean-tasting white rum aged in charred American oak barrels and filtered through charcoal.")
+                    .shortDescription("The world's most awarded white rum")
+                    .basePrice(BigDecimal.valueOf(19.99))
+                    .category(rum)
+                    .brand(bacardi)
+                    .tags(Set.of(sale, trending))
+                    .isActive(true)
+                    .isFeatured(false)
+                    .attributes(Map.of("size", "750ml", "type", "White Rum"))
+                    .build());
+
+            Product hendricksGin = productRepository.save(Product.builder()
+                    .sku("HEN-001-001")
+                    .name("Hendrick's Gin")
+                    .slug("hendricks-gin")
+                    .description("Small-batch gin infused with cucumber and rose petals, distilled in tiny copper stills for an unusual, smooth finish.")
+                    .shortDescription("Unusual gin infused with cucumber and rose")
+                    .basePrice(BigDecimal.valueOf(39.99))
+                    .category(gin)
+                    .brand(hendricks)
                     .tags(Set.of(newArrival, bestSeller, featured))
                     .isActive(true)
                     .isFeatured(true)
-                    .attributes(Map.of("color", "Natural Titanium", "display", "6.9-inch OLED"))
+                    .attributes(Map.of("size", "750ml", "type", "Gin"))
                     .build());
 
-            Product galaxy = productRepository.save(Product.builder()
-                    .sku("SAM-GS25U-001")
-                    .name("Samsung Galaxy S25 Ultra")
-                    .slug("samsung-galaxy-s25-ultra")
-                    .description("Galaxy AI is here. The ultimate Galaxy experience with S Pen and 200MP camera.")
-                    .shortDescription("Samsung's premium flagship with built-in S Pen")
-                    .basePrice(BigDecimal.valueOf(1299.99))
-                    .category(mobilePhones)
-                    .brand(samsung)
-                    .tags(Set.of(newArrival, trending, featured))
+            Product moetImperial = productRepository.save(Product.builder()
+                    .sku("MC-IMP-001")
+                    .name("Moët & Chandon Impérial")
+                    .slug("moet-chandon-imperial")
+                    .description("The iconic house style of Moët & Chandon - a bright, generous and expressive brut champagne with green apple and citrus.")
+                    .shortDescription("The signature brut champagne from Moët & Chandon")
+                    .basePrice(BigDecimal.valueOf(59.99))
+                    .category(champagne)
+                    .brand(moetChandon)
+                    .tags(Set.of(featured, limitedEdition))
                     .isActive(true)
                     .isFeatured(true)
-                    .attributes(Map.of("color", "Titanium Gray", "display", "6.9-inch Dynamic AMOLED"))
+                    .attributes(Map.of("size", "750ml", "type", "Brut Champagne"))
                     .build());
 
-            Product macbook = productRepository.save(Product.builder()
-                    .sku("APL-MBA-M4-001")
-                    .name("MacBook Air M4")
-                    .slug("macbook-air-m4")
-                    .description("Supercharged by M4 chip. Built for Apple Intelligence. Remarkably thin and ready for anything.")
-                    .shortDescription("Apple's thinnest laptop with M4 chip")
-                    .basePrice(BigDecimal.valueOf(1099.99))
-                    .category(laptops)
-                    .brand(apple)
-                    .tags(Set.of(bestSeller, featured))
-                    .isActive(true)
-                    .isFeatured(true)
-                    .attributes(Map.of("color", "Midnight", "display", "13.6-inch Liquid Retina"))
-                    .build());
-
-            Product dellXps = productRepository.save(Product.builder()
-                    .sku("DELL-XPS16-001")
-                    .name("Dell XPS 16")
-                    .slug("dell-xps-16")
-                    .description("Stunning 4K OLED display. Intel Core Ultra processor. Premium aluminum build.")
-                    .shortDescription("Premium Windows laptop with 4K OLED display")
-                    .basePrice(BigDecimal.valueOf(1499.99))
-                    .category(laptops)
-                    .brand(dell)
-                    .tags(Set.of(newArrival, trending))
-                    .isActive(true)
-                    .isFeatured(false)
-                    .attributes(Map.of("color", "Platinum Silver", "display", "16-inch 4K OLED"))
-                    .build());
-
-            Product sonyHeadphones = productRepository.save(Product.builder()
-                    .sku("SONY-WH1000XM6-001")
-                    .name("Sony WH-1000XM6")
-                    .slug("sony-wh-1000xm6")
-                    .description("Industry-leading noise cancellation. Crystal-clear hands-free calling. 30-hour battery life.")
-                    .shortDescription("Premium wireless noise-cancelling headphones")
-                    .basePrice(BigDecimal.valueOf(349.99))
-                    .category(headphones)
-                    .brand(sony)
-                    .tags(Set.of(bestSeller, featured, sale))
-                    .isActive(true)
-                    .isFeatured(true)
-                    .attributes(Map.of("color", "Black", "type", "Over-Ear"))
-                    .build());
-
-            Product nikeShoes = productRepository.save(Product.builder()
-                    .sku("NKE-AM270-001")
-                    .name("Nike Air Max 270")
-                    .slug("nike-air-max-270")
-                    .description("The Nike Air Max 270 delivers visible cushioning under every step. Giant Air unit provides unmatched comfort.")
-                    .shortDescription("Iconic lifestyle sneaker with giant Air unit")
-                    .basePrice(BigDecimal.valueOf(149.99))
-                    .category(mensClothing)
-                    .brand(nike)
-                    .tags(Set.of(bestSeller, trending))
-                    .isActive(true)
-                    .isFeatured(true)
-                    .attributes(Map.of("color", "Black/White", "type", "Sneakers"))
-                    .build());
-
-            Product adidasShoes = productRepository.save(Product.builder()
-                    .sku("ADI-UB25-001")
-                    .name("Adidas Ultraboost 25")
-                    .slug("adidas-ultraboost-25")
-                    .description("The most responsive Ultraboost yet. Lightstrike Pro cushioning meets Primeknit upper.")
-                    .shortDescription("Premium running shoes with Lightstrike Pro")
-                    .basePrice(BigDecimal.valueOf(189.99))
-                    .category(womensClothing)
-                    .brand(adidas)
-                    .tags(Set.of(newArrival, featured))
-                    .isActive(true)
-                    .isFeatured(false)
-                    .attributes(Map.of("color", "Core Black/White", "type", "Running Shoes"))
-                    .build());
-
-            Product lgTV = productRepository.save(Product.builder()
-                    .sku("LG-OLED65-001")
-                    .name("LG 65\" OLED evo C5")
-                    .slug("lg-oled-evo-c5-65")
-                    .description("Self-lit OLED evo display. Dolby Vision and Dolby Atmos. α11 AI processor.")
-                    .shortDescription("65-inch 4K OLED smart TV with Dolby Atmos")
-                    .basePrice(BigDecimal.valueOf(1799.99))
-                    .category(electronics)
-                    .brand(lg)
-                    .tags(Set.of(featured, sale, limitedEdition))
-                    .isActive(true)
-                    .isFeatured(true)
-                    .attributes(Map.of("screenSize", "65-inch", "resolution", "4K OLED", "smartTV", "webOS"))
-                    .build());
-
-            seedVariantsAndImages(iphone, galaxy, macbook, dellXps, sonyHeadphones, nikeShoes, adidasShoes, lgTV);
+            seedVariantsAndImages(jackDanielsOldNo7, macallan12, absolutVodka, bacardiSuperior, hendricksGin, moetImperial);
         }
     }
 
-    private void seedVariantsAndImages(Product iphone, Product galaxy, Product macbook, Product dellXps,
-                                        Product sonyHeadphones, Product nikeShoes, Product adidasShoes, Product lgTV) {
+    private void seedVariantsAndImages(Product jackDaniels, Product macallan12, Product absolutVodka,
+                                       Product bacardiSuperior, Product hendricksGin, Product moetImperial) {
         log.info("Seeding variants and images");
 
-        seedPhoneVariants(iphone, "APL-IP16PM", "iPhone 16 Pro Max",
-                List.of("256GB", "512GB", "1TB"),
-                List.of(BigDecimal.ZERO, BigDecimal.valueOf(200), BigDecimal.valueOf(400)),
-                List.of(50, 30, 15));
-        seedPhoneVariants(galaxy, "SAM-GS25U", "Samsung Galaxy S25 Ultra",
-                List.of("256GB", "512GB", "1TB"),
-                List.of(BigDecimal.ZERO, BigDecimal.valueOf(180), BigDecimal.valueOf(360)),
-                List.of(40, 25, 10));
+        seedLiquorVariants(jackDaniels, "JD-ON7", "Jack Daniel's Old No. 7",
+                List.of("200ml", "375ml", "750ml", "1L"),
+                List.of(BigDecimal.valueOf(-20), BigDecimal.valueOf(-10), BigDecimal.ZERO, BigDecimal.valueOf(8)),
+                List.of(30, 40, 60, 35));
+        seedLiquorVariants(macallan12, "MC-12", "The Macallan 12 Year Old",
+                List.of("375ml", "750ml", "1L"),
+                List.of(BigDecimal.valueOf(-25), BigDecimal.ZERO, BigDecimal.valueOf(45)),
+                List.of(20, 30, 12));
+        seedLiquorVariants(absolutVodka, "ABS", "Absolut Vodka",
+                List.of("200ml", "375ml", "750ml", "1L"),
+                List.of(BigDecimal.valueOf(-15), BigDecimal.valueOf(-7), BigDecimal.ZERO, BigDecimal.valueOf(6)),
+                List.of(35, 45, 55, 40));
+        seedLiquorVariants(bacardiSuperior, "BAC-SUP", "Bacardi Superior",
+                List.of("200ml", "375ml", "750ml", "1L"),
+                List.of(BigDecimal.valueOf(-12), BigDecimal.valueOf(-6), BigDecimal.ZERO, BigDecimal.valueOf(5)),
+                List.of(40, 50, 60, 45));
+        seedLiquorVariants(hendricksGin, "HEN", "Hendrick's Gin",
+                List.of("375ml", "750ml", "1L"),
+                List.of(BigDecimal.valueOf(-12), BigDecimal.ZERO, BigDecimal.valueOf(22)),
+                List.of(25, 35, 15));
+        seedLiquorVariants(moetImperial, "MC-IMP", "Moët & Chandon Impérial",
+                List.of("375ml", "750ml", "1500ml"),
+                List.of(BigDecimal.valueOf(-20), BigDecimal.ZERO, BigDecimal.valueOf(60)),
+                List.of(15, 25, 8));
 
-        seedLaptopVariants(macbook, "APL-MBA-M4", "MacBook Air M4",
-                List.of("16GB/256GB", "24GB/512GB"),
-                List.of(BigDecimal.ZERO, BigDecimal.valueOf(300)),
-                List.of(25, 15));
-        seedLaptopVariants(dellXps, "DELL-XPS16", "Dell XPS 16",
-                List.of("16GB/512GB", "32GB/1TB"),
-                List.of(BigDecimal.ZERO, BigDecimal.valueOf(400)),
-                List.of(20, 10));
-
-        seedHeadphoneVariants(sonyHeadphones, "SONY-WH1000XM6", "Sony WH-1000XM6",
-                List.of("Black", "Silver", "Midnight Blue"),
-                List.of(30, 15, 10));
-
-        seedShoeVariants(nikeShoes, "NKE-AM270", "Nike Air Max 270",
-                List.of("US 8", "US 9", "US 10", "US 11"),
-                List.of(25, 35, 30, 20));
-        seedShoeVariants(adidasShoes, "ADI-UB25", "Adidas Ultraboost 25",
-                List.of("US 6", "US 7", "US 8", "US 9"),
-                List.of(20, 25, 25, 15));
-
-        seedTVVariants(lgTV, "LG-OLED65", "LG 65\" OLED evo C5",
-                List.of("65-inch", "77-inch"),
-                List.of(BigDecimal.ZERO, BigDecimal.valueOf(1200)),
-                List.of(10, 5));
-
-        seedProductImages(iphone, "iPhone-16-Pro-Max", List.of(
-                "http://localhost:8083/api/v1/images/products/iphone-16-pro-max-1.svg",
-                "http://localhost:8083/api/v1/images/products/iphone-16-pro-max-2.svg"));
-        seedProductImages(galaxy, "Galaxy-S25-Ultra", List.of(
-                "http://localhost:8083/api/v1/images/products/samsung-galaxy-s25-ultra-1.svg",
-                "http://localhost:8083/api/v1/images/products/samsung-galaxy-s25-ultra-2.svg"));
-        seedProductImages(macbook, "MacBook-Air-M4", List.of(
-                "http://localhost:8083/api/v1/images/products/macbook-air-m4-1.svg",
-                "http://localhost:8083/api/v1/images/products/macbook-air-m4-2.svg"));
-        seedProductImages(dellXps, "Dell-XPS-16", List.of(
-                "http://localhost:8083/api/v1/images/products/dell-xps-16-1.svg",
-                "http://localhost:8083/api/v1/images/products/dell-xps-16-2.svg"));
-        seedProductImages(sonyHeadphones, "Sony-WH1000XM6", List.of(
-                "http://localhost:8083/api/v1/images/products/sony-wh-1000xm6-1.svg",
-                "http://localhost:8083/api/v1/images/products/sony-wh-1000xm6-2.svg"));
-        seedProductImages(nikeShoes, "Nike-Air-Max-270", List.of(
-                "http://localhost:8083/api/v1/images/products/nike-air-max-270-1.svg",
-                "http://localhost:8083/api/v1/images/products/nike-air-max-270-2.svg"));
-        seedProductImages(adidasShoes, "Adidas-Ultraboost-25", List.of(
-                "http://localhost:8083/api/v1/images/products/adidas-ultraboost-25-1.svg",
-                "http://localhost:8083/api/v1/images/products/adidas-ultraboost-25-2.svg"));
-        seedProductImages(lgTV, "LG-OLED-C5", List.of(
-                "http://localhost:8083/api/v1/images/products/lg-oled-evo-c5-65-1.svg",
-                "http://localhost:8083/api/v1/images/products/lg-oled-evo-c5-65-2.svg"));
+        seedProductImages(jackDaniels, "Jack Daniel's Old No. 7", List.of(
+                img("Jack Daniel's Old No. 7", "B87333"),
+                img("Jack Daniel's Old No. 7 Bottle", "B87333")));
+        seedProductImages(macallan12, "The Macallan 12 Year Old", List.of(
+                img("The Macallan 12 Year Old", "A0522D"),
+                img("The Macallan 12 Year Old Bottle", "A0522D")));
+        seedProductImages(absolutVodka, "Absolut Vodka", List.of(
+                img("Absolut Vodka", "5B7B9A"),
+                img("Absolut Vodka Bottle", "5B7B9A")));
+        seedProductImages(bacardiSuperior, "Bacardi Superior", List.of(
+                img("Bacardi Superior", "8B5A2B"),
+                img("Bacardi Superior Bottle", "8B5A2B")));
+        seedProductImages(hendricksGin, "Hendrick's Gin", List.of(
+                img("Hendrick's Gin", "3B7A57"),
+                img("Hendrick's Gin Bottle", "3B7A57")));
+        seedProductImages(moetImperial, "Moët & Chandon Impérial", List.of(
+                img("Moët & Chandon Impérial", "B08D57"),
+                img("Moët & Chandon Impérial Bottle", "B08D57")));
     }
 
-    private void seedPhoneVariants(Product product, String skuPrefix, String baseName,
-                                    List<String> storages, List<BigDecimal> priceAdjustments, List<Integer> stocks) {
-        for (int i = 0; i < storages.size(); i++) {
-            boolean isDefault = i == 0;
-            BigDecimal price = product.getBasePrice().add(priceAdjustments.get(i));
-            productVariantRepository.save(ProductVariant.builder()
-                    .sku(skuPrefix + "-" + storages.get(i).replace("/", "-"))
-                    .name(baseName + " (" + storages.get(i) + ")")
-                    .price(price)
-                    .stock(stocks.get(i))
-                    .product(product)
-                    .isActive(true)
-                    .isDefault(isDefault)
-                    .sortOrder(i)
-                    .attributes(Map.of("storage", storages.get(i)))
-                    .build());
-        }
-    }
-
-    private void seedLaptopVariants(Product product, String skuPrefix, String baseName,
-                                     List<String> configs, List<BigDecimal> priceAdjustments, List<Integer> stocks) {
-        for (int i = 0; i < configs.size(); i++) {
-            boolean isDefault = i == 0;
-            BigDecimal price = product.getBasePrice().add(priceAdjustments.get(i));
-            String configLabel = configs.get(i).replace("/", "-").replace(" ", "");
-            productVariantRepository.save(ProductVariant.builder()
-                    .sku(skuPrefix + "-" + configLabel)
-                    .name(baseName + " (" + configs.get(i) + ")")
-                    .price(price)
-                    .stock(stocks.get(i))
-                    .product(product)
-                    .isActive(true)
-                    .isDefault(isDefault)
-                    .sortOrder(i)
-                    .attributes(Map.of("configuration", configs.get(i)))
-                    .build());
-        }
-    }
-
-    private void seedHeadphoneVariants(Product product, String skuPrefix, String baseName,
-                                        List<String> colors, List<Integer> stocks) {
-        for (int i = 0; i < colors.size(); i++) {
-            boolean isDefault = i == 0;
-            productVariantRepository.save(ProductVariant.builder()
-                    .sku(skuPrefix + "-" + colors.get(i).replace(" ", "-"))
-                    .name(baseName + " (" + colors.get(i) + ")")
-                    .price(product.getBasePrice())
-                    .stock(stocks.get(i))
-                    .product(product)
-                    .isActive(true)
-                    .isDefault(isDefault)
-                    .sortOrder(i)
-                    .attributes(Map.of("color", colors.get(i)))
-                    .build());
-        }
-    }
-
-    private void seedShoeVariants(Product product, String skuPrefix, String baseName,
-                                   List<String> sizes, List<Integer> stocks) {
-        for (int i = 0; i < sizes.size(); i++) {
-            boolean isDefault = i == 1;
-            String sizeLabel = sizes.get(i).replace(" ", "");
-            productVariantRepository.save(ProductVariant.builder()
-                    .sku(skuPrefix + "-" + sizeLabel)
-                    .name(baseName + " (Size " + sizes.get(i) + ")")
-                    .price(product.getBasePrice())
-                    .stock(stocks.get(i))
-                    .product(product)
-                    .isActive(true)
-                    .isDefault(isDefault)
-                    .sortOrder(i)
-                    .attributes(Map.of("size", sizes.get(i)))
-                    .build());
-        }
-    }
-
-    private void seedTVVariants(Product product, String skuPrefix, String baseName,
-                                 List<String> sizes, List<BigDecimal> priceAdjustments, List<Integer> stocks) {
+    private void seedLiquorVariants(Product product, String skuPrefix, String baseName,
+                                    List<String> sizes, List<BigDecimal> priceAdjustments, List<Integer> stocks) {
         for (int i = 0; i < sizes.size(); i++) {
             boolean isDefault = i == 0;
             BigDecimal price = product.getBasePrice().add(priceAdjustments.get(i));
+            String sizeCode = sizes.get(i).replace("ml", "ML");
             productVariantRepository.save(ProductVariant.builder()
-                    .sku(skuPrefix + "-" + sizes.get(i).replace("\"", "inch").replace("-", ""))
+                    .sku(skuPrefix + "-" + sizeCode)
                     .name(baseName + " (" + sizes.get(i) + ")")
                     .price(price)
                     .stock(stocks.get(i))
@@ -1107,7 +978,7 @@ RefundRepository refundRepository,
                     .isActive(true)
                     .isDefault(isDefault)
                     .sortOrder(i)
-                    .attributes(Map.of("screenSize", sizes.get(i)))
+                    .attributes(Map.of("size", sizes.get(i)))
                     .build());
         }
     }
@@ -1163,7 +1034,7 @@ RefundRepository refundRepository,
 
             couponRepository.save(Coupon.builder()
                     .code("VIP50")
-                    .description("$50 off premium electronics")
+                    .description("$50 off premium whiskies")
                     .discountType(fixedAmount)
                     .discountValue(BigDecimal.valueOf(50))
                     .minOrderAmount(BigDecimal.valueOf(500))
@@ -1255,12 +1126,14 @@ RefundRepository refundRepository,
         Instant now = Instant.now();
         Instant future = now.plus(Duration.ofDays(45));
 
-        if (!offerRepository.existsByTitle("Summer Sale - 20% Off Electronics")) {
+        if (!offerRepository.existsByTitle("Summer Sale - 20% Off Spirits")) {
             log.info("Seeding offers");
 
+            Category spirits = categoryRepository.findBySlug("spirits").orElse(null);
+
             Offer o1 = offerRepository.save(Offer.builder()
-                    .title("Summer Sale - 20% Off Electronics")
-                    .description("Get 20% off on all electronics during our summer sale event")
+                    .title("Summer Sale - 20% Off Spirits")
+                    .description("Get 20% off on all spirits during our summer sale event")
                     .discountType(percentage)
                     .discountValue(BigDecimal.valueOf(20))
                     .maxDiscount(BigDecimal.valueOf(200))
@@ -1271,7 +1144,7 @@ RefundRepository refundRepository,
                     .validFrom(now)
                     .validUntil(future)
                     .applicableTo("category")
-                    .applicableIds("1")
+                    .applicableIds(spirits != null ? String.valueOf(spirits.getId()) : "")
                     .build());
 
             Offer o2 = offerRepository.save(Offer.builder()
@@ -1312,57 +1185,58 @@ RefundRepository refundRepository,
         if (orderRepository.findByUserId(user.getId()).isEmpty()) {
             log.info("Seeding orders");
 
-            Product iphone = productRepository.findBySlug("iphone-16-pro-max").get();
-            Product nikeShoes = productRepository.findBySlug("nike-air-max-270").get();
-            Product sonyHeadphones = productRepository.findBySlug("sony-wh-1000xm6").get();
+            Product jackDaniels = productRepository.findBySlug("jack-daniels-old-no-7").get();
+            Product hendricks = productRepository.findBySlug("hendricks-gin").get();
+            Product macallan12 = productRepository.findBySlug("macallan-12-year").get();
+            Product absolutVodka = productRepository.findBySlug("absolut-vodka").get();
 
-            ProductVariant iphoneVariant = productVariantRepository.findBySku("APL-IP16PM-256GB").get();
-            ProductVariant nikeVariant = productVariantRepository.findBySku("NKE-AM270-US9").get();
+            ProductVariant jackVariant = productVariantRepository.findBySku("JD-ON7-750ML").get();
+            ProductVariant macallanVariant = productVariantRepository.findBySku("MC-12-750ML").get();
 
             Coupon welcome10 = couponRepository.findByCode("WELCOME10").get();
 
             Order order1 = buildOrder(user, pending, currency, welcome10,
                     List.of(OrderItem.builder()
-                                    .productId(iphone.getId())
-                                    .variantId(iphoneVariant.getId())
-                                    .productName("iPhone 16 Pro Max")
-                                    .variantName("iPhone 16 Pro Max (256GB)")
-                                    .sku(iphoneVariant.getSku())
+                                    .productId(jackDaniels.getId())
+                                    .variantId(jackVariant.getId())
+                                    .productName("Jack Daniel's Old No. 7")
+                                    .variantName("Jack Daniel's Old No. 7 (750ml)")
+                                    .sku(jackVariant.getSku())
                                     .quantity(1)
-                                    .unitPrice(BigDecimal.valueOf(1199.99))
-                                    .totalPrice(BigDecimal.valueOf(1199.99))
+                                    .unitPrice(BigDecimal.valueOf(32.99))
+                                    .totalPrice(BigDecimal.valueOf(32.99))
                                     .build(),
                             OrderItem.builder()
-                                    .productId(sonyHeadphones.getId())
-                                    .productName("Sony WH-1000XM6")
-                                    .variantName("Sony WH-1000XM6 (Black)")
-                                    .sku("SONY-WH1000XM6-Black")
+                                    .productId(hendricks.getId())
+                                    .productName("Hendrick's Gin")
+                                    .variantName("Hendrick's Gin (750ml)")
+                                    .sku("HEN-750ML")
                                     .quantity(1)
-                                    .unitPrice(BigDecimal.valueOf(349.99))
-                                    .totalPrice(BigDecimal.valueOf(349.99))
+                                    .unitPrice(BigDecimal.valueOf(39.99))
+                                    .totalPrice(BigDecimal.valueOf(39.99))
                                     .build()),
                     List.of(OrderStatusHistory.builder()
                             .toStatus(pending)
                             .changedBy("SYSTEM")
                             .reason("Order placed")
                             .build()));
-            order1.setSubtotal(BigDecimal.valueOf(1549.98));
-            order1.setDiscount(BigDecimal.valueOf(50.00));
+            order1.setSubtotal(BigDecimal.valueOf(72.98));
+            order1.setDiscount(BigDecimal.valueOf(7.30));
             order1.setShippingCost(BigDecimal.valueOf(0));
-            order1.setTax(BigDecimal.valueOf(124.00));
-            order1.setTotal(BigDecimal.valueOf(1623.98));
+            order1.setTax(BigDecimal.valueOf(5.84));
+            order1.setTotal(BigDecimal.valueOf(71.52));
             orderRepository.save(order1);
 
             Order order2 = buildOrder(admin, delivered, currency, null,
                     List.of(OrderItem.builder()
-                                    .productId(nikeShoes.getId())
-                                    .variantId(nikeVariant.getId())
-                                    .productName("Nike Air Max 270")
-                                    .variantName("Nike Air Max 270 (US 9)")
-                                    .sku(nikeVariant.getSku())
+                                    .productId(macallan12.getId())
+                                    .variantId(macallanVariant.getId())
+                                    .productName("The Macallan 12 Year Old")
+                                    .variantName("The Macallan 12 Year Old (750ml)")
+                                    .sku(macallanVariant.getSku())
                                     .quantity(2)
-                                    .unitPrice(BigDecimal.valueOf(149.99))
-                                    .totalPrice(BigDecimal.valueOf(299.98))
+                                    .unitPrice(BigDecimal.valueOf(89.99))
+                                    .totalPrice(BigDecimal.valueOf(179.98))
                                     .build()),
                     List.of(
                             OrderStatusHistory.builder()
@@ -1382,22 +1256,22 @@ RefundRepository refundRepository,
                                     .changedBy("ADMIN")
                                     .reason("Delivered successfully")
                                     .build()));
-            order2.setSubtotal(BigDecimal.valueOf(299.98));
+            order2.setSubtotal(BigDecimal.valueOf(179.98));
             order2.setDiscount(BigDecimal.ZERO);
             order2.setShippingCost(BigDecimal.valueOf(9.99));
-            order2.setTax(BigDecimal.valueOf(23.99));
-            order2.setTotal(BigDecimal.valueOf(333.96));
+            order2.setTax(BigDecimal.valueOf(14.40));
+            order2.setTotal(BigDecimal.valueOf(204.37));
             orderRepository.save(order2);
 
             Order order3 = buildOrder(superAdmin, processing, currency, null,
                     List.of(OrderItem.builder()
-                                    .productId(nikeShoes.getId())
-                                    .productName("Nike Air Max 270")
-                                    .variantName("Nike Air Max 270 (US 10)")
-                                    .sku("NKE-AM270-US10")
+                                    .productId(absolutVodka.getId())
+                                    .productName("Absolut Vodka")
+                                    .variantName("Absolut Vodka (750ml)")
+                                    .sku("ABS-750ML")
                                     .quantity(1)
-                                    .unitPrice(BigDecimal.valueOf(149.99))
-                                    .totalPrice(BigDecimal.valueOf(149.99))
+                                    .unitPrice(BigDecimal.valueOf(24.99))
+                                    .totalPrice(BigDecimal.valueOf(24.99))
                                     .build()),
                     List.of(
                             OrderStatusHistory.builder()
@@ -1411,11 +1285,11 @@ RefundRepository refundRepository,
                                     .changedBy("ADMIN")
                                     .reason("Payment confirmed")
                                     .build()));
-            order3.setSubtotal(BigDecimal.valueOf(149.99));
+            order3.setSubtotal(BigDecimal.valueOf(24.99));
             order3.setDiscount(BigDecimal.ZERO);
             order3.setShippingCost(BigDecimal.valueOf(5.99));
-            order3.setTax(BigDecimal.valueOf(11.99));
-            order3.setTotal(BigDecimal.valueOf(167.97));
+            order3.setTax(BigDecimal.valueOf(2.00));
+            order3.setTotal(BigDecimal.valueOf(32.98));
             orderRepository.save(order3);
 
             CouponAssignment assignment = couponAssignmentRepository
@@ -1468,83 +1342,83 @@ RefundRepository refundRepository,
         User user = getUser("user@example.com");
         User admin = getUser("admin@example.com");
 
-        Product iphone = productRepository.findBySlug("iphone-16-pro-max").get();
-        Product galaxy = productRepository.findBySlug("samsung-galaxy-s25-ultra").get();
-        Product macbook = productRepository.findBySlug("macbook-air-m4").get();
-        Product sony = productRepository.findBySlug("sony-wh-1000xm6").get();
-        Product nike = productRepository.findBySlug("nike-air-max-270").get();
-        Product galaxyCheck = productRepository.findBySlug("samsung-galaxy-s25-ultra").get();
+        Product jackDaniels = productRepository.findBySlug("jack-daniels-old-no-7").get();
+        Product macallan12 = productRepository.findBySlug("macallan-12-year").get();
+        Product absolutVodka = productRepository.findBySlug("absolut-vodka").get();
+        Product hendricks = productRepository.findBySlug("hendricks-gin").get();
+        Product bacardiSuperior = productRepository.findBySlug("bacardi-superior").get();
+        Product greyGoose = productRepository.findBySlug("grey-goose-vodka").get();
 
-        List<Review> existing = reviewRepository.findByProductId(iphone.getId());
+        List<Review> existing = reviewRepository.findByProductId(jackDaniels.getId());
         if (existing.isEmpty()) {
             log.info("Seeding reviews");
 
             reviewRepository.save(Review.builder()
-                    .product(iphone)
+                    .product(jackDaniels)
                     .user(admin)
                     .rating(5)
-                    .title("Best iPhone ever!")
-                    .comment("The camera is incredible and the battery life lasts me two days. Highly recommend!")
+                    .title("Smooth as silk")
+                    .comment("Perfect balance of caramel and vanilla. My go-to pour for every evening.")
                     .isActive(true)
                     .isVerifiedPurchase(true)
                     .build());
 
             reviewRepository.save(Review.builder()
-                    .product(iphone)
+                    .product(jackDaniels)
                     .user(user)
                     .rating(4)
-                    .title("Great phone, but heavy")
-                    .comment("Amazing performance and display. A bit on the heavier side though.")
+                    .title("Classic, but pricey")
+                    .comment("Great Tennessee whiskey, though local stores sometimes have it cheaper.")
                     .isActive(true)
                     .isVerifiedPurchase(true)
                     .build());
 
             reviewRepository.save(Review.builder()
-                    .product(galaxy)
+                    .product(macallan12)
                     .user(admin)
                     .rating(5)
-                    .title("Samsung's best")
-                    .comment("The S Pen integration is flawless. Best Android phone on the market.")
+                    .title("Worth every penny")
+                    .comment("Dried fruit and sherry notes are stunning. A true single malt experience.")
                     .isActive(true)
                     .isVerifiedPurchase(true)
                     .build());
 
             reviewRepository.save(Review.builder()
-                    .product(macbook)
+                    .product(absolutVodka)
                     .user(user)
                     .rating(5)
-                    .title("Perfect laptop")
-                    .comment("Light, powerful, and the battery lasts all day. Best laptop I've owned.")
+                    .title("Crisp and clean")
+                    .comment("Mixes beautifully in a martini and is smooth enough to sip neat.")
                     .isActive(true)
                     .isVerifiedPurchase(true)
                     .build());
 
             reviewRepository.save(Review.builder()
-                    .product(sony)
+                    .product(hendricks)
                     .user(user)
                     .rating(5)
-                    .title("Noise cancellation is magic")
-                    .comment("I can't hear anything with these on. Perfect for commuting and focus.")
+                    .title("Cucumber magic")
+                    .comment("The cucumber and rose make it dangerously drinkable. Best served with tonic.")
                     .isActive(true)
                     .isVerifiedPurchase(true)
                     .build());
 
             reviewRepository.save(Review.builder()
-                    .product(nike)
+                    .product(bacardiSuperior)
                     .user(admin)
                     .rating(4)
-                    .title("Comfortable sneakers")
-                    .comment("Very comfortable for daily wear. The Air unit really works.")
+                    .title("Perfect for cocktails")
+                    .comment("Light and clean. Makes a brilliant mojito or daiquiri.")
                     .isActive(true)
                     .isVerifiedPurchase(false)
                     .build());
 
             reviewRepository.save(Review.builder()
-                    .product(galaxyCheck)
+                    .product(greyGoose)
                     .user(user)
                     .rating(3)
                     .title("Good but overpriced")
-                    .comment("Great features but the price is hard to justify over the previous model.")
+                    .comment("Smooth vodka, but hard to justify the price over other premium options.")
                     .isActive(true)
                     .isVerifiedPurchase(false)
                     .build());
@@ -1555,28 +1429,28 @@ RefundRepository refundRepository,
         User user = getUser("user@example.com");
         User admin = getUser("admin@example.com");
 
-        Product galaxy = productRepository.findBySlug("samsung-galaxy-s25-ultra").get();
-        Product macbook = productRepository.findBySlug("macbook-air-m4").get();
-        Product sony = productRepository.findBySlug("sony-wh-1000xm6").get();
+        Product johnnieWalker = productRepository.findBySlug("johnnie-walker-black-label").get();
+        Product macallan18 = productRepository.findBySlug("macallan-18-year").get();
+        Product belvedere = productRepository.findBySlug("belvedere-vodka").get();
 
         if (cartRepository.findByUserId(user.getId()).isEmpty()) {
             log.info("Seeding cart items");
 
             cartRepository.save(CartItem.builder()
                     .user(user)
-                    .product(galaxy)
+                    .product(johnnieWalker)
                     .quantity(1)
                     .build());
 
             cartRepository.save(CartItem.builder()
                     .user(admin)
-                    .product(macbook)
+                    .product(macallan18)
                     .quantity(1)
                     .build());
 
             cartRepository.save(CartItem.builder()
                     .user(admin)
-                    .product(sony)
+                    .product(belvedere)
                     .quantity(2)
                     .build());
         }
@@ -1586,31 +1460,32 @@ RefundRepository refundRepository,
         User user = getUser("user@example.com");
         User admin = getUser("admin@example.com");
 
-        Product macbook = productRepository.findBySlug("macbook-air-m4").get();
-        Product lgTV = productRepository.findBySlug("lg-oled-evo-c5-65").get();
-        Product dellXps = productRepository.findBySlug("dell-xps-16").get();
+        Product macallan18 = productRepository.findBySlug("macallan-18-year").get();
+        Product veuveClicquot = productRepository.findBySlug("veuve-clicquot-yellow-label").get();
+        Product donJulioAnejo = productRepository.findBySlug("don-julio-anejo").get();
+        Product moetImperial = productRepository.findBySlug("moet-chandon-imperial").get();
 
-        if (!wishlistRepository.existsByUserIdAndProductId(user.getId(), macbook.getId())) {
+        if (!wishlistRepository.existsByUserIdAndProductId(user.getId(), macallan18.getId())) {
             log.info("Seeding wishlist items");
 
             wishlistRepository.save(WishlistItem.builder()
                     .user(user)
-                    .product(macbook)
+                    .product(macallan18)
                     .build());
 
             wishlistRepository.save(WishlistItem.builder()
                     .user(user)
-                    .product(lgTV)
+                    .product(veuveClicquot)
                     .build());
 
             wishlistRepository.save(WishlistItem.builder()
                     .user(admin)
-                    .product(dellXps)
+                    .product(donJulioAnejo)
                     .build());
 
             wishlistRepository.save(WishlistItem.builder()
                     .user(admin)
-                    .product(lgTV)
+                    .product(moetImperial)
                     .build());
         }
     }
@@ -1635,7 +1510,7 @@ RefundRepository refundRepository,
             notificationRepository.save(Notification.builder()
                     .userId(user.getId())
                     .type("WELCOME")
-                    .title("Welcome to E-Commerce!")
+                    .title("Welcome to Liquefied!")
                     .body("Thank you for joining. Enjoy 10% off your first purchase with code WELCOME10.")
                     .deepLink("/coupons")
                     .isRead(false)
@@ -1663,8 +1538,8 @@ RefundRepository refundRepository,
                     .userId(admin.getId())
                     .type("LOW_STOCK")
                     .title("Low Stock Alert")
-                    .body("Product 'LG 65\" OLED evo C5 (77-inch)' is running low on stock.")
-                    .deepLink("/admin/products/8")
+                    .body("Product 'Johnnie Walker Blue Label' is running low on stock.")
+                    .deepLink("/admin/products")
                     .isRead(false)
                     .build());
         }
@@ -1770,47 +1645,47 @@ RefundRepository refundRepository,
         User bob = getUser("bob@example.com");
         User carol = getUser("carol@example.com");
 
-        ProductVariant airpodsStd = productVariantRepository.findBySku("APL-APP3-001-STD").get();
-        ProductVariant budsStd = productVariantRepository.findBySku("SAM-GB3P-001-STD").get();
-        ProductVariant sonyStd = productVariantRepository.findBySku("SONY-WF10-001-STD").get();
+        ProductVariant blueLabelStd = productVariantRepository.findBySku("JW-BLU-001-STD").get();
+        ProductVariant jamesonStd = productVariantRepository.findBySku("JM-001-001-STD").get();
+        ProductVariant patronStd = productVariantRepository.findBySku("PAT-SIL-001-STD").get();
 
         Order aliceOrder = buildOrder(alice, shipped, currency, null,
-                List.of(orderItem(airpodsStd, "Apple AirPods Pro 3", new BigDecimal("249.99"), 1)),
+                List.of(orderItem(blueLabelStd, "Johnnie Walker Blue Label", new BigDecimal("189.99"), 1)),
                 List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
                         history(confirmed, processing, "ADMIN", "Payment confirmed"),
                         history(processing, shipped, "ADMIN", "Shipped via FedEx")));
-        aliceOrder.setSubtotal(new BigDecimal("249.99"));
+        aliceOrder.setSubtotal(new BigDecimal("189.99"));
         aliceOrder.setDiscount(BigDecimal.ZERO);
         aliceOrder.setShippingCost(new BigDecimal("4.99"));
-        aliceOrder.setTax(new BigDecimal("19.99"));
-        aliceOrder.setTotal(new BigDecimal("274.97"));
+        aliceOrder.setTax(new BigDecimal("15.20"));
+        aliceOrder.setTotal(new BigDecimal("210.18"));
         orderRepository.save(aliceOrder);
 
         Order bobOrder = buildOrder(bob, cancelled, currency, null,
-                List.of(orderItem(budsStd, "Samsung Galaxy Buds3 Pro", new BigDecimal("229.99"), 1)),
+                List.of(orderItem(jamesonStd, "Jameson Irish Whiskey", new BigDecimal("28.99"), 1)),
                 List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
                         history(confirmed, processing, "ADMIN", "Payment confirmed"),
                         history(processing, cancelled, "ADMIN", "Customer requested cancellation")));
-        bobOrder.setSubtotal(new BigDecimal("229.99"));
+        bobOrder.setSubtotal(new BigDecimal("28.99"));
         bobOrder.setDiscount(BigDecimal.ZERO);
         bobOrder.setShippingCost(new BigDecimal("4.99"));
-        bobOrder.setTax(new BigDecimal("18.40"));
-        bobOrder.setTotal(new BigDecimal("253.38"));
+        bobOrder.setTax(new BigDecimal("2.32"));
+        bobOrder.setTotal(new BigDecimal("36.30"));
         bobOrder.setCanceledAt(Instant.now().minus(Duration.ofDays(2)));
         orderRepository.save(bobOrder);
 
         Order carolOrder = buildOrder(carol, returnRequested, currency, null,
-                List.of(orderItem(sonyStd, "Sony WF-1000XM7", new BigDecimal("299.99"), 1)),
+                List.of(orderItem(patronStd, "Patrón Silver", new BigDecimal("49.99"), 1)),
                 List.of(history(pending, confirmed, "SYSTEM", "Order placed"),
                         history(confirmed, processing, "ADMIN", "Payment confirmed"),
                         history(processing, shipped, "ADMIN", "Shipped via DHL"),
                         history(shipped, delivered, "ADMIN", "Delivered successfully"),
                         history(delivered, returnRequested, "USER", "Return requested by customer")));
-        carolOrder.setSubtotal(new BigDecimal("299.99"));
+        carolOrder.setSubtotal(new BigDecimal("49.99"));
         carolOrder.setDiscount(BigDecimal.ZERO);
         carolOrder.setShippingCost(BigDecimal.ZERO);
-        carolOrder.setTax(new BigDecimal("24.00"));
-        carolOrder.setTotal(new BigDecimal("323.99"));
+        carolOrder.setTax(new BigDecimal("4.00"));
+        carolOrder.setTotal(new BigDecimal("53.99"));
         orderRepository.save(carolOrder);
 
         seedPayment(aliceOrder, "COMPLETED");
@@ -1878,23 +1753,23 @@ RefundRepository refundRepository,
 
         ReturnRequest pendingReturn = returnRequestRepository.save(returnRequest(
                 carol, carolOrder, "PENDING", "REFUND", "DEFECTIVE",
-                "Earbuds keep disconnecting from my phone",
+                "Bottle arrived with a leaky seal",
                 null, null, null));
 
         returnItemRepository.save(returnItem(pendingReturn, carolOrder.getItems().get(0), "DEFECTIVE", 1));
 
         ReturnRequest approvedReturn = returnRequestRepository.save(returnRequest(
                 alice, aliceOrder, "APPROVED", "STORE_CREDIT", "DAMAGED",
-                "Left earbud arrived with a cracked casing",
+                "Bottle arrived with a chipped neck",
                 "Approved after inspection - store credit issued",
-                new BigDecimal("249.99"), null));
+                new BigDecimal("210.18"), null));
 
         returnItemRepository.save(returnItem(approvedReturn, aliceOrder.getItems().get(0), "DAMAGED", 1));
 
         Refund refund = Refund.builder()
                 .payment(alicePayment)
                 .returnRequestId(approvedReturn.getId())
-                .amount(new BigDecimal("249.99"))
+                .amount(new BigDecimal("210.18"))
                 .reason("Approved return - store credit")
                 .status(getRefundStatus("COMPLETED"))
                 .gatewayRefundId("TXN-REF-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
@@ -1970,14 +1845,14 @@ RefundRepository refundRepository,
                 .userId(alice.getId())
                 .agentId(admin.getId())
                 .status("ACTIVE")
-                .topic("AirPods muffled - return help")
+                .topic("Johnnie Walker bottle damaged - return help")
                 .createdAt(Instant.now().minus(Duration.ofDays(2)))
                 .assignedAt(Instant.now().minus(Duration.ofDays(2)))
                 .build());
-        saveMessage(room1, "USER", alice.getId(), "Hi! My AirPods Pro sound muffled on the left side.", true);
-        saveMessage(room1, "AGENT", admin.getId(), "Sorry to hear that! Could you check the speaker mesh for debris?", true);
+        saveMessage(room1, "USER", alice.getId(), "Hi! My Johnnie Walker Black Label bottle arrived with a chipped neck.", true);
+        saveMessage(room1, "AGENT", admin.getId(), "Sorry to hear that! Could you share a photo of the damage so we can log it?", true);
         saveMessage(room1, "AGENT", admin.getId(), "If that doesn't help we can arrange a return for you.", false);
-        saveMessage(room1, "USER", alice.getId(), "Tried that, still muffled. Can I return them?", false);
+        saveMessage(room1, "USER", alice.getId(), "Sent the photos. Can I get a replacement?", false);
 
         ChatRoom room2 = chatRoomRepository.save(ChatRoom.builder()
                 .userId(bob.getId())
