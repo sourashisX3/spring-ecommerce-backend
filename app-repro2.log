@@ -1,0 +1,206 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+2026-08-14T01:32:55.562+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : Starting EcommerceBackendApplication using Java 21.0.9 with PID 34600 (E:\Projects\Liquefied\ecommerce-backend\target\classes started by SOURASHIS in E:\Projects\Liquefied\ecommerce-backend)
+2026-08-14T01:32:55.564+05:30 DEBUG 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : Running with Spring Boot v4.1.0, Spring v7.0.8
+2026-08-14T01:32:55.566+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : The following 2 profiles are active: "dev", "render"
+2026-08-14T01:32:55.635+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-14T01:32:55.636+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-14T01:32:57.767+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-14T01:32:58.462+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 677 ms. Found 52 JPA repository interfaces.
+2026-08-14T01:32:59.883+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8090 (http)
+2026-08-14T01:32:59.906+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-14T01:32:59.907+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-14T01:32:59.991+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 4354 ms
+2026-08-14T01:33:00.543+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-14T01:33:00.614+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-08-14T01:33:01.351+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-14T01:33:01.402+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-14T01:33:01.728+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/repro user=SA
+2026-08-14T01:33:01.731+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-14T01:33:01.817+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/repro]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: REPRO/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-14T01:33:05.202+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-14T01:33:05.506+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-14T01:33:05.723+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-14T01:33:07.532+05:30 DEBUG 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.auth.JwtAuthenticationFilter  : Filter 'jwtAuthenticationFilter' configured for use
+2026-08-14T01:33:11.082+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-08-14T01:33:12.501+05:30  WARN 34600 --- [ecommerce-backend] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-14T01:33:14.472+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-08-14T01:33:14.590+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-14T01:33:14.591+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1297af1]]
+2026-08-14T01:33:14.592+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-14T01:33:14.623+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8090 (http) with context path '/api/v1'
+2026-08-14T01:33:14.638+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : Started EcommerceBackendApplication in 19.617 seconds (process running for 20.271)
+2026-08-14T01:33:14.659+05:30 DEBUG 34600 --- [ecommerce-backend] [MessageBroker-2] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:33:14.859+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: *:*
+2026-08-14T01:33:14.942+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user:read
+2026-08-14T01:33:14.946+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user:write
+2026-08-14T01:33:14.950+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: role:read
+2026-08-14T01:33:14.953+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: role:write
+2026-08-14T01:33:14.957+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: permission:read
+2026-08-14T01:33:14.962+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: permission:write
+2026-08-14T01:33:14.965+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user_permission:read
+2026-08-14T01:33:14.969+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user_permission:write
+2026-08-14T01:33:14.972+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: product:read
+2026-08-14T01:33:14.976+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: product:write
+2026-08-14T01:33:14.980+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: category:read
+2026-08-14T01:33:14.985+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: category:write
+2026-08-14T01:33:14.990+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: brand:read
+2026-08-14T01:33:14.994+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: brand:write
+2026-08-14T01:33:14.999+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: tag:read
+2026-08-14T01:33:15.003+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: tag:write
+2026-08-14T01:33:15.006+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: order:read
+2026-08-14T01:33:15.008+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: order:write
+2026-08-14T01:33:15.012+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: order:update_status
+2026-08-14T01:33:15.016+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: coupon:read
+2026-08-14T01:33:15.019+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: coupon:write
+2026-08-14T01:33:15.024+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: offer:read
+2026-08-14T01:33:15.029+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: offer:write
+2026-08-14T01:33:15.032+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: discount:read
+2026-08-14T01:33:15.035+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: discount:write
+2026-08-14T01:33:15.039+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: payment:read
+2026-08-14T01:33:15.041+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: payment:write
+2026-08-14T01:33:15.044+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: shipping:read
+2026-08-14T01:33:15.048+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: shipping:write
+2026-08-14T01:33:15.050+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: delivery:read
+2026-08-14T01:33:15.055+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: delivery:write
+2026-08-14T01:33:15.057+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: return:read
+2026-08-14T01:33:15.061+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: return:write
+2026-08-14T01:33:15.064+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: wallet:read
+2026-08-14T01:33:15.068+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: wallet:write
+2026-08-14T01:33:15.071+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: currency:read
+2026-08-14T01:33:15.076+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: currency:write
+2026-08-14T01:33:15.079+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: chatbot:read
+2026-08-14T01:33:15.082+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: chatbot:write
+2026-08-14T01:33:15.093+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding SUPER_ADMIN role
+2026-08-14T01:33:15.109+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Updating permissions for SUPER_ADMIN role (0 -> 1)
+2026-08-14T01:33:15.143+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding USER role
+2026-08-14T01:33:15.197+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding ADMIN role
+2026-08-14T01:33:15.200+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Updating permissions for ADMIN role (0 -> 36)
+2026-08-14T01:33:15.208+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: PENDING
+2026-08-14T01:33:15.214+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: CONFIRMED
+2026-08-14T01:33:15.219+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: PROCESSING
+2026-08-14T01:33:15.222+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: SHIPPED
+2026-08-14T01:33:15.227+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: DELIVERED
+2026-08-14T01:33:15.231+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: CANCELLED
+2026-08-14T01:33:15.235+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: RETURN_REQUESTED
+2026-08-14T01:33:15.239+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: REFUNDED
+2026-08-14T01:33:15.272+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PENDING -> CONFIRMED (ADMIN)
+2026-08-14T01:33:15.279+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PENDING -> CANCELLED (ADMIN)
+2026-08-14T01:33:15.283+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PENDING -> CANCELLED (USER)
+2026-08-14T01:33:15.289+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: CONFIRMED -> PROCESSING (ADMIN)
+2026-08-14T01:33:15.294+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: CONFIRMED -> CANCELLED (ADMIN)
+2026-08-14T01:33:15.298+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PROCESSING -> SHIPPED (ADMIN)
+2026-08-14T01:33:15.301+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PROCESSING -> CANCELLED (ADMIN)
+2026-08-14T01:33:15.305+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: SHIPPED -> DELIVERED (ADMIN)
+2026-08-14T01:33:15.310+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: DELIVERED -> RETURN_REQUESTED (USER)
+2026-08-14T01:33:15.315+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: RETURN_REQUESTED -> REFUNDED (ADMIN)
+2026-08-14T01:33:15.321+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding discount type: PERCENTAGE
+2026-08-14T01:33:15.327+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding discount type: FIXED_AMOUNT
+2026-08-14T01:33:15.333+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment gateway: MOCK
+2026-08-14T01:33:15.338+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment gateway: STRIPE
+2026-08-14T01:33:15.342+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment gateway: PAYPAL
+2026-08-14T01:33:15.349+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding shipping carrier: FEDEX
+2026-08-14T01:33:15.353+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding shipping carrier: UPS
+2026-08-14T01:33:15.357+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding shipping carrier: DHL
+2026-08-14T01:33:15.363+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return type: REFUND
+2026-08-14T01:33:15.368+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return type: EXCHANGE
+2026-08-14T01:33:15.372+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return type: STORE_CREDIT
+2026-08-14T01:33:15.380+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return condition: DAMAGED
+2026-08-14T01:33:15.385+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return condition: DEFECTIVE
+2026-08-14T01:33:15.387+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return condition: NOT_AS_DESCRIBED
+2026-08-14T01:33:15.394+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: PENDING
+2026-08-14T01:33:15.398+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: COMPLETED
+2026-08-14T01:33:15.402+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: FAILED
+2026-08-14T01:33:15.405+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: PARTIALLY_REFUNDED
+2026-08-14T01:33:15.407+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: REFUNDED
+2026-08-14T01:33:15.414+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding refund status: PENDING
+2026-08-14T01:33:15.417+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding refund status: COMPLETED
+2026-08-14T01:33:15.420+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding refund status: FAILED
+2026-08-14T01:33:15.427+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: PENDING
+2026-08-14T01:33:15.432+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: SHIPPED
+2026-08-14T01:33:15.435+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: DELIVERED
+2026-08-14T01:33:15.439+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: CANCELLED
+2026-08-14T01:33:15.448+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: PENDING
+2026-08-14T01:33:15.453+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: APPROVED
+2026-08-14T01:33:15.458+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: REJECTED
+2026-08-14T01:33:15.461+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: CLOSED
+2026-08-14T01:33:15.470+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding wallet transaction type: CREDIT
+2026-08-14T01:33:15.475+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding wallet transaction type: DEBIT
+2026-08-14T01:33:15.482+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: USD
+2026-08-14T01:33:15.487+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: EUR
+2026-08-14T01:33:15.491+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: GBP
+2026-08-14T01:33:15.494+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: INR
+2026-08-14T01:33:15.698+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding superadmin user
+2026-08-14T01:33:15.708+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding admin user
+2026-08-14T01:33:15.712+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding regular user
+2026-08-14T01:33:15.723+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding shipping addresses
+2026-08-14T01:33:15.744+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet for superadmin@example.com
+2026-08-14T01:33:15.750+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet for admin@example.com
+2026-08-14T01:33:15.754+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet for user@example.com
+2026-08-14T01:33:15.764+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet transactions for superadmin@example.com
+2026-08-14T01:33:15.771+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet transactions for admin@example.com
+2026-08-14T01:33:15.778+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet transactions for user@example.com
+2026-08-14T01:33:15.784+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding categories
+2026-08-14T01:33:15.796+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Apple
+2026-08-14T01:33:15.800+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Samsung
+2026-08-14T01:33:15.804+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Sony
+2026-08-14T01:33:15.806+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Nike
+2026-08-14T01:33:15.810+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Adidas
+2026-08-14T01:33:15.813+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Dell
+2026-08-14T01:33:15.818+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: LG
+2026-08-14T01:33:15.824+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: New Arrival
+2026-08-14T01:33:15.828+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Best Seller
+2026-08-14T01:33:15.831+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Sale
+2026-08-14T01:33:15.833+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Featured
+2026-08-14T01:33:15.838+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Trending
+2026-08-14T01:33:15.840+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Limited Edition
+2026-08-14T01:33:15.880+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding products
+2026-08-14T01:33:15.966+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding variants and images
+2026-08-14T01:33:16.094+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding bulk catalog (40 products)
+2026-08-14T01:33:16.449+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding coupons
+2026-08-14T01:33:16.479+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding coupon assignments
+2026-08-14T01:33:16.491+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding discounts
+2026-08-14T01:33:16.513+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding offers
+2026-08-14T01:33:16.555+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding orders
+2026-08-14T01:33:16.630+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding payment for order ORD-921588CC
+2026-08-14T01:33:16.635+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding payment for order ORD-32A3F95B
+2026-08-14T01:33:16.639+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding payment for order ORD-F90C5735
+2026-08-14T01:33:16.668+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding reviews
+2026-08-14T01:33:16.693+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding cart items
+2026-08-14T01:33:16.720+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wishlist items
+2026-08-14T01:33:16.749+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding notifications
+2026-08-14T01:33:16.770+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding extra customers and wallets
+2026-08-14T01:33:16.927+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding extra orders with payments
+2026-08-14T01:33:17.043+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding return requests and refunds
+2026-08-14T01:33:17.119+05:30  INFO 34600 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding chat rooms and messages
+2026-08-14T01:33:43.003+05:30  INFO 34600 --- [ecommerce-backend] [nio-8090-exec-1] o.a.c.c.C.[.[localhost].[/api/v1]        : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-14T01:33:43.003+05:30  INFO 34600 --- [ecommerce-backend] [nio-8090-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-08-14T01:33:43.004+05:30  INFO 34600 --- [ecommerce-backend] [nio-8090-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-08-14T01:33:45.435+05:30  INFO 34600 --- [ecommerce-backend] [nio-8090-exec-1] o.springdoc.api.AbstractOpenApiResource  : Init duration for springdoc-openapi is: 2377 ms
+2026-08-14T01:33:50.456+05:30  INFO 34600 --- [ecommerce-backend] [nio-8090-exec-3] c.e.e.core.aspect.PerformanceAspect      : PERF - AuthService.login took 215ms
+2026-08-14T01:33:50.588+05:30 DEBUG 34600 --- [ecommerce-backend] [nio-8090-exec-4] c.e.e.core.aspect.PerformanceAspect      : PERF - WishlistService.getWishlist took 3ms
+2026-08-14T01:33:50.590+05:30 DEBUG 34600 --- [ecommerce-backend] [nio-8090-exec-4] c.e.e.core.aspect.PerformanceAspect      : PERF - CartService.getCart took 1ms
+2026-08-14T01:33:50.598+05:30 DEBUG 34600 --- [ecommerce-backend] [nio-8090-exec-4] c.e.e.core.aspect.PerformanceAspect      : PERF - WalletService.getWallet took 7ms
+2026-08-14T01:33:50.601+05:30 DEBUG 34600 --- [ecommerce-backend] [nio-8090-exec-4] c.e.e.core.aspect.PerformanceAspect      : PERF - NotificationService.getUnreadCount took 2ms
+2026-08-14T01:33:50.648+05:30 DEBUG 34600 --- [ecommerce-backend] [nio-8090-exec-4] c.e.e.core.aspect.PerformanceAspect      : PERF - HomeService.getDashboard took 69ms
+2026-08-14T01:34:01.108+05:30 DEBUG 34600 --- [ecommerce-backend] [nio-8090-exec-6] c.e.e.core.aspect.PerformanceAspect      : PERF - AuthService.login took 67ms
+2026-08-14T01:34:01.192+05:30 DEBUG 34600 --- [ecommerce-backend] [nio-8090-exec-7] c.e.e.core.aspect.PerformanceAspect      : PERF - ProductService.getAllProducts took 30ms

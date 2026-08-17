@@ -1,0 +1,335 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+2026-08-14T01:34:20.642+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : Starting EcommerceBackendApplication using Java 21.0.9 with PID 25000 (E:\Projects\Liquefied\ecommerce-backend\target\classes started by SOURASHIS in E:\Projects\Liquefied\ecommerce-backend)
+2026-08-14T01:34:20.647+05:30 DEBUG 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : Running with Spring Boot v4.1.0, Spring v7.0.8
+2026-08-14T01:34:20.649+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : The following 2 profiles are active: "dev", "render"
+2026-08-14T01:34:20.710+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-08-14T01:34:20.710+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-08-14T01:34:22.026+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-14T01:34:22.338+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 302 ms. Found 52 JPA repository interfaces.
+2026-08-14T01:34:23.312+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8083 (http)
+2026-08-14T01:34:23.328+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-08-14T01:34:23.329+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.22]
+2026-08-14T01:34:23.385+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2673 ms
+2026-08-14T01:34:23.748+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-14T01:34:23.795+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.1.Final
+2026-08-14T01:34:24.689+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-14T01:34:24.736+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-14T01:34:25.079+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/liquefied user=SA
+2026-08-14T01:34:25.082+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-14T01:34:25.158+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/liquefied]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: LIQUEFIED/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-08-14T01:34:27.528+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-14T01:34:27.729+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-14T01:34:27.862+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-14T01:34:29.076+05:30 DEBUG 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.auth.JwtAuthenticationFilter  : Filter 'jwtAuthenticationFilter' configured for use
+2026-08-14T01:34:31.649+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-08-14T01:34:32.590+05:30  WARN 25000 --- [ecommerce-backend] [  restartedMain] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-08-14T01:34:33.775+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-08-14T01:34:33.851+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Starting...
+2026-08-14T01:34:33.852+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=true, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@1b4ee7e3]]
+2026-08-14T01:34:33.853+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.m.s.b.SimpleBrokerMessageHandler     : Started.
+2026-08-14T01:34:33.876+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8083 (http) with context path '/api/v1'
+2026-08-14T01:34:33.886+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.EcommerceBackendApplication        : Started EcommerceBackendApplication in 13.792 seconds (process running for 14.556)
+2026-08-14T01:34:33.899+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-2] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 1ms
+2026-08-14T01:34:34.045+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: *:*
+2026-08-14T01:34:34.100+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user:read
+2026-08-14T01:34:34.103+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user:write
+2026-08-14T01:34:34.106+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: role:read
+2026-08-14T01:34:34.108+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: role:write
+2026-08-14T01:34:34.110+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: permission:read
+2026-08-14T01:34:34.113+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: permission:write
+2026-08-14T01:34:34.115+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user_permission:read
+2026-08-14T01:34:34.116+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: user_permission:write
+2026-08-14T01:34:34.118+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: product:read
+2026-08-14T01:34:34.120+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: product:write
+2026-08-14T01:34:34.122+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: category:read
+2026-08-14T01:34:34.123+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: category:write
+2026-08-14T01:34:34.127+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: brand:read
+2026-08-14T01:34:34.130+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: brand:write
+2026-08-14T01:34:34.134+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: tag:read
+2026-08-14T01:34:34.137+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: tag:write
+2026-08-14T01:34:34.139+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: order:read
+2026-08-14T01:34:34.141+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: order:write
+2026-08-14T01:34:34.143+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: order:update_status
+2026-08-14T01:34:34.144+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: coupon:read
+2026-08-14T01:34:34.146+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: coupon:write
+2026-08-14T01:34:34.148+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: offer:read
+2026-08-14T01:34:34.150+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: offer:write
+2026-08-14T01:34:34.151+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: discount:read
+2026-08-14T01:34:34.154+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: discount:write
+2026-08-14T01:34:34.156+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: payment:read
+2026-08-14T01:34:34.158+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: payment:write
+2026-08-14T01:34:34.161+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: shipping:read
+2026-08-14T01:34:34.165+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: shipping:write
+2026-08-14T01:34:34.166+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: delivery:read
+2026-08-14T01:34:34.169+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: delivery:write
+2026-08-14T01:34:34.171+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: return:read
+2026-08-14T01:34:34.173+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: return:write
+2026-08-14T01:34:34.176+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: wallet:read
+2026-08-14T01:34:34.177+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: wallet:write
+2026-08-14T01:34:34.179+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: currency:read
+2026-08-14T01:34:34.180+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: currency:write
+2026-08-14T01:34:34.181+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: chatbot:read
+2026-08-14T01:34:34.183+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding permission: chatbot:write
+2026-08-14T01:34:34.191+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding SUPER_ADMIN role
+2026-08-14T01:34:34.199+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Updating permissions for SUPER_ADMIN role (0 -> 1)
+2026-08-14T01:34:34.221+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding USER role
+2026-08-14T01:34:34.248+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding ADMIN role
+2026-08-14T01:34:34.250+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Updating permissions for ADMIN role (0 -> 36)
+2026-08-14T01:34:34.256+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: PENDING
+2026-08-14T01:34:34.260+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: CONFIRMED
+2026-08-14T01:34:34.262+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: PROCESSING
+2026-08-14T01:34:34.263+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: SHIPPED
+2026-08-14T01:34:34.267+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: DELIVERED
+2026-08-14T01:34:34.270+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: CANCELLED
+2026-08-14T01:34:34.273+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: RETURN_REQUESTED
+2026-08-14T01:34:34.276+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status: REFUNDED
+2026-08-14T01:34:34.296+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PENDING -> CONFIRMED (ADMIN)
+2026-08-14T01:34:34.300+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PENDING -> CANCELLED (ADMIN)
+2026-08-14T01:34:34.302+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PENDING -> CANCELLED (USER)
+2026-08-14T01:34:34.303+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: CONFIRMED -> PROCESSING (ADMIN)
+2026-08-14T01:34:34.308+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: CONFIRMED -> CANCELLED (ADMIN)
+2026-08-14T01:34:34.311+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PROCESSING -> SHIPPED (ADMIN)
+2026-08-14T01:34:34.313+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: PROCESSING -> CANCELLED (ADMIN)
+2026-08-14T01:34:34.316+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: SHIPPED -> DELIVERED (ADMIN)
+2026-08-14T01:34:34.318+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: DELIVERED -> RETURN_REQUESTED (USER)
+2026-08-14T01:34:34.322+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding order status transition: RETURN_REQUESTED -> REFUNDED (ADMIN)
+2026-08-14T01:34:34.327+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding discount type: PERCENTAGE
+2026-08-14T01:34:34.331+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding discount type: FIXED_AMOUNT
+2026-08-14T01:34:34.336+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment gateway: MOCK
+2026-08-14T01:34:34.339+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment gateway: STRIPE
+2026-08-14T01:34:34.342+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment gateway: PAYPAL
+2026-08-14T01:34:34.345+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding shipping carrier: FEDEX
+2026-08-14T01:34:34.350+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding shipping carrier: UPS
+2026-08-14T01:34:34.352+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding shipping carrier: DHL
+2026-08-14T01:34:34.356+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return type: REFUND
+2026-08-14T01:34:34.359+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return type: EXCHANGE
+2026-08-14T01:34:34.361+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return type: STORE_CREDIT
+2026-08-14T01:34:34.366+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return condition: DAMAGED
+2026-08-14T01:34:34.369+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return condition: DEFECTIVE
+2026-08-14T01:34:34.371+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return condition: NOT_AS_DESCRIBED
+2026-08-14T01:34:34.375+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: PENDING
+2026-08-14T01:34:34.378+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: COMPLETED
+2026-08-14T01:34:34.379+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: FAILED
+2026-08-14T01:34:34.382+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: PARTIALLY_REFUNDED
+2026-08-14T01:34:34.383+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding payment status: REFUNDED
+2026-08-14T01:34:34.386+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding refund status: PENDING
+2026-08-14T01:34:34.389+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding refund status: COMPLETED
+2026-08-14T01:34:34.391+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding refund status: FAILED
+2026-08-14T01:34:34.395+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: PENDING
+2026-08-14T01:34:34.397+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: SHIPPED
+2026-08-14T01:34:34.400+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: DELIVERED
+2026-08-14T01:34:34.401+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding delivery status: CANCELLED
+2026-08-14T01:34:34.406+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: PENDING
+2026-08-14T01:34:34.409+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: APPROVED
+2026-08-14T01:34:34.412+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: REJECTED
+2026-08-14T01:34:34.414+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding return status: CLOSED
+2026-08-14T01:34:34.419+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding wallet transaction type: CREDIT
+2026-08-14T01:34:34.422+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding wallet transaction type: DEBIT
+2026-08-14T01:34:34.426+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: USD
+2026-08-14T01:34:34.428+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: EUR
+2026-08-14T01:34:34.429+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: GBP
+2026-08-14T01:34:34.431+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DataSeeder             : Seeding currency: INR
+2026-08-14T01:34:34.579+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding superadmin user
+2026-08-14T01:34:34.588+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding admin user
+2026-08-14T01:34:34.601+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding regular user
+2026-08-14T01:34:34.611+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding shipping addresses
+2026-08-14T01:34:34.644+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet for superadmin@example.com
+2026-08-14T01:34:34.650+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet for admin@example.com
+2026-08-14T01:34:34.654+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet for user@example.com
+2026-08-14T01:34:34.662+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet transactions for superadmin@example.com
+2026-08-14T01:34:34.665+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet transactions for admin@example.com
+2026-08-14T01:34:34.668+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wallet transactions for user@example.com
+2026-08-14T01:34:34.673+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding categories
+2026-08-14T01:34:34.682+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Apple
+2026-08-14T01:34:34.685+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Samsung
+2026-08-14T01:34:34.686+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Sony
+2026-08-14T01:34:34.687+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Nike
+2026-08-14T01:34:34.689+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Adidas
+2026-08-14T01:34:34.691+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: Dell
+2026-08-14T01:34:34.693+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding brand: LG
+2026-08-14T01:34:34.697+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: New Arrival
+2026-08-14T01:34:34.700+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Best Seller
+2026-08-14T01:34:34.703+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Sale
+2026-08-14T01:34:34.705+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Featured
+2026-08-14T01:34:34.707+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Trending
+2026-08-14T01:34:34.709+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding tag: Limited Edition
+2026-08-14T01:34:34.734+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding products
+2026-08-14T01:34:34.789+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding variants and images
+2026-08-14T01:34:34.846+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding bulk catalog (40 products)
+2026-08-14T01:34:35.043+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding coupons
+2026-08-14T01:34:35.067+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding coupon assignments
+2026-08-14T01:34:35.075+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding discounts
+2026-08-14T01:34:35.089+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding offers
+2026-08-14T01:34:35.109+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding orders
+2026-08-14T01:34:35.171+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding payment for order ORD-140319FF
+2026-08-14T01:34:35.175+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding payment for order ORD-BB2E468D
+2026-08-14T01:34:35.177+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding payment for order ORD-502F678A
+2026-08-14T01:34:35.195+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding reviews
+2026-08-14T01:34:35.208+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding cart items
+2026-08-14T01:34:35.224+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding wishlist items
+2026-08-14T01:34:35.243+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding notifications
+2026-08-14T01:34:35.248+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding extra customers and wallets
+2026-08-14T01:34:35.363+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding extra orders with payments
+2026-08-14T01:34:35.429+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding return requests and refunds
+2026-08-14T01:34:35.472+05:30  INFO 25000 --- [ecommerce-backend] [  restartedMain] c.e.e.core.config.DummyDataSeeder        : Seeding chat rooms and messages
+2026-08-14T01:35:33.818+05:30  INFO 25000 --- [ecommerce-backend] [MessageBroker-3] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 5, active threads = 1, queued tasks = 2, completed tasks = 2]
+2026-08-14T01:35:33.891+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-2] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:36:33.899+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-1] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:37:33.893+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-3] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:38:33.893+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-4] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:39:33.885+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-7] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:40:33.885+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-1] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:41:15.491+05:30  INFO 25000 --- [ecommerce-backend] [nio-8083-exec-2] o.a.c.c.C.[.[localhost].[/api/v1]        : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-08-14T01:41:15.493+05:30  INFO 25000 --- [ecommerce-backend] [nio-8083-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-08-14T01:41:15.496+05:30  INFO 25000 --- [ecommerce-backend] [nio-8083-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-08-14T01:41:33.891+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-6] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:42:33.890+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:43:33.886+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-4] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:44:33.895+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-5] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:45:33.894+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:46:33.885+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:47:33.888+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:48:33.888+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:49:33.898+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:50:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:51:32.018+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:52:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:53:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:54:32.016+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:55:32.028+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:56:32.026+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:57:32.024+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:58:32.021+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T01:59:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:00:32.023+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:01:32.024+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:02:32.016+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:03:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:04:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:05:31.946+05:30  INFO 25000 --- [ecommerce-backend] [MessageBroker-6] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 16, active threads = 1, queued tasks = 2, completed tasks = 33]
+2026-08-14T02:05:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:06:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:07:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:08:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:09:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:10:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:11:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:12:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:13:32.015+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:14:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:15:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:16:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:17:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:18:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:19:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:20:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:21:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:22:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:23:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:24:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:25:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:26:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:27:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:28:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:29:32.014+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:30:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:31:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:32:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:33:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-14] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:34:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-10] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:35:31.947+05:30  INFO 25000 --- [ecommerce-backend] [MessageBroker-6] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 16, active threads = 1, queued tasks = 2, completed tasks = 65]
+2026-08-14T02:35:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:36:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:37:32.015+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 1ms
+2026-08-14T02:38:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:39:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:40:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:41:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:42:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:43:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:44:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:45:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:46:00.080+05:30  INFO 25000 --- [ecommerce-backend] [nio-8083-exec-6] c.e.e.core.aspect.PerformanceAspect      : PERF - AuthService.login took 355ms
+2026-08-14T02:46:05.315+05:30 DEBUG 25000 --- [ecommerce-backend] [nio-8083-exec-1] c.e.e.core.aspect.PerformanceAspect      : PERF - AuthService.login took 69ms
+2026-08-14T02:46:05.467+05:30 DEBUG 25000 --- [ecommerce-backend] [nio-8083-exec-4] c.e.e.core.aspect.PerformanceAspect      : PERF - AuthService.logout took 16ms
+2026-08-14T02:46:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:47:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:48:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:49:32.025+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:50:32.018+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:51:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:52:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:53:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:54:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:55:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:56:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:57:32.023+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:58:32.022+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T02:59:32.018+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:00:32.024+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:01:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:02:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:03:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:04:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-12] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:05:31.948+05:30  INFO 25000 --- [ecommerce-backend] [essageBroker-10] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 16, active threads = 1, queued tasks = 2, completed tasks = 96]
+2026-08-14T03:05:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:06:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:07:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:08:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:09:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:10:32.014+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:11:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:12:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:13:32.014+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:14:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:15:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:16:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:17:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:18:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:19:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:20:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:21:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:22:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:23:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:24:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:25:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:26:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:27:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:28:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:29:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:30:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:31:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:32:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:33:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-13] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:34:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [essageBroker-11] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:35:31.949+05:30  INFO 25000 --- [ecommerce-backend] [MessageBroker-7] o.s.w.s.c.WebSocketMessageBrokerStats    : WebSocketSession[0 current WS(0)-HttpStream(0)-HttpPoll(0), 0 total, 0 closed abnormally (0 connect failure, 0 send limit, 0 transport error)], stompSubProtocol[processed CONNECT(0)-CONNECTED(0)-DISCONNECT(0)], stompBrokerRelay[null], inboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], outboundChannel[pool size = 0, active threads = 0, queued tasks = 0, completed tasks = 0], sockJsScheduler[pool size = 16, active threads = 1, queued tasks = 2, completed tasks = 128]
+2026-08-14T03:35:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:36:32.014+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:37:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:38:32.014+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:39:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:40:32.014+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:41:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:42:32.012+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:43:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
+2026-08-14T03:44:32.013+05:30 DEBUG 25000 --- [ecommerce-backend] [MessageBroker-9] c.e.e.core.aspect.PerformanceAspect      : PERF - OtpService.cleanupExpiredOtps took 0ms
