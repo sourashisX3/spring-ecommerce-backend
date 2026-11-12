@@ -1,6 +1,7 @@
 package com.example.ecommerce_backend.modules.chat.controller;
 
 import com.example.ecommerce_backend.core.aspect.AuthorizationAspect;
+import com.example.ecommerce_backend.modules.chat.dto.ChatRoomResponse;
 import com.example.ecommerce_backend.modules.chat.entity.ChatMessage;
 import com.example.ecommerce_backend.modules.chat.entity.ChatRoom;
 import com.example.ecommerce_backend.modules.chat.service.ChatService;
@@ -96,7 +97,8 @@ class ChatControllerTest {
                 .uuid("room-uuid").userId(1L).topic("Help")
                 .status("BOT_ACTIVE").createdAt(Instant.now())
                 .build();
-        when(chatService.getUserRooms(eq(1L), any())).thenReturn(new PageImpl<>(List.of(room)));
+        when(chatService.getUserRoomResponses(eq(1L), any()))
+                .thenReturn(new PageImpl<>(List.of(ChatRoomResponse.from(room))));
 
         mockMvc.perform(get("/chat/rooms").with(user(testUser)))
                 .andExpect(status().isOk())
@@ -125,21 +127,22 @@ class ChatControllerTest {
                 .uuid("msg-uuid").roomId(1L).content("Hello")
                 .senderType("USER").createdAt(Instant.now())
                 .build();
-        when(chatService.findByUuid("room-uuid")).thenReturn(Optional.of(room));
-        when(chatService.getRoomMessages(eq(1L), any())).thenReturn(new PageImpl<>(List.of(msg)));
+        when(chatService.getRoomMessages(eq("room-uuid"), eq(1L), eq(false), any()))
+                .thenReturn(new PageImpl<>(List.of(msg)));
 
-        mockMvc.perform(get("/chat/rooms/room-uuid/messages"))
+        mockMvc.perform(get("/chat/rooms/room-uuid/messages").with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.content[0].uuid").value("msg-uuid"))
                 .andExpect(jsonPath("$.response.content[0].content").value("Hello"));
     }
 
     @Test
-    void getRoomMessages_whenRoomNotFound_shouldReturn500() throws Exception {
-        when(chatService.findByUuid("nonexistent")).thenReturn(Optional.empty());
+    void getRoomMessages_whenRoomNotFound_shouldReturn404() throws Exception {
+        when(chatService.getRoomMessages(eq("nonexistent"), eq(1L), eq(false), any()))
+                .thenThrow(new com.example.ecommerce_backend.modules.chat.exception.ChatRoomNotFoundException("Chat room not found: nonexistent"));
 
-        mockMvc.perform(get("/chat/rooms/nonexistent/messages"))
-                .andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/chat/rooms/nonexistent/messages").with(user(testUser)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -163,9 +166,9 @@ class ChatControllerTest {
         ChatRoom room = ChatRoom.builder()
                 .uuid("room-uuid").status("CLOSED").closedAt(Instant.now())
                 .build();
-        when(chatService.closeRoom("room-uuid")).thenReturn(room);
+        when(chatService.closeRoom("room-uuid", 1L, false)).thenReturn(room);
 
-        mockMvc.perform(patch("/chat/rooms/room-uuid/close"))
+        mockMvc.perform(patch("/chat/rooms/room-uuid/close").with(user(testUser)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.response.uuid").value("room-uuid"))
                 .andExpect(jsonPath("$.response.status").value("CLOSED"))

@@ -41,8 +41,7 @@ public class ChatController {
     @GetMapping("/rooms")
     public ResponseEntity<ApiResponse<Page<ChatRoomResponse>>> getUserRooms(
             @AuthenticationPrincipal User user, @ParameterObject Pageable pageable) {
-        Page<ChatRoomResponse> rooms = chatService.getUserRooms(user.getId(), pageable)
-                .map(ChatRoomResponse::from);
+        Page<ChatRoomResponse> rooms = chatService.getUserRoomResponses(user.getId(), pageable);
         return ApiResponse.success(rooms, "Chat rooms retrieved");
     }
 
@@ -63,10 +62,11 @@ public class ChatController {
     @Operation(summary = "Get room messages", description = "Retrieves all messages for a specific chat room with pagination")
     @GetMapping("/rooms/{uuid}/messages")
     public ResponseEntity<ApiResponse<Page<ChatMessageResponse>>> getRoomMessages(
-            @PathVariable String uuid, @ParameterObject Pageable pageable) {
-        ChatRoom room = chatService.findByUuid(uuid)
-                .orElseThrow(() -> new RuntimeException("Chat room not found: " + uuid));
-        Page<ChatMessageResponse> messages = chatService.getRoomMessages(room.getId(), pageable)
+            @PathVariable String uuid,
+            @AuthenticationPrincipal User user,
+            @ParameterObject Pageable pageable) {
+        Page<ChatMessageResponse> messages = chatService
+                .getRoomMessages(uuid, user.getId(), isAdmin(user), pageable)
                 .map(ChatMessageResponse::from);
         return ApiResponse.success(messages, "Messages retrieved");
     }
@@ -81,8 +81,16 @@ public class ChatController {
 
     @Operation(summary = "Close a chat room", description = "Closes a chat room by its UUID")
     @PatchMapping("/rooms/{uuid}/close")
-    public ResponseEntity<ApiResponse<ChatRoomResponse>> closeRoom(@PathVariable String uuid) {
-        ChatRoom room = chatService.closeRoom(uuid);
+    public ResponseEntity<ApiResponse<ChatRoomResponse>> closeRoom(
+            @PathVariable String uuid,
+            @AuthenticationPrincipal User user) {
+        ChatRoom room = chatService.closeRoom(uuid, user.getId(), isAdmin(user));
         return ApiResponse.success(ChatRoomResponse.from(room), "Room closed");
+    }
+
+    private boolean isAdmin(User user) {
+        return user != null && user.getRole() != null
+                && ("ADMIN".equals(user.getRole().getRoleName())
+                    || "SUPER_ADMIN".equals(user.getRole().getRoleName()));
     }
 }

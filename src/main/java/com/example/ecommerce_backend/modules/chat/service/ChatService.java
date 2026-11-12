@@ -59,6 +59,16 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
+    public Page<ChatRoomResponse> getUserRoomResponses(Long userId, Pageable pageable) {
+        Page<ChatRoom> rooms = chatRoomRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        Map<Long, ChatMessage> lastMessages = chatMessageRepository.findLastMessageForEachRoom()
+                .stream()
+                .collect(Collectors.toMap(ChatMessage::getRoomId, Function.identity(), (a, b) -> a));
+        return rooms.map(room -> ChatRoomResponse.from(room, null, null, lastMessages.get(room.getId())));
+    }
+
+    @Transactional(readOnly = true)
+    @RequiresPermission("chatbot:write")
     public Page<ChatRoom> getOpenRooms(Pageable pageable) {
         return chatRoomRepository.findByStatusOrderByCreatedAtAsc("AWAITING_AGENT", pageable);
     }
@@ -95,6 +105,7 @@ public class ChatService {
     }
 
     @Transactional
+    @RequiresPermission("chatbot:write")
     public ChatRoom assignAgent(String roomUuid, Long agentId) {
         ChatRoom room = chatRoomRepository.findByUuid(roomUuid)
                 .orElseThrow(() -> new ChatRoomNotFoundException("Chat room not found: " + roomUuid));
@@ -114,6 +125,16 @@ public class ChatService {
 
     @Transactional
     public ChatRoom closeRoom(String roomUuid) {
+        return closeRoomInternal(roomUuid);
+    }
+
+    @Transactional
+    public ChatRoom closeRoom(String roomUuid, Long userId, boolean adminView) {
+        ChatRoom room = findAccessibleRoom(roomUuid, userId, adminView);
+        return closeRoomInternal(room.getUuid());
+    }
+
+    private ChatRoom closeRoomInternal(String roomUuid) {
         ChatRoom room = chatRoomRepository.findByUuid(roomUuid)
                 .orElseThrow(() -> new ChatRoomNotFoundException("Chat room not found: " + roomUuid));
         room.setStatus("CLOSED");
@@ -138,5 +159,22 @@ public class ChatService {
     @Transactional(readOnly = true)
     public Page<ChatMessage> getRoomMessages(Long roomId, Pageable pageable) {
         return chatMessageRepository.findByRoomIdOrderByCreatedAtAsc(roomId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ChatMessage> getRoomMessages(String roomUuid, Long userId, boolean adminView, Pageable pageable) {
+        ChatRoom room = findAccessibleRoom(roomUuid, userId, adminView);
+        return chatMessageRepository.findByRoomIdOrderByCreatedAtAsc(room.getId(), pageable);
+    }
+
+    public ChatRoom findAccessibleRoom(String roomUuid, Long userId, boolean adminView) {
+        ChatRoom room = chatRoomRepository.findByUuid(roomUuid)
+                .orElseThrow(() -> new ChatRoomNotFoundException("Chat room not found: " + roomUuid));
+        boolean participant = userId != null
+                && (userId.equals(room.getUserId()) || userId.equals(room.getAgentId()));
+        if (!adminView && !participant) {
+            throw new ChatRoomNotFoundException("Chat room not found: " + roomUuid);
+        }
+        return room;
     }
 }
